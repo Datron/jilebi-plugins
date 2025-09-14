@@ -1,0 +1,102 @@
+
+name = "met-museum"
+version = "1.0.0"
+homepage = "https://github.com/mikechao/metmuseum-mcp"
+creator = "Met Museum MCP"
+contact = "support@metmuseum-mcp.com"
+
+[secrets]
+
+[resources]
+
+[prompts.explore-art-collection]
+name = "explore-art-collection"
+description = "Guide users through exploring the Met Museum art collection"
+arguments = [
+	{ name = "interest", description = "Area of artistic interest (e.g., paintings, sculptures, ancient art)", required = true },
+	{ name = "time_period", description = "Preferred time period or era", required = false },
+	{ name = "culture", description = "Cultural origin of interest", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are an expert museum curator helping visitors explore the Metropolitan Museum of Art collection. The user is interested in {{interest}}{{#if time_period}} from the {{time_period}} period{{/if}}{{#if culture}}, particularly focusing on {{culture}} art and culture{{/if}}." } },
+	{ role = "user", content = { type = "text", content = "Your role is to: 1) Help them discover relevant artworks using the Met Museum search tools, 2) Provide context and educational information about the pieces, 3) Suggest related works or themes they might enjoy, 4) Use the available tools to search, retrieve, and display artwork information, 5) Make the experience engaging and educational" } },
+	{ role = "assistant", content = { type = "text", content = "I'll help you explore the Metropolitan Museum of Art collection focusing on {{interest}}{{#if time_period}} from the {{time_period}} period{{/if}}{{#if culture}} with emphasis on {{culture}} art{{/if}}. Let me start by understanding the museum's organization and then search for relevant artworks that match your interests." } },
+]
+
+[prompts.art-discovery]
+name = "art-discovery"
+description = "Help users discover interesting artworks based on their preferences"
+arguments = [
+	{ name = "mood", description = "Desired mood or theme (e.g., peaceful, dramatic, colorful)", required = true },
+	{ name = "medium", description = "Preferred artistic medium", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are an art discovery specialist at the Metropolitan Museum of Art. The user is looking for artworks that evoke a {{mood}} feeling or atmosphere{{#if medium}}, particularly in works created using {{medium}}{{/if}}." } },
+	{ role = "user", content = { type = "text", content = "Your mission is to: 1) Search the Met's collection for artworks that match their mood and preferences, 2) Present a curated selection of 3-5 pieces that capture the desired feeling, 3) Explain why each piece fits their criteria, 4) Provide rich context about the artists, techniques, and historical background, 5) Show images when available to create a visual experience" } },
+	{ role = "assistant", content = { type = "text", content = "I'll help you discover artworks that capture a {{mood}} feeling{{#if medium}} in {{medium}}{{/if}}. Let me search the Metropolitan Museum's collection for pieces that match your aesthetic preferences and present them with detailed context and imagery." } },
+]
+
+[prompts.museum-educator]
+name = "museum-educator"
+description = "Act as a museum educator to provide educational information about artworks"
+arguments = [
+	{ name = "age_group", description = "Target age group (e.g., children, teenagers, adults)", required = true },
+	{ name = "learning_focus", description = "Educational focus area", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are an experienced museum educator at the Metropolitan Museum of Art, specializing in making art accessible and engaging for {{age_group}}{{#if learning_focus}} with a focus on {{learning_focus}}{{/if}}." } },
+	{ role = "user", content = { type = "text", content = "Adapt your teaching style for {{age_group}}: use age-appropriate language, ask engaging questions, focus on relevant aspects, and make connections to their experiences. Use the Met Museum tools to select and present artworks that align with your educational goals." } },
+	{ role = "assistant", content = { type = "text", content = "I'm excited to be your museum educator guide for {{age_group}}{{#if learning_focus}} focusing on {{learning_focus}}{{/if}}! Let me explore the Met's collection to find perfect artworks for our educational journey and present them in an engaging, age-appropriate way." } },
+]
+
+[tools.list-departments]
+name = "list-departments"
+description = "List all departments in the Metropolitan Museum of Art"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "listDepartments"
+
+[tools.list-departments.permissions]
+hosts = ["https://collectionapi.metmuseum.org"]
+
+[tools.list-departments.annotations]
+title = "List Met Museum Departments"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-museum-objects]
+name = "search-museum-objects"
+description = "Search for objects in the Met Museum collection with various filters"
+input_schema = { type = "object", properties = { q = { type = "string", description = "Search query for objects" }, hasImages = { type = "boolean", description = "Filter for objects with images" }, title = { type = "boolean", description = "Search by title only" }, departmentId = { type = "number", description = "Filter by department ID" } }, required = [
+	"q",
+] }
+function = "searchMuseumObjects"
+
+[tools.search-museum-objects.permissions]
+hosts = ["https://collectionapi.metmuseum.org"]
+
+[tools.search-museum-objects.annotations]
+title = "Search Museum Objects"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-museum-object]
+name = "get-museum-object"
+description = "Get detailed information about a specific museum object by ID"
+input_schema = { type = "object", properties = { objectId = { type = "number", description = "The ID of the museum object" }, returnImage = { type = "boolean", description = "Whether to include object images" } }, required = [
+	"objectId",
+] }
+function = "getMuseumObject"
+
+[tools.get-museum-object.permissions]
+hosts = ["https://collectionapi.metmuseum.org"]
+
+[tools.get-museum-object.annotations]
+title = "Get Museum Object"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

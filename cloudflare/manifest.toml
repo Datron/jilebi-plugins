@@ -1,0 +1,333 @@
+
+name = "cloudflare"
+version = "1.0.0"
+homepage = "https://github.com/cloudflare/mcp-server-cloudflare"
+creator = "Cloudflare"
+contact = "support@cloudflare.com"
+
+[env]
+CLOUDFLARE_ACCOUNT_ID = { schema = { type = "string", description = "Cloudflare Account ID to use for API calls" }, default = "" }
+
+[secrets]
+CLOUDFLARE_API_TOKEN = { schema = { type = "string" } }
+
+[resources]
+
+[prompts.workers-prompt-full]
+name = "workers-prompt-full"
+description = "Detailed prompt for generating Cloudflare Workers code from developers.cloudflare.com"
+arguments = []
+messages = [
+	{ role = "user", content = { type = "text", content = "You are an expert Cloudflare Workers developer. Use the comprehensive developer platform documentation to generate optimized, production-ready Workers code following best practices for performance, security, and maintainability." } },
+]
+
+[prompts.cloudflare-optimization]
+name = "cloudflare-optimization"
+description = "Get recommendations for optimizing Cloudflare configuration and performance"
+arguments = [
+	{ name = "service", description = "Cloudflare service to optimize (dns, workers, security, etc.)", required = false },
+	{ name = "focus", description = "Specific area to focus on (performance, security, cost, etc.)", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "Analyze the current Cloudflare configuration{{#if service}} for {{service}}{{/if}}{{#if focus}} focusing on {{focus}}{{/if}} and provide specific optimization recommendations with actionable steps." } },
+]
+
+# AI Gateway Tools
+[tools.ai-gateway-list-gateways]
+name = "ai-gateway-list-gateways"
+description = "List AI Gateway instances in your Cloudflare account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number for pagination" }, per_page = { type = "number", description = "Number of results per page" } }, required = [
+] }
+function = "ai_gateway_list_gateways"
+
+[tools.ai-gateway-get-gateway]
+name = "ai-gateway-get-gateway"
+description = "Get details of a specific AI Gateway"
+input_schema = { type = "object", properties = { gateway_id = { type = "string", description = "Gateway ID to retrieve" } }, required = [
+	"gateway_id",
+] }
+function = "ai_gateway_get_gateway"
+
+[tools.ai-gateway-list-logs]
+name = "ai-gateway-list-logs"
+description = "List AI Gateway logs for analysis"
+input_schema = { type = "object", properties = { gateway_id = { type = "string", description = "Gateway ID" }, page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" }, start_time = { type = "string", description = "Start time (ISO 8601)" }, end_time = { type = "string", description = "End time (ISO 8601)" } }, required = [
+	"gateway_id",
+] }
+function = "ai_gateway_list_logs"
+
+# AutoRAG Tools
+[tools.autorag-list-instances]
+name = "autorag-list-instances"
+description = "List AutoRAG instances in your account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" } }, required = [
+] }
+function = "autorag_list_instances"
+
+[tools.autorag-search-documents]
+name = "autorag-search-documents"
+description = "Search documents in an AutoRAG instance"
+input_schema = { type = "object", properties = { autorag_id = { type = "string", description = "AutoRAG instance ID" }, query = { type = "string", description = "Search query" }, limit = { type = "number", description = "Number of results to return" } }, required = [
+	"autorag_id",
+	"query",
+] }
+function = "autorag_search_documents"
+
+# Browser Rendering Tools
+[tools.browser-get-html]
+name = "browser-get-html"
+description = "Get HTML content of a webpage using Cloudflare Browser Rendering"
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL to fetch HTML content from" }, wait_for = { type = "string", description = "CSS selector to wait for before capturing" } }, required = [
+	"url",
+] }
+function = "browser_get_html"
+
+[tools.browser-get-markdown]
+name = "browser-get-markdown"
+description = "Get webpage content converted to Markdown format"
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL to convert to Markdown" }, wait_for = { type = "string", description = "CSS selector to wait for before capturing" } }, required = [
+	"url",
+] }
+function = "browser_get_markdown"
+
+[tools.browser-screenshot]
+name = "browser-screenshot"
+description = "Take a screenshot of a webpage"
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL to screenshot" }, viewport_width = { type = "number", description = "Viewport width in pixels" }, viewport_height = { type = "number", description = "Viewport height in pixels" }, wait_for = { type = "string", description = "CSS selector to wait for before capturing" } }, required = [
+	"url",
+] }
+function = "browser_screenshot"
+
+# DNS Analytics Tools
+[tools.dns-analytics-query]
+name = "dns-analytics-query"
+description = "Query DNS analytics data"
+input_schema = { type = "object", properties = { zone_id = { type = "string", description = "Zone ID to query" }, start_time = { type = "string", description = "Start time (ISO 8601)" }, end_time = { type = "string", description = "End time (ISO 8601)" }, dimensions = { type = "array", items = { type = "string" }, description = "Dimensions to group by" }, metrics = { type = "array", items = { type = "string" }, description = "Metrics to retrieve" } }, required = [
+	"zone_id",
+] }
+function = "dns_analytics_query"
+
+# GraphQL Tools
+[tools.graphql-query]
+name = "graphql-query"
+description = "Execute GraphQL queries against Cloudflare Analytics API"
+input_schema = { type = "object", properties = { query = { type = "string", description = "GraphQL query to execute" }, variables = { type = "object", description = "Variables for the GraphQL query" } }, required = [
+	"query",
+] }
+function = "graphql_query"
+
+# Radar Tools
+[tools.radar-list-asns]
+name = "radar-list-asns"
+description = "List Autonomous Systems (ASNs) from Radar data"
+input_schema = { type = "object", properties = { limit = { type = "number", description = "Number of results to return" }, offset = { type = "number", description = "Offset for pagination" }, location = { type = "string", description = "Location filter" }, orderBy = { type = "string", description = "Order results by field" } }, required = [
+] }
+function = "radar_list_asns"
+
+[tools.radar-get-asn-details]
+name = "radar-get-asn-details"
+description = "Get details of a specific ASN"
+input_schema = { type = "object", properties = { asn = { type = "number", description = "ASN number to get details for" } }, required = [
+	"asn",
+] }
+function = "radar_get_asn_details"
+
+[tools.radar-url-scanner]
+name = "radar-url-scanner"
+description = "Scan URL for security threats using Radar"
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL to scan for security threats" } }, required = [
+	"url",
+] }
+function = "radar_url_scanner"
+
+[tools.radar-traffic-insights]
+name = "radar-traffic-insights"
+description = "Get global internet traffic insights from Radar"
+input_schema = { type = "object", properties = { start_time = { type = "string", description = "Start time (ISO 8601)" }, end_time = { type = "string", description = "End time (ISO 8601)" }, location = { type = "string", description = "Location filter" }, dimension = { type = "string", description = "Dimension to analyze" } }, required = [
+] }
+function = "radar_traffic_insights"
+
+# Workers Tools
+[tools.workers-list-scripts]
+name = "workers-list-scripts"
+description = "List Workers scripts in your account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" } }, required = [
+] }
+function = "workers_list_scripts"
+
+[tools.workers-get-script]
+name = "workers-get-script"
+description = "Get details of a specific Workers script"
+input_schema = { type = "object", properties = { script_name = { type = "string", description = "Name of the Workers script" } }, required = [
+	"script_name",
+] }
+function = "workers_get_script"
+
+[tools.workers-observability-query]
+name = "workers-observability-query"
+description = "Query Workers observability data for analytics and monitoring"
+input_schema = { type = "object", properties = { script_name = { type = "string", description = "Workers script name" }, start_time = { type = "string", description = "Start time (ISO 8601)" }, end_time = { type = "string", description = "End time (ISO 8601)" }, metrics = { type = "array", items = { type = "string" }, description = "Metrics to retrieve" }, filters = { type = "object", description = "Additional filters" } }, required = [
+	"script_name",
+] }
+function = "workers_observability_query"
+
+# KV Tools
+[tools.kv-list-namespaces]
+name = "kv-list-namespaces"
+description = "List KV namespaces in your account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" } }, required = [
+] }
+function = "kv_list_namespaces"
+
+[tools.kv-list-keys]
+name = "kv-list-keys"
+description = "List keys in a KV namespace"
+input_schema = { type = "object", properties = { namespace_id = { type = "string", description = "KV namespace ID" }, prefix = { type = "string", description = "Key prefix filter" }, limit = { type = "number", description = "Maximum number of keys to return" }, cursor = { type = "string", description = "Cursor for pagination" } }, required = [
+	"namespace_id",
+] }
+function = "kv_list_keys"
+
+[tools.kv-get-value]
+name = "kv-get-value"
+description = "Get value from KV store"
+input_schema = { type = "object", properties = { namespace_id = { type = "string", description = "KV namespace ID" }, key = { type = "string", description = "Key to retrieve" } }, required = [
+	"namespace_id",
+	"key",
+] }
+function = "kv_get_value"
+
+# R2 Tools
+[tools.r2-list-buckets]
+name = "r2-list-buckets"
+description = "List R2 storage buckets"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" } }, required = [
+] }
+function = "r2_list_buckets"
+
+[tools.r2-list-objects]
+name = "r2-list-objects"
+description = "List objects in an R2 bucket"
+input_schema = { type = "object", properties = { bucket_name = { type = "string", description = "R2 bucket name" }, prefix = { type = "string", description = "Object prefix filter" }, max_keys = { type = "number", description = "Maximum number of objects to return" } }, required = [
+	"bucket_name",
+] }
+function = "r2_list_objects"
+
+# D1 Tools
+[tools.d1-list-databases]
+name = "d1-list-databases"
+description = "List D1 databases in your account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" } }, required = [
+] }
+function = "d1_list_databases"
+
+[tools.d1-query-database]
+name = "d1-query-database"
+description = "Execute SQL query on D1 database"
+input_schema = { type = "object", properties = { database_id = { type = "string", description = "D1 database ID" }, sql = { type = "string", description = "SQL query to execute" }, params = { type = "array", items = { type = "string" }, description = "Query parameters" } }, required = [
+	"database_id",
+	"sql",
+] }
+function = "d1_query_database"
+
+# Security Tools
+[tools.security-casb-findings]
+name = "security-casb-findings"
+description = "Get CASB security findings for SaaS applications"
+input_schema = { type = "object", properties = { app_type = { type = "string", description = "SaaS application type" }, severity = { type = "string", description = "Finding severity filter" }, page = { type = "number", description = "Page number" } }, required = [
+] }
+function = "security_casb_findings"
+
+[tools.security-dex-analysis]
+name = "security-dex-analysis"
+description = "Get Digital Experience Monitoring insights for applications"
+input_schema = { type = "object", properties = { application = { type = "string", description = "Application name or ID" }, start_time = { type = "string", description = "Start time (ISO 8601)" }, end_time = { type = "string", description = "End time (ISO 8601)" }, metrics = { type = "array", items = { type = "string" }, description = "Metrics to analyze" } }, required = [
+] }
+function = "security_dex_analysis"
+
+# Account Management Tools
+[tools.account-list]
+name = "account-list"
+description = "List Cloudflare accounts you have access to"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "account_list"
+
+[tools.account-set-active]
+name = "account-set-active"
+description = "Set the active account for subsequent API calls"
+input_schema = { type = "object", properties = { account_id = { type = "string", description = "Account ID to set as active" } }, required = [
+	"account_id",
+] }
+function = "account_set_active"
+
+[tools.zones-list]
+name = "zones-list"
+description = "List zones (domains) in your Cloudflare account"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number" }, per_page = { type = "number", description = "Results per page" }, name = { type = "string", description = "Zone name filter" } }, required = [
+] }
+function = "zones_list"
+
+# Logpush Tools
+[tools.logpush-list-jobs]
+name = "logpush-list-jobs"
+description = "List Logpush jobs and their health status"
+input_schema = { type = "object", properties = { zone_id = { type = "string", description = "Zone ID to filter jobs" } }, required = [
+] }
+function = "logpush_list_jobs"
+
+[tools.logpush-job-summary]
+name = "logpush-job-summary"
+description = "Get health summary for Logpush jobs"
+input_schema = { type = "object", properties = { job_id = { type = "number", description = "Logpush job ID" } }, required = [
+	"job_id",
+] }
+function = "logpush_job_summary"
+
+# Documentation Tools
+[tools.docs-search]
+name = "docs-search"
+description = "Search Cloudflare documentation using Vectorize"
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search query for documentation" }, limit = { type = "number", description = "Number of results to return" } }, required = [
+	"query",
+] }
+function = "docs_search"
+
+[tools.docs-search.annotations]
+title = "Search Documentation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.docs-search.permissions]
+hosts = ["https://developers.cloudflare.com"]
+
+# All tools permissions and annotations
+[tools.ai-gateway-list-gateways.annotations]
+title = "List AI Gateways"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.ai-gateway-list-gateways.permissions]
+hosts = ["https://api.cloudflare.com"]
+
+[tools.browser-get-html.annotations]
+title = "Get HTML Content"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.browser-get-html.permissions]
+hosts = ["https://api.cloudflare.com"]
+
+[tools.workers-list-scripts.annotations]
+title = "List Workers Scripts"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.workers-list-scripts.permissions]
+hosts = ["https://api.cloudflare.com"]

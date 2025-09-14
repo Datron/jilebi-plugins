@@ -1,0 +1,67 @@
+
+name = "rust-docs"
+version = "1.0.0"
+homepage = "https://github.com/Govcraft/rust-docs-mcp-server"
+creator = "Govcraft"
+contact = "support@govcraft.ai"
+
+
+[resources]
+
+[prompts.rust-documentation-guide]
+name = "rust-documentation-guide"
+description = "Get guidance on how to use Rust documentation and discover crate APIs"
+arguments = [
+	{ name = "crate_name", description = "Name of the Rust crate to focus on", required = false },
+	{ name = "topic", description = "Specific topic or API area to explore", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are a Rust documentation expert helping users understand{{#if crate_name}} the '{{crate_name}}' crate{{else}} Rust crate documentation{{/if}}{{#if topic}} with focus on {{topic}}{{/if}}. Use the rust-docs tools to query specific documentation and provide comprehensive guidance." } },
+	{ role = "user", content = { type = "text", content = "Help the user discover APIs, understand usage patterns, find examples, and navigate the documentation effectively. Always provide practical code examples when possible." } },
+]
+
+[prompts.rust-best-practices]
+name = "rust-best-practices"
+description = "Get best practices and idiomatic usage patterns for Rust crates"
+arguments = [
+	{ name = "crate_name", description = "Name of the Rust crate", required = true },
+	{ name = "use_case", description = "Specific use case or scenario", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are a Rust expert providing best practices for using the '{{crate_name}}' crate{{#if use_case}} in the context of {{use_case}}{{/if}}. Use the rust-docs tools to gather current documentation information." } },
+	{ role = "user", content = { type = "text", content = "Focus on idiomatic Rust patterns, common pitfalls to avoid, performance considerations, and real-world usage examples. Provide complete, runnable code examples whenever possible." } },
+]
+
+[tools.get-crate-info]
+name = "get-crate-info"
+description = "Get basic information about a Rust crate including available versions and features"
+input_schema = { type = "object", properties = { crate_name = { type = "string", description = "The name of the Rust crate" } }, required = [
+	"crate_name",
+] }
+function = "get_crate_info"
+[tools.get-crate-info.permissions]
+hosts = ["https://crates.io"]
+
+[tools.get-crate-info.annotations]
+title = "Get Crate Information"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-rust-docs]
+name = "search-rust-docs"
+description = "Search across multiple Rust crates for documentation and examples"
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search query for finding relevant crates and documentation" }, categories = { type = "array", items = { type = "string" }, description = "Optional categories to filter by (e.g., 'web', 'async', 'serialization')" }, limit = { type = "number", description = "Maximum number of results to return (default: 10)", default = 10 } }, required = [
+	"query",
+] }
+function = "search_rust_docs"
+[tools.search-rust-docs.permissions]
+hosts = ["https://crates.io", "https://docs.rs"]
+
+[tools.search-rust-docs.annotations]
+title = "Search Rust Documentation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

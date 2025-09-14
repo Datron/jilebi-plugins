@@ -1,0 +1,35 @@
+{
+	"name": "met-museum",
+	"version": "1.0.0",
+	"description": "A Jilebi plugin for accessing the Metropolitan Museum of Art collection",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"build": "rollup -c",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"jilebi",
+		"plugin",
+		"met-museum",
+		"art",
+		"museum",
+		"collection"
+	],
+	"author": "Met Museum MCP",
+	"license": "ISC",
+	"devDependencies": {
+		"@jilebi/types": "^1.0.0",
+		"@rollup/plugin-commonjs": "^28.0.1",
+		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-typescript": "^12.1.1",
+		"@types/node": "^22.10.1",
+		"rollup": "^4.28.1",
+		"tslib": "^2.8.1",
+		"typescript": "^5.8.3"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
+}

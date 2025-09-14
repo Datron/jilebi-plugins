@@ -1,0 +1,200 @@
+
+name = "anilist"
+version = "1.0.0"
+homepage = "https://anilist.co"
+creator = "AniList MCP"
+contact = "support@anilist.co"
+
+[secrets]
+
+[resources]
+
+[prompts.anime-recommendation]
+name = "anime-recommendation"
+description = "Get personalized anime recommendations based on user preferences"
+arguments = [
+	{ name = "genres", description = "Preferred genres (e.g., Action, Romance, Comedy)", required = false },
+	{ name = "year", description = "Preferred year or year range", required = false },
+	{ name = "format", description = "Format preference (TV, MOVIE, OVA, etc.)", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are an anime expert helping users discover new anime. The user is looking for recommendations{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if year}} from {{year}}{{/if}}{{#if format}} in {{format}} format{{/if}}." } },
+	{ role = "user", content = { type = "text", content = "Use the AniList tools to search for and recommend anime that match their preferences. Provide detailed information about each recommendation including plot summaries, ratings, and why they might enjoy it." } },
+]
+
+[prompts.manga-discovery]
+name = "manga-discovery"
+description = "Help users discover manga based on their reading preferences"
+arguments = [
+	{ name = "genres", description = "Preferred manga genres", required = false },
+	{ name = "status", description = "Publication status preference", required = false },
+]
+messages = [
+	{ role = "user", content = { type = "text", content = "You are a manga expert helping users find new manga to read{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if status}} with {{status}} publication status{{/if}}." } },
+]
+
+[tools.search-anime]
+name = "search-anime"
+description = "Search for anime on AniList"
+input_schema = { type = "object", properties = { search = { type = "string", description = "Search term for anime title" }, genre = { type = "string", description = "Genre filter" }, year = { type = "number", description = "Release year filter" }, format = { type = "string", enum = [
+	"TV",
+	"TV_SHORT",
+	"MOVIE",
+	"SPECIAL",
+	"OVA",
+	"ONA",
+	"MUSIC",
+], description = "Anime format filter" }, status = { type = "string", enum = [
+	"FINISHED",
+	"RELEASING",
+	"NOT_YET_RELEASED",
+	"CANCELLED",
+	"HIATUS",
+], description = "Release status filter" }, page = { type = "number", description = "Page number for pagination", default = 1 }, perPage = { type = "number", description = "Number of results per page (max 50)", default = 10 } }, required = [
+	"search",
+] }
+function = "searchAnime"
+
+[tools.search-anime.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.search-anime.annotations]
+title = "Search Anime"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-manga]
+name = "search-manga"
+description = "Search for manga on AniList"
+input_schema = { type = "object", properties = { search = { type = "string", description = "Search term for manga title" }, genre = { type = "string", description = "Genre filter" }, year = { type = "number", description = "Release year filter" }, format = { type = "string", enum = [
+	"MANGA",
+	"NOVEL",
+	"ONE_SHOT",
+], description = "Manga format filter" }, status = { type = "string", enum = [
+	"FINISHED",
+	"RELEASING",
+	"NOT_YET_RELEASED",
+	"CANCELLED",
+	"HIATUS",
+], description = "Publication status filter" }, page = { type = "number", description = "Page number for pagination", default = 1 }, perPage = { type = "number", description = "Number of results per page (max 50)", default = 10 } }, required = [
+	"search",
+] }
+function = "searchManga"
+
+[tools.search-manga.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.search-manga.annotations]
+title = "Search Manga"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-anime-details]
+name = "get-anime-details"
+description = "Get detailed information about a specific anime by ID"
+input_schema = { type = "object", properties = { id = { type = "number", description = "AniList anime ID" } }, required = [
+	"id",
+] }
+function = "getAnimeDetails"
+
+[tools.get-anime-details.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.get-anime-details.annotations]
+title = "Get Anime Details"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-manga-details]
+name = "get-manga-details"
+description = "Get detailed information about a specific manga by ID"
+input_schema = { type = "object", properties = { id = { type = "number", description = "AniList manga ID" } }, required = [
+	"id",
+] }
+function = "getMangaDetails"
+
+[tools.get-manga-details.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.get-manga-details.annotations]
+title = "Get Manga Details"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-character-details]
+name = "get-character-details"
+description = "Get detailed information about a specific character by ID"
+input_schema = { type = "object", properties = { id = { type = "number", description = "AniList character ID" } }, required = [
+	"id",
+] }
+function = "getCharacterDetails"
+
+[tools.get-character-details.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.get-character-details.annotations]
+title = "Get Character Details"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-characters]
+name = "search-characters"
+description = "Search for anime/manga characters on AniList"
+input_schema = { type = "object", properties = { search = { type = "string", description = "Search term for character name" }, page = { type = "number", description = "Page number for pagination", default = 1 }, perPage = { type = "number", description = "Number of results per page (max 50)", default = 10 } }, required = [
+	"search",
+] }
+function = "searchCharacters"
+
+[tools.search-characters.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.search-characters.annotations]
+title = "Search Characters"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-trending-anime]
+name = "get-trending-anime"
+description = "Get currently trending anime"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number for pagination", default = 1 }, perPage = { type = "number", description = "Number of results per page (max 50)", default = 10 } }, required = [
+] }
+function = "getTrendingAnime"
+
+[tools.get-trending-anime.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.get-trending-anime.annotations]
+title = "Get Trending Anime"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-trending-manga]
+name = "get-trending-manga"
+description = "Get currently trending manga"
+input_schema = { type = "object", properties = { page = { type = "number", description = "Page number for pagination", default = 1 }, perPage = { type = "number", description = "Number of results per page (max 50)", default = 10 } }, required = [
+] }
+function = "getTrendingManga"
+
+[tools.get-trending-manga.permissions]
+hosts = ["https://graphql.anilist.co"]
+
+[tools.get-trending-manga.annotations]
+title = "Get Trending Manga"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

@@ -1,0 +1,95 @@
+name: Create jilebi release
+
+on: workflow_dispatch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-plugins:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Build and package plugins
+        run: |
+          mkdir -p bin
+
+          # Get plugins from npm workspaces
+          echo "Discovering plugins from npm workspaces..."
+          plugins=($(npm query '.workspace' | jq -r '.[].location' | sort))
+
+          echo "Found plugins: ${plugins[@]}"
+
+          # Build and package each plugin
+          for plugin in "${plugins[@]}"; do
+            echo "Building plugin: $plugin"
+            
+            # Skip test plugin
+            if [ "$plugin" == "test" ]; then
+              echo "Skipping test plugin..."
+              continue
+            fi
+            
+            # Check if plugin directory exists
+            if [ ! -d "$plugin" ]; then
+              echo "Plugin directory $plugin not found, skipping..."
+              continue
+            fi
+            
+            cd "$plugin"
+            
+            # Build the plugin if it has a build script
+            if npm run build --silent 2>/dev/null; then
+              echo "Built $plugin successfully"
+            else
+              echo "No build script or build failed for $plugin, using existing files"
+            fi
+            
+            # Create temporary directory for packaging
+            mkdir -p "../temp_$plugin"
+            
+            # Copy required files
+            cp index.js "../temp_$plugin/" 2>/dev/null || echo "index.js not found for $plugin"
+            cp manifest.toml "../temp_$plugin/" 2>/dev/null || echo "manifest.toml not found for $plugin"
+            cp README.md "../temp_$plugin/" 2>/dev/null || echo "README.md not found for $plugin (optional)"
+            
+            # Create zip file
+            cd "../temp_$plugin"
+            zip -r "../bin/${plugin}.zip" . -x ".*"
+            
+            # Clean up
+            cd ..
+            rm -rf "temp_$plugin"
+            
+            echo "Packaged $plugin.zip"
+          done
+
+          echo "Generated plugin packages:"
+          ls -la bin/
+
+      - uses: ryand56/r2-upload-action@latest
+        with:
+          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+          r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          r2-bucket: jilebi
+          source-dir: bin
+          destination-dir: plugins

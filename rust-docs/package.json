@@ -1,0 +1,32 @@
+{
+	"name": "rust-docs",
+	"version": "1.0.0",
+	"description": "Jilebi plugin for querying Rust crate documentation using semantic search and LLM summarization",
+	"main": "index.js",
+	"keywords": [
+		"rust",
+		"documentation",
+		"crates",
+		"api",
+		"semantic-search",
+		"llm"
+	],
+	"author": "Govcraft",
+	"license": "MIT",
+	"homepage": "https://github.com/Govcraft/rust-docs-mcp-server",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Govcraft/rust-docs-mcp-server.git"
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"typescript": "^5.8.3",
+		"@jilebi/types": "^1.0.0",
+		"@types/node": "^18.0.0"
+	}
+}
