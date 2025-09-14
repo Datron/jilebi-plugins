@@ -48,7 +48,7 @@ function = "function_name"
 [tools.tool-name]
 name = "tool-name"
 description = "What this tool does"
-input_schema = { type = "object", properties = { ... }, required = [...] }
+input_schema = { type = "object", properties = { ... }, required = [<keys>] }
 function = "function_name"
 [tools.tool-name.annotations]
 title = "Tool Display Title"
