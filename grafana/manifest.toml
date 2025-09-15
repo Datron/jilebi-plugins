@@ -1,0 +1,737 @@
+name = "grafana"
+version = "1.0.0"
+homepage = "https://github.com/grafana/mcp-grafana"
+creator = "Grafana Labs"
+contact = "https://github.com/grafana/mcp-grafana/issues"
+
+[env]
+GRAFANA_URL = { schema = { type = "string" }, default = "http://localhost:3000" }
+GRAFANA_USERNAME = { schema = { type = "string" } }
+GRAFANA_PASSWORD = { schema = { type = "string" } }
+
+[secrets]
+GRAFANA_SERVICE_ACCOUNT_TOKEN = { schema = { type = "string" } }
+GRAFANA_API_KEY = { schema = { type = "string" } }
+
+[resources]
+
+[prompts]
+
+[tools.get-dashboard-by-uid]
+name = "get-dashboard-by-uid"
+description = "Get a dashboard by its UID"
+function = "get_dashboard_by_uid"
+
+[tools.get-dashboard-by-uid.input_schema]
+type = "object"
+required = ["uid"]
+
+[tools.get-dashboard-by-uid.input_schema.properties.uid]
+type = "string"
+description = "The UID of the dashboard"
+
+[tools.get-dashboard-by-uid.annotations]
+title = "Get dashboard by UID"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-dashboard-by-uid.permissions]
+hosts = ["user_defined"]
+
+[tools.update-dashboard]
+name = "update-dashboard"
+description = "Update or create a dashboard using either full JSON or patch operations"
+function = "update_dashboard"
+
+[tools.update-dashboard.input_schema]
+type = "object"
+
+[tools.update-dashboard.input_schema.properties.dashboard]
+type = "object"
+description = "The full dashboard JSON"
+
+[tools.update-dashboard.input_schema.properties.uid]
+type = "string"
+description = "UID of existing dashboard to update"
+
+[tools.update-dashboard.input_schema.properties.folderUid]
+type = "string"
+description = "The UID of the dashboard's folder"
+
+[tools.update-dashboard.input_schema.properties.message]
+type = "string"
+description = "Set a commit message for the version history"
+
+[tools.update-dashboard.input_schema.properties.overwrite]
+type = "boolean"
+description = "Overwrite the dashboard if it exists"
+
+[tools.update-dashboard.annotations]
+title = "Update or create dashboard"
+destructive_hint = false
+
+[tools.update-dashboard.permissions]
+hosts = ["user_defined"]
+
+[tools.search-dashboards]
+name = "search-dashboards"
+description = "Search for dashboards"
+function = "search_dashboards"
+
+[tools.search-dashboards.input_schema]
+type = "object"
+
+[tools.search-dashboards.input_schema.properties.query]
+type = "string"
+description = "Query string to search for in dashboard titles"
+
+[tools.search-dashboards.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.search-dashboards.annotations]
+title = "Search dashboards"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.search-dashboards.permissions]
+hosts = ["user_defined"]
+
+[tools.get-datasource-by-uid]
+name = "get-datasource-by-uid"
+description = "Get a datasource by UID"
+function = "get_datasource_by_uid"
+
+[tools.get-datasource-by-uid.input_schema]
+type = "object"
+required = ["uid"]
+
+[tools.get-datasource-by-uid.input_schema.properties.uid]
+type = "string"
+description = "The UID of the datasource"
+
+[tools.get-datasource-by-uid.annotations]
+title = "Get datasource by UID"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-datasource-by-uid.permissions]
+hosts = ["user_defined"]
+
+[tools.get-datasource-by-name]
+name = "get-datasource-by-name"
+description = "Get a datasource by name"
+function = "get_datasource_by_name"
+
+[tools.get-datasource-by-name.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.get-datasource-by-name.input_schema.properties.name]
+type = "string"
+description = "The name of the datasource"
+
+[tools.get-datasource-by-name.annotations]
+title = "Get datasource by name"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-datasource-by-name.permissions]
+hosts = ["user_defined"]
+
+[tools.query-prometheus]
+name = "query-prometheus"
+description = "Execute a query against a Prometheus datasource using PromQL"
+function = "query_prometheus"
+
+[tools.query-prometheus.input_schema]
+type = "object"
+required = ["datasourceUid", "query"]
+
+[tools.query-prometheus.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Prometheus datasource"
+
+[tools.query-prometheus.input_schema.properties.query]
+type = "string"
+description = "The PromQL query expression"
+
+[tools.query-prometheus.input_schema.properties.queryType]
+type = "string"
+description = "Type of query to execute (instant or range)"
+
+[tools.query-prometheus.input_schema.properties.startTime]
+type = "string"
+description = "Start time in RFC3339 format or relative (e.g., 'now-1h')"
+
+[tools.query-prometheus.input_schema.properties.endTime]
+type = "string"
+description = "End time in RFC3339 format or relative"
+
+[tools.query-prometheus.input_schema.properties.stepSeconds]
+type = "integer"
+description = "Step size in seconds for range queries"
+
+[tools.query-prometheus.annotations]
+title = "Query Prometheus metrics"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.query-prometheus.permissions]
+hosts = ["user_defined"]
+
+[tools.list-prometheus-metric-metadata]
+name = "list-prometheus-metric-metadata"
+description = "List Prometheus metric metadata"
+function = "list_prometheus_metric_metadata"
+
+[tools.list-prometheus-metric-metadata.input_schema]
+type = "object"
+required = ["datasourceUid"]
+
+[tools.list-prometheus-metric-metadata.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Prometheus datasource"
+
+[tools.list-prometheus-metric-metadata.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of metrics to return"
+
+[tools.list-prometheus-metric-metadata.annotations]
+title = "List Prometheus metric metadata"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-prometheus-metric-metadata.permissions]
+hosts = ["user_defined"]
+
+[tools.list-prometheus-metric-names]
+name = "list-prometheus-metric-names"
+description = "List available Prometheus metric names"
+function = "list_prometheus_metric_names"
+
+[tools.list-prometheus-metric-names.input_schema]
+type = "object"
+required = ["datasourceUid"]
+
+[tools.list-prometheus-metric-names.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Prometheus datasource"
+
+[tools.list-prometheus-metric-names.input_schema.properties.regex]
+type = "string"
+description = "Regex pattern to filter metric names"
+
+[tools.list-prometheus-metric-names.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-prometheus-metric-names.annotations]
+title = "List Prometheus metric names"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-prometheus-metric-names.permissions]
+hosts = ["user_defined"]
+
+[tools.list-prometheus-label-names]
+name = "list-prometheus-label-names"
+description = "List Prometheus label names"
+function = "list_prometheus_label_names"
+
+[tools.list-prometheus-label-names.input_schema]
+type = "object"
+required = ["datasourceUid"]
+
+[tools.list-prometheus-label-names.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Prometheus datasource"
+
+[tools.list-prometheus-label-names.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.list-prometheus-label-names.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.list-prometheus-label-names.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-prometheus-label-names.annotations]
+title = "List Prometheus label names"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-prometheus-label-names.permissions]
+hosts = ["user_defined"]
+
+[tools.list-prometheus-label-values]
+name = "list-prometheus-label-values"
+description = "List values for a specific Prometheus label"
+function = "list_prometheus_label_values"
+
+[tools.list-prometheus-label-values.input_schema]
+type = "object"
+required = ["datasourceUid", "labelName"]
+
+[tools.list-prometheus-label-values.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Prometheus datasource"
+
+[tools.list-prometheus-label-values.input_schema.properties.labelName]
+type = "string"
+description = "The name of the label to query"
+
+[tools.list-prometheus-label-values.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.list-prometheus-label-values.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.list-prometheus-label-values.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-prometheus-label-values.annotations]
+title = "List Prometheus label values"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-prometheus-label-values.permissions]
+hosts = ["user_defined"]
+
+[tools.query-loki-logs]
+name = "query-loki-logs"
+description = "Execute a LogQL query against a Loki datasource to retrieve logs or metrics"
+function = "query_loki_logs"
+
+[tools.query-loki-logs.input_schema]
+type = "object"
+required = ["datasourceUid", "logql"]
+
+[tools.query-loki-logs.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Loki datasource"
+
+[tools.query-loki-logs.input_schema.properties.logql]
+type = "string"
+description = "The LogQL query expression"
+
+[tools.query-loki-logs.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of log entries to return"
+
+[tools.query-loki-logs.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.query-loki-logs.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.query-loki-logs.input_schema.properties.direction]
+type = "string"
+description = "Direction to scan logs (forward or backward)"
+
+[tools.query-loki-logs.annotations]
+title = "Query Loki logs"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.query-loki-logs.permissions]
+hosts = ["user_defined"]
+
+[tools.list-loki-label-names]
+name = "list-loki-label-names"
+description = "List all available label names in Loki logs"
+function = "list_loki_label_names"
+
+[tools.list-loki-label-names.input_schema]
+type = "object"
+required = ["datasourceUid"]
+
+[tools.list-loki-label-names.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Loki datasource"
+
+[tools.list-loki-label-names.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.list-loki-label-names.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.list-loki-label-names.annotations]
+title = "List Loki label names"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-loki-label-names.permissions]
+hosts = ["user_defined"]
+
+[tools.list-loki-label-values]
+name = "list-loki-label-values"
+description = "List values for a specific Loki label"
+function = "list_loki_label_values"
+
+[tools.list-loki-label-values.input_schema]
+type = "object"
+required = ["datasourceUid", "labelName"]
+
+[tools.list-loki-label-values.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Loki datasource"
+
+[tools.list-loki-label-values.input_schema.properties.labelName]
+type = "string"
+description = "The name of the label to query"
+
+[tools.list-loki-label-values.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.list-loki-label-values.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.list-loki-label-values.annotations]
+title = "List Loki label values"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-loki-label-values.permissions]
+hosts = ["user_defined"]
+
+[tools.query-loki-stats]
+name = "query-loki-stats"
+description = "Get statistics about log streams matching a LogQL selector"
+function = "query_loki_stats"
+
+[tools.query-loki-stats.input_schema]
+type = "object"
+required = ["datasourceUid", "logql"]
+
+[tools.query-loki-stats.input_schema.properties.datasourceUid]
+type = "string"
+description = "The UID of the Loki datasource"
+
+[tools.query-loki-stats.input_schema.properties.logql]
+type = "string"
+description = "The LogQL selector expression"
+
+[tools.query-loki-stats.input_schema.properties.startRfc3339]
+type = "string"
+description = "Start time in RFC3339 format"
+
+[tools.query-loki-stats.input_schema.properties.endRfc3339]
+type = "string"
+description = "End time in RFC3339 format"
+
+[tools.query-loki-stats.annotations]
+title = "Get Loki log statistics"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.query-loki-stats.permissions]
+hosts = ["user_defined"]
+
+[tools.list-alert-rules]
+name = "list-alert-rules"
+description = "List alert rules in Grafana"
+function = "list_alert_rules"
+
+[tools.list-alert-rules.input_schema]
+type = "object"
+
+[tools.list-alert-rules.input_schema.properties.folderUid]
+type = "string"
+description = "Filter by folder UID"
+
+[tools.list-alert-rules.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-alert-rules.annotations]
+title = "List alert rules"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-alert-rules.permissions]
+hosts = ["user_defined"]
+
+[tools.get-alert-rule-by-uid]
+name = "get-alert-rule-by-uid"
+description = "Get an alert rule by its UID"
+function = "get_alert_rule_by_uid"
+
+[tools.get-alert-rule-by-uid.input_schema]
+type = "object"
+required = ["uid"]
+
+[tools.get-alert-rule-by-uid.input_schema.properties.uid]
+type = "string"
+description = "The UID of the alert rule"
+
+[tools.get-alert-rule-by-uid.annotations]
+title = "Get alert rule by UID"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-alert-rule-by-uid.permissions]
+hosts = ["user_defined"]
+
+[tools.list-contact-points]
+name = "list-contact-points"
+description = "List notification contact points"
+function = "list_contact_points"
+
+[tools.list-contact-points.input_schema]
+type = "object"
+
+[tools.list-contact-points.input_schema.properties.name]
+type = "string"
+description = "Filter by contact point name (exact match)"
+
+[tools.list-contact-points.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-contact-points.annotations]
+title = "List notification contact points"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-contact-points.permissions]
+hosts = ["user_defined"]
+
+[tools.list-incidents]
+name = "list-incidents"
+description = "List incidents in Grafana Incident"
+function = "list_incidents"
+
+[tools.list-incidents.input_schema]
+type = "object"
+
+[tools.list-incidents.input_schema.properties.status]
+type = "string"
+description = "Filter by incident status"
+
+[tools.list-incidents.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-incidents.annotations]
+title = "List incidents"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-incidents.permissions]
+hosts = ["user_defined"]
+
+[tools.create-incident]
+name = "create-incident"
+description = "Create a new incident in Grafana Incident"
+function = "create_incident"
+
+[tools.create-incident.input_schema]
+type = "object"
+required = ["title"]
+
+[tools.create-incident.input_schema.properties.title]
+type = "string"
+description = "Title of the incident"
+
+[tools.create-incident.input_schema.properties.description]
+type = "string"
+description = "Description of the incident"
+
+[tools.create-incident.input_schema.properties.severity]
+type = "string"
+description = "Severity level of the incident"
+
+[tools.create-incident.annotations]
+title = "Create incident"
+destructive_hint = false
+
+[tools.create-incident.permissions]
+hosts = ["user_defined"]
+
+[tools.get-incident]
+name = "get-incident"
+description = "Get a single incident by ID"
+function = "get_incident"
+
+[tools.get-incident.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-incident.input_schema.properties.id]
+type = "string"
+description = "The ID of the incident"
+
+[tools.get-incident.annotations]
+title = "Get incident by ID"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-incident.permissions]
+hosts = ["user_defined"]
+
+[tools.add-activity-to-incident]
+name = "add-activity-to-incident"
+description = "Add an activity item to an incident"
+function = "add_activity_to_incident"
+
+[tools.add-activity-to-incident.input_schema]
+type = "object"
+required = ["id", "message"]
+
+[tools.add-activity-to-incident.input_schema.properties.id]
+type = "string"
+description = "The ID of the incident"
+
+[tools.add-activity-to-incident.input_schema.properties.message]
+type = "string"
+description = "The activity message"
+
+[tools.add-activity-to-incident.annotations]
+title = "Add activity to incident"
+destructive_hint = false
+
+[tools.add-activity-to-incident.permissions]
+hosts = ["user_defined"]
+
+[tools.list-oncall-schedules]
+name = "list-oncall-schedules"
+description = "List schedules from Grafana OnCall"
+function = "list_oncall_schedules"
+
+[tools.list-oncall-schedules.input_schema]
+type = "object"
+
+[tools.list-oncall-schedules.input_schema.properties.name]
+type = "string"
+description = "Filter by schedule name"
+
+[tools.list-oncall-schedules.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.list-oncall-schedules.annotations]
+title = "List OnCall schedules"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.list-oncall-schedules.permissions]
+hosts = ["user_defined"]
+
+[tools.get-oncall-shift]
+name = "get-oncall-shift"
+description = "Get details for a specific OnCall shift"
+function = "get_oncall_shift"
+
+[tools.get-oncall-shift.input_schema]
+type = "object"
+required = ["scheduleId", "shiftId"]
+
+[tools.get-oncall-shift.input_schema.properties.scheduleId]
+type = "string"
+description = "The ID of the schedule"
+
+[tools.get-oncall-shift.input_schema.properties.shiftId]
+type = "string"
+description = "The ID of the shift"
+
+[tools.get-oncall-shift.annotations]
+title = "Get OnCall shift details"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-oncall-shift.permissions]
+hosts = ["user_defined"]
+
+[tools.get-current-oncall-users]
+name = "get-current-oncall-users"
+description = "Get users currently on-call for a specific schedule"
+function = "get_current_oncall_users"
+
+[tools.get-current-oncall-users.input_schema]
+type = "object"
+required = ["scheduleId"]
+
+[tools.get-current-oncall-users.input_schema.properties.scheduleId]
+type = "string"
+description = "The ID of the schedule"
+
+[tools.get-current-oncall-users.annotations]
+title = "Get current on-call users"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-current-oncall-users.permissions]
+hosts = ["user_defined"]
+
+[tools.get-health]
+name = "get-health"
+description = "Get Grafana instance health status"
+function = "get_health"
+
+[tools.get-health.input_schema]
+type = "object"
+
+[tools.get-health.annotations]
+title = "Get health status"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-health.permissions]
+hosts = ["user_defined"]
+
+[tools.get-version]
+name = "get-version"
+description = "Get Grafana instance version information"
+function = "get_version"
+
+[tools.get-version.input_schema]
+type = "object"
+
+[tools.get-version.annotations]
+title = "Get version information"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.get-version.permissions]
+hosts = ["user_defined"]
+
+[tools.search]
+name = "search"
+description = "Search across Grafana resources (dashboards, folders, etc.)"
+function = "search"
+
+[tools.search.input_schema]
+type = "object"
+
+[tools.search.input_schema.properties.query]
+type = "string"
+description = "Search query string"
+
+[tools.search.input_schema.properties.type]
+type = "string"
+description = "Type of resource to search for"
+
+[tools.search.input_schema.properties.limit]
+type = "integer"
+description = "Maximum number of results to return"
+
+[tools.search.annotations]
+title = "Search Grafana resources"
+read_only_hint = true
+idempotent_hint = true
+
+[tools.search.permissions]
+hosts = ["user_defined"]

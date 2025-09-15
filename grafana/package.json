@@ -1,23 +1,15 @@
 {
-	"name": "plugins",
+	"name": "grafana",
 	"version": "1.0.0",
-	"private": true,
-	"description": "Example plugins for jilebi",
-	"workspaces": [
-		"memory",
-		"sequential-thinking",
-		"time",
-		"filesystem",
-		"context7",
-		"jilebi-gen",
-		"anilist",
-		"test",
-		"cloudflare",
-		"github",
-		"met-museum",
-		"rust-docs",
-		"grafana"
-	],
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"build": "rollup -c",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "",
 	"devDependencies": {
 		"@jilebi/types": "^1.0.0",
 		"@rollup/plugin-commonjs": "^28.0.1",

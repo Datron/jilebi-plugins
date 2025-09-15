@@ -272,6 +272,28 @@ Generate new Jilebi plugins with proper structure and documentation.
 **Key Tools**:
 - Various generation tools for creating plugin boilerplates and code
 
+---
+
+### 📊 Grafana Plugin
+**Tools**: Comprehensive Grafana monitoring and observability management  
+**Resources**: None  
+**Prompts**: None  
+**Permissions**: `hosts: ["user_defined"]` (configurable Grafana instance)  
+**Environment**: `GRAFANA_URL`, `GRAFANA_USERNAME`, `GRAFANA_PASSWORD`  
+**Secrets**: `GRAFANA_SERVICE_ACCOUNT_TOKEN`, `GRAFANA_API_KEY`  
+
+Complete Grafana integration for dashboards, data sources, alerting, incident management, and observability with support for Prometheus, Loki, and OnCall.
+
+**Key Tools**:
+- **Dashboard Management**: `get-dashboard-by-uid`, `update-dashboard`, `search-dashboards`
+- **Data Source Operations**: `get-datasource-by-uid`, `get-datasource-by-name`
+- **Prometheus Integration**: `query-prometheus`, `list-prometheus-metric-metadata`, `list-prometheus-metric-names`, `list-prometheus-label-names`, `list-prometheus-label-values`
+- **Loki Log Analysis**: `query-loki-logs`, `query-loki-stats`, `list-loki-label-names`, `list-loki-label-values`
+- **Alerting**: `list-alert-rules`, `get-alert-rule-by-uid`, `list-contact-points`
+- **Incident Management**: `list-incidents`, `create-incident`, `get-incident`, `add-activity-to-incident`
+- **OnCall Management**: `list-oncall-schedules`, `get-oncall-shift`, `get-current-oncall-users`
+- **System Operations**: `get-health`, `get-version`, `search`
+
 ## Security Model
 
 Jilebi's sandbox architecture ensures that:
