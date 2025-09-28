@@ -74,7 +74,6 @@ messages = [
 ### Permission Types
 - `hosts` - Array of allowed host domains
 - `urls` - Array of specific allowed URLs
-- `config_keys` - Array of configuration keys the plugin can access
 - `read_files` - Array of file paths/patterns the plugin can read
 - `write_files` - Array of file paths/patterns the plugin can write
 - `read_dirs` - Array of directory paths the plugin can read from
