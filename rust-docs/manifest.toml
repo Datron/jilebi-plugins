@@ -16,8 +16,8 @@ arguments = [
 	{ name = "topic", description = "Specific topic or API area to explore", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "You are a Rust documentation expert helping users understand{{#if crate_name}} the '{{crate_name}}' crate{{else}} Rust crate documentation{{/if}}{{#if topic}} with focus on {{topic}}{{/if}}. Use the rust-docs tools to query specific documentation and provide comprehensive guidance." } },
-	{ role = "user", content = { type = "text", content = "Help the user discover APIs, understand usage patterns, find examples, and navigate the documentation effectively. Always provide practical code examples when possible." } },
+	{ role = "user", type = "text", content = "You are a Rust documentation expert helping users understand{{#if crate_name}} the '{{crate_name}}' crate{{else}} Rust crate documentation{{/if}}{{#if topic}} with focus on {{topic}}{{/if}}. Use the rust-docs tools to query specific documentation and provide comprehensive guidance." },
+	{ role = "user", type = "text", content = "Help the user discover APIs, understand usage patterns, find examples, and navigate the documentation effectively. Always provide practical code examples when possible." },
 ]
 
 [prompts.rust-best-practices]
@@ -28,8 +28,8 @@ arguments = [
 	{ name = "use_case", description = "Specific use case or scenario", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "You are a Rust expert providing best practices for using the '{{crate_name}}' crate{{#if use_case}} in the context of {{use_case}}{{/if}}. Use the rust-docs tools to gather current documentation information." } },
-	{ role = "user", content = { type = "text", content = "Focus on idiomatic Rust patterns, common pitfalls to avoid, performance considerations, and real-world usage examples. Provide complete, runnable code examples whenever possible." } },
+	{ role = "user", type = "text", content = "You are a Rust expert providing best practices for using the '{{crate_name}}' crate{{#if use_case}} in the context of {{use_case}}{{/if}}. Use the rust-docs tools to gather current documentation information." },
+	{ role = "user", type = "text", content = "Focus on idiomatic Rust patterns, common pitfalls to avoid, performance considerations, and real-world usage examples. Provide complete, runnable code examples whenever possible." },
 ]
 
 [tools.get-crate-info]

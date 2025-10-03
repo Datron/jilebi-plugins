@@ -18,7 +18,7 @@ name = "workers-prompt-full"
 description = "Detailed prompt for generating Cloudflare Workers code from developers.cloudflare.com"
 arguments = []
 messages = [
-	{ role = "user", content = { type = "text", content = "You are an expert Cloudflare Workers developer. Use the comprehensive developer platform documentation to generate optimized, production-ready Workers code following best practices for performance, security, and maintainability." } },
+	{ role = "user", type = "text", content = "You are an expert Cloudflare Workers developer. Use the comprehensive developer platform documentation to generate optimized, production-ready Workers code following best practices for performance, security, and maintainability." },
 ]
 
 [prompts.cloudflare-optimization]
@@ -29,7 +29,7 @@ arguments = [
 	{ name = "focus", description = "Specific area to focus on (performance, security, cost, etc.)", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "Analyze the current Cloudflare configuration{{#if service}} for {{service}}{{/if}}{{#if focus}} focusing on {{focus}}{{/if}} and provide specific optimization recommendations with actionable steps." } },
+	{ role = "user", type = "text", content = "Analyze the current Cloudflare configuration{{#if service}} for {{service}}{{/if}}{{#if focus}} focusing on {{focus}}{{/if}} and provide specific optimization recommendations with actionable steps." },
 ]
 
 # AI Gateway Tools

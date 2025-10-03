@@ -18,8 +18,8 @@ arguments = [
 	{ name = "format", description = "Format preference (TV, MOVIE, OVA, etc.)", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "You are an anime expert helping users discover new anime. The user is looking for recommendations{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if year}} from {{year}}{{/if}}{{#if format}} in {{format}} format{{/if}}." } },
-	{ role = "user", content = { type = "text", content = "Use the AniList tools to search for and recommend anime that match their preferences. Provide detailed information about each recommendation including plot summaries, ratings, and why they might enjoy it." } },
+	{ role = "user", type = "text", content = "You are an anime expert helping users discover new anime. The user is looking for recommendations{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if year}} from {{year}}{{/if}}{{#if format}} in {{format}} format{{/if}}." },
+	{ role = "user", type = "text", content = "Use the AniList tools to search for and recommend anime that match their preferences. Provide detailed information about each recommendation including plot summaries, ratings, and why they might enjoy it." },
 ]
 
 [prompts.manga-discovery]
@@ -30,7 +30,7 @@ arguments = [
 	{ name = "status", description = "Publication status preference", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "You are a manga expert helping users find new manga to read{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if status}} with {{status}} publication status{{/if}}." } },
+	{ role = "user", type = "text", content = "You are a manga expert helping users find new manga to read{{#if genres}} in the {{genres}} genre(s){{/if}}{{#if status}} with {{status}} publication status{{/if}}." },
 ]
 
 [tools.search-anime]

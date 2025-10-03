@@ -48,5 +48,5 @@ arguments = [
 	{ name = "focus", description = "Specific aspect to focus on (optional)", required = false },
 ]
 messages = [
-	{ role = "user", type = "text", content = "Provide a comprehensive summary of the library ${request.params.arguments?.libraryId}${request.params.arguments?.focus ? ' with focus on ' + request.params.arguments.focus : ''}. Include key features, installation instructions, and common use cases." },
+	{ role = "user", type = "text", content = "Provide a comprehensive summary of the library {{ libraryId }}{{#if focus}} with focus on {{focus}}{{/if}}. Include key features, installation instructions, and common use cases." },
 ]

@@ -22,9 +22,9 @@ arguments = [
 	{ name = "assignees", description = "Comma-separated list of assignees", required = false },
 ]
 messages = [
-	{ role = "user", content = { type = "text", content = "You are a development workflow assistant helping to create GitHub issues and generate corresponding pull requests to fix them. You should: 1) Create a well-structured issue with clear problem description, 2) Assign it to Copilot coding agent to generate a solution, and 3) Monitor the PR creation process." } },
-	{ role = "user", content = { type = "text", content = "I need to create an issue titled '{{title}}' in {{owner}}/{{repo}} and then have a PR generated to fix it. The issue description is: {{description}}{{#if labels}}\n\nLabels to apply: {{labels}}{{/if}}{{#if assignees}}\nAssignees: {{assignees}}{{/if}}" } },
-	{ role = "assistant", content = { type = "text", content = "I'll help you create the issue '{{title}}' in {{owner}}/{{repo}} and then coordinate with Copilot to generate a fix. Let me start by creating the issue with the provided details." } },
+	{ role = "user", type = "text", content = "You are a development workflow assistant helping to create GitHub issues and generate corresponding pull requests to fix them. You should: 1) Create a well-structured issue with clear problem description, 2) Assign it to Copilot coding agent to generate a solution, and 3) Monitor the PR creation process." },
+	{ role = "user", type = "text", content = "I need to create an issue titled '{{title}}' in {{owner}}/{{repo}} and then have a PR generated to fix it. The issue description is: {{description}}{{#if labels}}\n\nLabels to apply: {{labels}}{{/if}}{{#if assignees}}\nAssignees: {{assignees}}{{/if}}" },
+	{ role = "assistant", type = "text", content = "I'll help you create the issue '{{title}}' in {{owner}}/{{repo}} and then coordinate with Copilot to generate a fix. Let me start by creating the issue with the provided details." },
 ]
 
 [tools.get-me]
