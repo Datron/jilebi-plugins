@@ -81,7 +81,10 @@ messages = [
 
 ## Available Plugins
 
-### 🐙 GitHub Plugin
+### GitHub Plugin
+
+The github plugin was derived from the original [MCP server](https://github.com/github/github-mcp-server)
+
 **Tools**: Repository management, issue tracking, pull requests, workflow automation  
 **Resources**: None  
 **Prompts**: `issue-to-fix-workflow`  
@@ -101,7 +104,10 @@ Provides comprehensive GitHub integration including repository search, issue man
 
 ---
 
-### 📁 Filesystem Plugin
+### Filesystem Plugin
+
+The filesystem plugin was derived from the [filesystem MCP implementation](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem)
+
 **Tools**: File and directory operations  
 **Resources**: None  
 **Prompts**: None  
@@ -123,7 +129,10 @@ Comprehensive file system operations for reading, writing, and managing files an
 
 ---
 
-### 📚 Context7 Plugin
+### Context7 Plugin
+
+[original MCP server](https://github.com/upstash/context7)
+
 **Tools**: Documentation access and library discovery  
 **Resources**: None  
 **Prompts**: `library-summary`  
@@ -138,7 +147,10 @@ Access up-to-date documentation for popular libraries and frameworks through the
 
 ---
 
-### ☁️ Cloudflare Plugin
+### Cloudflare Plugin
+
+[original MCP server](https://github.com/cloudflare/mcp-server-cloudflare)
+
 **Tools**: Cloudflare service management and documentation  
 **Resources**: None  
 **Prompts**: `workers-prompt-full`, `cloudflare-optimization`  
@@ -156,7 +168,10 @@ Manage Cloudflare services including Workers, AI Gateway, and access comprehensi
 
 ---
 
-### 🧠 Memory Plugin
+### Memory Plugin
+
+[original MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory)
+
 **Tools**: Knowledge graph management  
 **Resources**: None  
 **Prompts**: None  
@@ -178,7 +193,10 @@ Create and manage a persistent knowledge graph for storing and retrieving interc
 
 ---
 
-### 🎌 AniList Plugin
+### AniList Plugin
+
+[original MCP server](https://github.com/yuna0x0/anilist-mcp)
+
 **Tools**: Anime and manga database access  
 **Resources**: None  
 **Prompts**: `anime-recommendation`, `character-analysis`, `seasonal-anime`  
@@ -199,7 +217,10 @@ Access comprehensive anime and manga information from the AniList database.
 
 ---
 
-### 🦀 Rust Docs Plugin
+### Rust Docs Plugin
+
+[original MCP server](https://github.com/Govcraft/rust-docs-mcp-server)
+
 **Tools**: Rust crate documentation and discovery  
 **Resources**: None  
 **Prompts**: `rust-documentation-guide`, `crate-comparison`, `rust-learning-path`  
@@ -214,7 +235,10 @@ Search and access Rust crate documentation and examples.
 
 ---
 
-### 🏛️ Met Museum Plugin
+### Met Museum Plugin
+
+[original MCP server](https://github.com/mikechao/metmuseum-mcp)
+
 **Tools**: Metropolitan Museum of Art collection access  
 **Resources**: None  
 **Prompts**: `explore-art-collection`, `art-discovery`, `museum-educator`  
@@ -230,7 +254,8 @@ Explore and search the Metropolitan Museum of Art's collection.
 
 ---
 
-### ⏰ Time Plugin
+### Time Plugin
+
 **Tools**: Time zone conversion and current time  
 **Resources**: None  
 **Prompts**: None  
@@ -245,7 +270,10 @@ Handle time zone conversions and get current time in different zones.
 
 ---
 
-### 💭 Sequential Thinking Plugin
+### Sequential Thinking Plugin
+
+[original MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking)
+
 **Tools**: Structured problem-solving framework  
 **Resources**: None  
 **Prompts**: None  
@@ -259,7 +287,8 @@ Provides a framework for dynamic and reflective problem-solving through sequenti
 
 ---
 
-### 🔧 Jilebi Gen Plugin
+### Jilebi Gen Plugin
+
 **Tools**: Plugin generation and development assistance  
 **Resources**: Manifest schema, examples  
 **Prompts**: `create-plugin`  
@@ -273,7 +302,10 @@ Generate new Jilebi plugins with proper structure and documentation.
 
 ---
 
-### 📊 Grafana Plugin
+### Grafana Plugin
+
+[original MCP server](https://github.com/grafana/mcp-grafana)
+
 **Tools**: Comprehensive Grafana monitoring and observability management  
 **Resources**: None  
 **Prompts**: None  

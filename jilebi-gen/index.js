@@ -172,17 +172,17 @@ export function get_manifest_format(request, env) {
 						},
 						"PromptMessage": {
 						"type": "object",
-						"required": ["role", "content"],
+						"required": ["role", "type", "content"],
 						"properties": {
 							"role": {
-							"type": "string",
-							"enum": ["user", "assistant"],
-							"description": "Message role"
+  							"type": "string",
+  							"enum": ["user", "assistant"],
+  							"description": "Message role"
 							},
 							"type": {
-							"type": "string",
-							"enum": ["text"],
-							"description": "Message content type"
+  							"type": "string",
+  							"enum": ["text", "image"],
+  							"description": "Message content type"
 							},
 							"content": {
 							"type": "string",
@@ -327,7 +327,7 @@ export function get_manifest_example(request, env) {
 						{ name = "changes", description = "Git diff or description of changes", required = true },
 					]
 					messages = [
-						{ role = "user", type = "text", content = "Generate a concise but descriptive commit message for these changes:\n\n${request.params.arguments?.changes}" },
+						{ role = "user", type = "text", content = "Generate a concise but descriptive commit message for these changes:\n\n{{changes}}" },
 					]
 				`
 			},
@@ -384,7 +384,7 @@ export function get_manifest_example(request, env) {
 					{ name = "focus", description = "Specific aspect to focus on (optional)", required = false },
 				]
 				messages = [
-					{ role = "user", type = "text", content = "Provide a comprehensive summary of the library ${request.params.arguments?.libraryId}${request.params.arguments?.focus ? ' with focus on ' + request.params.arguments.focus : ''}. Include key features, installation instructions, and common use cases." },
+					{ role = "user", type = "text", content = "Provide a comprehensive summary of the library {{ libraryId }}{{#if focus}} with focus on {{focus}}{{/if}}. Include key features, installation instructions, and common use cases." },
 				]
 				`
 			},
@@ -860,7 +860,7 @@ export function get_index_example(request, env) {
 
 							const entity = knowledgeGraph.entities.find(e => e.name === obs.entityName);
 							if (!entity) {
-								throw new Error(\`Entity '${obs.entityName}' not found\`);
+								throw new Error(\`Entity '\${obs.entityName}' not found\`);
 							}
 
 							// Filter out observations that already exist
@@ -886,7 +886,7 @@ export function get_index_example(request, env) {
 							content: [
 								{
 									type: "text",
-									text: \`${summary}\n\nResults:\n\${JSON.stringify(results, null, 2)}\`
+									text: \`\${summary}\n\nResults:\n\${JSON.stringify(results, null, 2)}\`
 								}
 							]
 						};
@@ -1077,7 +1077,7 @@ export function get_index_example(request, env) {
 							content: [
 								{
 									type: "text",
-									text: \`${summary}\n\nComplete Knowledge Graph:\n\${JSON.stringify(knowledgeGraph, null, 2)}\`
+									text: \`\${summary}\n\nComplete Knowledge Graph:\n\${JSON.stringify(knowledgeGraph, null, 2)}\`
 								}
 							]
 						};
