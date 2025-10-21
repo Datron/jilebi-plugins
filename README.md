@@ -325,6 +325,35 @@ Complete Grafana integration for dashboards, data sources, alerting, incident ma
 - **OnCall Management**: `list-oncall-schedules`, `get-oncall-shift`, `get-current-oncall-users`
 - **System Operations**: `get-health`, `get-version`, `search`
 
+---
+
+### Wikipedia Plugin
+
+[original MCP server](https://github.com/Rudra-ravi/wikipedia-mcp)
+
+**Tools**: Wikipedia article access, search, and content analysis  
+**Resources**: None  
+**Prompts**: None  
+**Permissions**: `hosts: ["https://wikipedia.org"]`  
+**Environment**: `WIKIPEDIA_LANGUAGE` (default: "en"), `WIKIPEDIA_COUNTRY`, `WIKIPEDIA_ENABLE_CACHE` (default: false)  
+**Secrets**: `WIKIPEDIA_ACCESS_TOKEN`  
+**Original Server**: [wikipedia-mcp](https://github.com/Rudra-ravi/wikipedia-mcp)
+
+Access and analyze Wikipedia content with support for searching, reading articles, extracting facts, and exploring related topics.
+
+**Key Tools**:
+- `search-wikipedia` - Search Wikipedia for articles matching a query
+- `get-article` - Get the full content of a Wikipedia article
+- `get-summary` - Get a concise summary of a Wikipedia article
+- `summarize-article-for-query` - Get a summary tailored to a specific query
+- `summarize-article-section` - Summarize a specific section of an article
+- `extract-key-facts` - Extract key facts from articles, optionally focused on a topic
+- `get-related-topics` - Discover topics related to an article via links and categories
+- `get-sections` - Get the table of contents/sections of an article
+- `get-links` - Get all links contained within an article
+- `get-coordinates` - Get geographic coordinates associated with an article
+- `test-wikipedia-connectivity` - Diagnostic tool for Wikipedia API connectivity
+
 ## Security Model
 
 Jilebi's sandbox architecture ensures that:

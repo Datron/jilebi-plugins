@@ -1,0 +1,170 @@
+name = "wikipedia"
+version = "1.0.0"
+homepage = "https://github.com/datron/jilebi-plugins"
+creator = "datron"
+contact = "support@jilebi.ai"
+
+[env]
+WIKIPEDIA_LANGUAGE = { schema = { type = "string" }, default = "en" }
+WIKIPEDIA_COUNTRY = { schema = { type = "string" }, default = "" }
+
+[secrets]
+WIKIPEDIA_ACCESS_TOKEN = { schema = { type = "string" } }
+
+[resources]
+
+[prompts]
+
+[tools.search-wikipedia]
+name = "search-wikipedia"
+description = "Search Wikipedia for articles matching a query"
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search query for Wikipedia articles" }, limit = { type = "number", description = "Maximum number of results to return (default: 10, max: 500)", default = 10 } }, required = ["query"] }
+function = "search_wikipedia"
+[tools.search-wikipedia.annotations]
+title = "Search Wikipedia"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.search-wikipedia.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.test-wikipedia-connectivity]
+name = "test-wikipedia-connectivity"
+description = "Provide diagnostics for Wikipedia API connectivity"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "test_wikipedia_connectivity"
+[tools.test-wikipedia-connectivity.annotations]
+title = "Test Wikipedia Connectivity"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.test-wikipedia-connectivity.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-article]
+name = "get-article"
+description = "Get the full content of a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" } }, required = ["title"] }
+function = "get_article"
+[tools.get-article.annotations]
+title = "Get Article"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-article.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-summary]
+name = "get-summary"
+description = "Get a summary of a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" } }, required = ["title"] }
+function = "get_summary"
+[tools.get-summary.annotations]
+title = "Get Summary"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-summary.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.summarize-article-for-query]
+name = "summarize-article-for-query"
+description = "Get a summary of a Wikipedia article tailored to a specific query"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" }, query = { type = "string", description = "Query to focus the summary on" }, max_length = { type = "number", description = "Maximum length of the summary (default: 250)", default = 250 } }, required = ["title", "query"] }
+function = "summarize_article_for_query"
+[tools.summarize-article-for-query.annotations]
+title = "Summarize Article for Query"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.summarize-article-for-query.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.summarize-article-section]
+name = "summarize-article-section"
+description = "Get a summary of a specific section of a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" }, section_title = { type = "string", description = "Title of the section to summarize" }, max_length = { type = "number", description = "Maximum length of the summary (default: 150)", default = 150 } }, required = ["title", "section_title"] }
+function = "summarize_article_section"
+[tools.summarize-article-section.annotations]
+title = "Summarize Article Section"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.summarize-article-section.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.extract-key-facts]
+name = "extract-key-facts"
+description = "Extract key facts from a Wikipedia article, optionally focused on a topic"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" }, topic_within_article = { type = "string", description = "Optional topic to focus on within the article", default = "" }, count = { type = "number", description = "Number of key facts to extract (default: 5)", default = 5 } }, required = ["title"] }
+function = "extract_key_facts"
+[tools.extract-key-facts.annotations]
+title = "Extract Key Facts"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.extract-key-facts.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-related-topics]
+name = "get-related-topics"
+description = "Get topics related to a Wikipedia article based on links and categories"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" }, limit = { type = "number", description = "Maximum number of related topics to return (default: 10)", default = 10 } }, required = ["title"] }
+function = "get_related_topics"
+[tools.get-related-topics.annotations]
+title = "Get Related Topics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-related-topics.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-sections]
+name = "get-sections"
+description = "Get the sections of a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" } }, required = ["title"] }
+function = "get_sections"
+[tools.get-sections.annotations]
+title = "Get Sections"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-sections.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-links]
+name = "get-links"
+description = "Get the links contained within a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" } }, required = ["title"] }
+function = "get_links"
+[tools.get-links.annotations]
+title = "Get Links"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-links.permissions]
+hosts = ["https://wikipedia.org"]
+
+[tools.get-coordinates]
+name = "get-coordinates"
+description = "Get the coordinates of a Wikipedia article"
+input_schema = { type = "object", properties = { title = { type = "string", description = "Title of the Wikipedia article" } }, required = ["title"] }
+function = "get_coordinates"
+[tools.get-coordinates.annotations]
+title = "Get Coordinates"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-coordinates.permissions]
+hosts = ["https://wikipedia.org"]
