@@ -61,7 +61,6 @@ export async function read_text_file(request, env) {
             content = await headFile(path, head);
         }
         else {
-            // @ts-ignore
             content = await Deno.readTextFile(path);
         }
         return {
@@ -88,7 +87,6 @@ export async function read_text_file(request, env) {
 export async function read_media_file(request, env) {
     try {
         const { path } = request;
-        // @ts-ignore
         const data = await Deno.readFile(path);
         const base64Data = btoa(String.fromCharCode(...data));
         // Determine MIME type based on extension
@@ -139,12 +137,10 @@ export async function read_multiple_files(request, env) {
         const results = [];
         for (const filePath of paths) {
             try {
-                // @ts-ignore
                 const content = await Deno.readTextFile(filePath);
                 results.push(`${filePath}:\n${content}\n`);
             }
             catch (error) {
-                // @ts-ignore
                 results.push(`${filePath}: Error - ${error instanceof Error ? error.message : String(error)}`);
             }
         }
@@ -173,7 +169,6 @@ export async function read_multiple_files(request, env) {
 export async function write_file(request, env) {
     try {
         const { path, content } = request;
-        // @ts-ignore
         await Deno.writeTextFile(path, content);
         return {
             content: [
@@ -200,7 +195,6 @@ export async function edit_file(request, env) {
     try {
         const { path, edits, dryRun = false } = request;
         // Read file content
-        // @ts-ignore
         const content = normalizeLineEndings(await Deno.readTextFile(path));
         // Apply edits sequentially
         let modifiedContent = content;
@@ -247,7 +241,6 @@ export async function edit_file(request, env) {
         // Create unified diff
         const diff = createUnifiedDiff(content, modifiedContent, path);
         if (!dryRun) {
-            // @ts-ignore
             await Deno.writeTextFile(path, modifiedContent);
         }
         return {
@@ -275,7 +268,6 @@ export async function edit_file(request, env) {
 export async function create_directory(request, env) {
     try {
         const { path } = request;
-        // @ts-ignore
         await Deno.mkdir(path, { recursive: true });
         return {
             content: [
@@ -302,7 +294,6 @@ export async function list_directory(request, env) {
     try {
         const { path } = request;
         const entries = [];
-        // @ts-ignore
         for await (const entry of Deno.readDir(path)) {
             const prefix = entry.isDirectory ? "[DIR]" : "[FILE]";
             entries.push(`${prefix} ${entry.name}`);
@@ -332,13 +323,11 @@ export async function list_directory_with_sizes(request, env) {
     try {
         const { path, sortBy = 'name' } = request;
         const entries = [];
-        // @ts-ignore
         for await (const entry of Deno.readDir(path)) {
             const entryPath = `${path}/${entry.name}`;
             let size = 0;
             try {
                 if (entry.isFile) {
-                    // @ts-ignore
                     const stat = await Deno.stat(entryPath);
                     size = stat.size;
                 }
@@ -399,7 +388,6 @@ export async function directory_tree(request, env) {
         const { path } = request;
         async function buildTree(currentPath) {
             const result = [];
-            // @ts-ignore
             for await (const entry of Deno.readDir(currentPath)) {
                 const entryData = {
                     name: entry.name,
@@ -439,7 +427,6 @@ export async function directory_tree(request, env) {
 export async function move_file(request, env) {
     try {
         const { source, destination } = request;
-        // @ts-ignore
         await Deno.rename(source, destination);
         return {
             content: [
@@ -467,7 +454,6 @@ export async function search_files(request, env) {
         const { path, pattern, excludePatterns = [] } = request;
         const results = [];
         async function search(currentPath) {
-            // @ts-ignore
             for await (const entry of Deno.readDir(currentPath)) {
                 const fullPath = `${currentPath}/${entry.name}`;
                 // Check if should exclude
@@ -517,18 +503,8 @@ export async function search_files(request, env) {
 export async function get_file_info(request, env) {
     try {
         const { path } = request;
-        // @ts-ignore
         const stat = await Deno.stat(path);
-        const info = {
-            size: stat.size,
-            created: stat.birthtime || stat.mtime,
-            modified: stat.mtime,
-            accessed: stat.atime || stat.mtime,
-            isDirectory: stat.isDirectory,
-            isFile: stat.isFile,
-            permissions: stat.mode ? stat.mode.toString(8).slice(-3) : '644'
-        };
-        const infoText = Object.entries(info)
+        const infoText = Object.entries(stat)
             .map(([key, value]) => `${key}: ${value}`)
             .join("\n");
         return {
@@ -554,13 +530,11 @@ export async function get_file_info(request, env) {
 }
 // Helper functions for head/tail operations
 async function headFile(filePath, numLines) {
-    // @ts-ignore
     const content = await Deno.readTextFile(filePath);
     const lines = content.split('\n');
     return lines.slice(0, numLines).join('\n');
 }
 async function tailFile(filePath, numLines) {
-    // @ts-ignore
     const content = await Deno.readTextFile(filePath);
     const lines = content.split('\n');
     return lines.slice(-numLines).join('\n');

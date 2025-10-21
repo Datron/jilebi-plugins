@@ -16,10 +16,11 @@
 		"github",
 		"met-museum",
 		"rust-docs",
-		"grafana"
+		"grafana",
+		"wikipedia"
 	],
 	"devDependencies": {
-		"@jilebi/types": "^1.0.0",
+		"@jilebi/types": "^1.0.2",
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-json": "^6.1.0",
 		"@rollup/plugin-node-resolve": "^15.3.0",

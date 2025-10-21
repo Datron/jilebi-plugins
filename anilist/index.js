@@ -26,6 +26,8 @@ async function executeGraphQLQuery(query, variables = {}) {
         }),
     });
     if (!response.ok) {
+        // @ts-ignore
+        console.error("Error sending request: ", response.errors);
         throw new Error(`AniList API error: ${response.status} ${response.statusText}`);
     }
     return await response.json();
@@ -118,7 +120,7 @@ export async function searchAnime(params, env) {
     try {
         const { search, genre, year, format, status, page = 1, perPage = 10 } = params;
         const query = `
-			query ($search: String, $genre: String, $year: Int, $format: MediaFormat, $status: MediaStatus, $page: Int, $perPage: Int) {
+			query ($search: String, $genre: String, $year: String, $format: MediaFormat, $status: MediaStatus, $page: Int, $perPage: Int) {
 				Page(page: $page, perPage: $perPage) {
 					pageInfo {
 						hasNextPage
@@ -328,6 +330,7 @@ export async function getAnimeDetails(params, env) {
 			}
 		`;
         const response = await executeGraphQLQuery(query, { id });
+        console.log("Response from search API:", response);
         if (response.errors) {
             throw new Error(`GraphQL errors: ${response.errors.map(e => e.message).join(', ')}`);
         }

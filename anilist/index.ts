@@ -165,6 +165,8 @@ async function executeGraphQLQuery<T>(query: string, variables: Record<string, a
 	});
 
 	if (!response.ok) {
+	  // @ts-ignore
+    console.error("Error sending request: ", response.errors);
 		throw new Error(`AniList API error: ${response.status} ${response.statusText}`);
 	}
 
@@ -282,7 +284,7 @@ export async function searchAnime(params: {
 		const { search, genre, year, format, status, page = 1, perPage = 10 } = params;
 
 		const query = `
-			query ($search: String, $genre: String, $year: Int, $format: MediaFormat, $status: MediaStatus, $page: Int, $perPage: Int) {
+			query ($search: String, $genre: String, $year: String, $format: MediaFormat, $status: MediaStatus, $page: Int, $perPage: Int) {
 				Page(page: $page, perPage: $perPage) {
 					pageInfo {
 						hasNextPage
@@ -515,6 +517,8 @@ export async function getAnimeDetails(params: {
 		`;
 
 		const response = await executeGraphQLQuery<AniListMedia>(query, { id });
+		
+    console.log("Response from search API:", response);
 
 		if (response.errors) {
 			throw new Error(`GraphQL errors: ${response.errors.map(e => e.message).join(', ')}`);

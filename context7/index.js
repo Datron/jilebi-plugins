@@ -54,7 +54,7 @@ function generateHeaders(_clientIp, extraHeaders = {}) {
  * Converts MCP server functionality to jilebi plugin format
  */
 // Tool function: Resolve library ID
-async function resolve_library_id(request, _env) {
+export async function resolve_library_id(request, _env) {
     try {
         const url = new URL(`${CONTEXT7_API_BASE_URL}/v1/search`);
         url.searchParams.set("query", request.libraryName);
@@ -106,7 +106,7 @@ ${resultsText}`
     }
 }
 // Tool function: Get library documentation
-async function get_library_documentation(request, _env) {
+export async function get_library_documentation(request, _env) {
     const tokens = request.tokens && request.tokens >= DEFAULT_MINIMUM_TOKENS
         ? request.tokens
         : DEFAULT_MINIMUM_TOKENS;
@@ -156,6 +156,3 @@ async function get_library_documentation(request, _env) {
         };
     }
 }
-
-export { generateHeaders, get_library_documentation, resolve_library_id };
-//# sourceMappingURL=index.js.map

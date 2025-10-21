@@ -38,7 +38,7 @@ async function arrayBufferToBase64(buffer) {
 /**
  * Get detailed information about a museum object by its ID
  */
-async function getMuseumObject(params, env) {
+export async function getMuseumObject(params, env) {
     try {
         const { objectId, returnImage = true } = params;
         const baseURL = 'https://collectionapi.metmuseum.org/public/collection/v1/objects/';
@@ -96,7 +96,7 @@ async function getMuseumObject(params, env) {
 /**
  * List all departments in the Metropolitan Museum of Art
  */
-async function listDepartments(request, env) {
+export async function listDepartments(request, env) {
     try {
         const apiUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/departments';
         const response = await rateLimiter.fetch(apiUrl);
@@ -126,7 +126,7 @@ async function listDepartments(request, env) {
 /**
  * Search for objects in the Metropolitan Museum of Art collection
  */
-async function searchMuseumObjects(params, env) {
+export async function searchMuseumObjects(params, env) {
     try {
         const { q, hasImages = false, title = false, departmentId } = params;
         const apiBaseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/search';
@@ -169,6 +169,3 @@ async function searchMuseumObjects(params, env) {
         };
     }
 }
-
-export { getMuseumObject, listDepartments, searchMuseumObjects };
-//# sourceMappingURL=index.js.map

@@ -18,7 +18,7 @@ async function makeGitHubRequest(token, endpoint, options = {}) {
     }
     return response.json();
 }
-const get_me = async (request, env) => {
+export const get_me = async (request, env) => {
     try {
         const user = await makeGitHubRequest(env.GITHUB_TOKEN, '/user');
         return {
@@ -44,7 +44,7 @@ const get_me = async (request, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to get user information");
     }
 };
-const search_repositories = async (params, env) => {
+export const search_repositories = async (params, env) => {
     try {
         const searchParams = new URLSearchParams({
             q: params.query,
@@ -83,7 +83,7 @@ const search_repositories = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to search repositories");
     }
 };
-const get_file_contents = async (params, env) => {
+export const get_file_contents = async (params, env) => {
     try {
         const searchParams = new URLSearchParams({
             ...(params.ref && { ref: params.ref }),
@@ -112,7 +112,7 @@ const get_file_contents = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to get file contents");
     }
 };
-const list_commits = async (params, env) => {
+export const list_commits = async (params, env) => {
     try {
         const searchParams = new URLSearchParams();
         if (params.sha)
@@ -151,7 +151,7 @@ const list_commits = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to list commits");
     }
 };
-const get_commit = async (params, env) => {
+export const get_commit = async (params, env) => {
     try {
         const commit = await makeGitHubRequest(env.GITHUB_TOKEN, `/repos/${params.owner}/${params.repo}/commits/${params.sha}`);
         return {
@@ -197,7 +197,7 @@ const get_commit = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to get commit");
     }
 };
-const search_issues = async (params, env) => {
+export const search_issues = async (params, env) => {
     try {
         const searchParams = new URLSearchParams({
             q: params.query,
@@ -236,7 +236,7 @@ const search_issues = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to search issues");
     }
 };
-const create_issue = async (params, env) => {
+export const create_issue = async (params, env) => {
     try {
         const body = {
             title: params.title,
@@ -278,7 +278,7 @@ const create_issue = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to create issue");
     }
 };
-const get_issue = async (params, env) => {
+export const get_issue = async (params, env) => {
     try {
         const issue = await makeGitHubRequest(env.GITHUB_TOKEN, `/repos/${params.owner}/${params.repo}/issues/${params.issue_number}`);
         return {
@@ -314,7 +314,7 @@ const get_issue = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to get issue");
     }
 };
-const create_pull_request = async (params, env) => {
+export const create_pull_request = async (params, env) => {
     try {
         const body = {
             title: params.title,
@@ -361,7 +361,7 @@ const create_pull_request = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to create pull request");
     }
 };
-const get_pull_request = async (params, env) => {
+export const get_pull_request = async (params, env) => {
     try {
         const pr = await makeGitHubRequest(env.GITHUB_TOKEN, `/repos/${params.owner}/${params.repo}/pulls/${params.pull_number}`);
         return {
@@ -398,7 +398,7 @@ const get_pull_request = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to get pull request");
     }
 };
-const list_workflows = async (params, env) => {
+export const list_workflows = async (params, env) => {
     try {
         const searchParams = new URLSearchParams();
         if (params.page)
@@ -429,7 +429,7 @@ const list_workflows = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to list workflows");
     }
 };
-const list_workflow_runs = async (params, env) => {
+export const list_workflow_runs = async (params, env) => {
     try {
         const searchParams = new URLSearchParams();
         if (params.actor)
@@ -474,7 +474,7 @@ const list_workflow_runs = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to list workflow runs");
     }
 };
-const create_gist = async (params, env) => {
+export const create_gist = async (params, env) => {
     try {
         const body = {
             description: params.description || "",
@@ -516,6 +516,3 @@ const create_gist = async (params, env) => {
         throw new Error(error instanceof Error ? error.message : "Failed to create gist");
     }
 };
-
-export { create_gist, create_issue, create_pull_request, get_commit, get_file_contents, get_issue, get_me, get_pull_request, list_commits, list_workflow_runs, list_workflows, search_issues, search_repositories };
-//# sourceMappingURL=index.js.map

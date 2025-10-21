@@ -9,7 +9,6 @@ let templateKnowledgeGraph = {
 function create_entities(request, env) {
     try {
         console.log("Knowledge graph loading -> ");
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         console.log("Knowledge graph loaded -> ", knowledgeGraph);
         const { entities } = request;
@@ -25,7 +24,6 @@ function create_entities(request, env) {
         });
         // Add new entities to the graph
         knowledgeGraph.entities.push(...newEntities);
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -59,7 +57,6 @@ function create_entities(request, env) {
  */
 function create_relations(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { relations } = request;
         if (!relations || !Array.isArray(relations)) {
@@ -86,7 +83,6 @@ function create_relations(request, env) {
         });
         // Add new relations to the graph
         knowledgeGraph.relations.push(...newRelations);
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -119,7 +115,6 @@ function create_relations(request, env) {
  */
 function add_observations(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { observations } = request;
         if (!observations || !Array.isArray(observations)) {
@@ -145,7 +140,6 @@ function add_observations(request, env) {
         });
         const totalAdded = results.reduce((sum, r) => sum + r.addedObservations.length, 0);
         const summary = `Added ${totalAdded} new observations across ${results.length} entities`;
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -175,7 +169,6 @@ function add_observations(request, env) {
  */
 function delete_entities(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { entityNames } = request;
         if (!entityNames || !Array.isArray(entityNames)) {
@@ -189,7 +182,6 @@ function delete_entities(request, env) {
         knowledgeGraph.relations = knowledgeGraph.relations.filter(relation => !entityNames.includes(relation.from) && !entityNames.includes(relation.to));
         const deletedEntities = initialEntityCount - knowledgeGraph.entities.length;
         const deletedRelations = initialRelationCount - knowledgeGraph.relations.length;
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -219,7 +211,6 @@ function delete_entities(request, env) {
  */
 function delete_observations(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { deletions } = request;
         if (!deletions || !Array.isArray(deletions)) {
@@ -237,7 +228,6 @@ function delete_observations(request, env) {
                 totalDeleted += initialCount - entity.observations.length;
             }
         });
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -267,7 +257,6 @@ function delete_observations(request, env) {
  */
 function delete_relations(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { relations } = request;
         if (!relations || !Array.isArray(relations)) {
@@ -279,7 +268,6 @@ function delete_relations(request, env) {
             relation.to === delRelation.to &&
             relation.relationType === delRelation.relationType));
         const deletedCount = initialCount - knowledgeGraph.relations.length;
-        // @ts-ignore
         if (!setState(env, "knowledgeGraph", knowledgeGraph)) {
             console.log("State was not set, check logs for the error");
         }
@@ -309,7 +297,6 @@ function delete_relations(request, env) {
  */
 function read_graph(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         console.log("Knowledge graph loaded in read_graph -> ", knowledgeGraph);
         const summary = `Knowledge Graph Summary:\n• ${knowledgeGraph.entities.length} entities\n• ${knowledgeGraph.relations.length} relations`;
@@ -339,7 +326,6 @@ function read_graph(request, env) {
  */
 function search_nodes(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { query } = request;
         if (!query || typeof query !== 'string') {
@@ -385,7 +371,6 @@ function search_nodes(request, env) {
  */
 function open_nodes(request, env) {
     try {
-        // @ts-ignore
         let knowledgeGraph = getState(env, "knowledgeGraph") ?? templateKnowledgeGraph;
         const { names } = request;
         if (!names || !Array.isArray(names)) {
