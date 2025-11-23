@@ -1,0 +1,36 @@
+{
+	"name": "arxiv",
+	"version": "1.0.0",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"build": "rollup -c",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "datron",
+	"license": "ISC",
+	"description": "ArXiv research paper search, download, and analysis plugin for Jilebi",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/datron/jilebi-plugins.git",
+		"directory": "arxiv"
+	},
+	"homepage": "https://github.com/datron/jilebi-plugins",
+	"bugs": {
+		"url": "https://github.com/datron/jilebi-plugins/issues"
+	},
+	"devDependencies": {
+		"@jilebi/types": "^1.0.0",
+		"@rollup/plugin-commonjs": "^28.0.1",
+		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-typescript": "^12.1.1",
+		"@types/node": "^22.10.1",
+		"rollup": "^4.28.1",
+		"tslib": "^2.8.1",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@opendocsg/pdf2md": "^0.2.2"
+	}
+}

@@ -1,0 +1,207 @@
+name = "arxiv"
+version = "1.0.0"
+homepage = "https://github.com/datron/jilebi-plugins"
+creator = "datron"
+contact = "support@jilebi.ai"
+
+[env]
+STORAGE_PATH = { schema = { type = "string" }, default = "~/.arxiv-mcp-server/papers", description = "Directory path for storing downloaded papers" }
+
+[secrets]
+
+[resources]
+
+[prompts.deep-paper-analysis]
+name = "deep-paper-analysis"
+description = "Analyze a specific paper in detail"
+arguments = [
+	{ name = "paper_id", description = "arXiv paper ID", required = true },
+]
+messages = [
+	{ role = "user", type = "text", content = """You are an AI research assistant tasked with analyzing academic papers from arXiv. You have access to several tools to help with this analysis:
+
+AVAILABLE TOOLS:
+1. read_paper: Use this tool to retrieve the full content of the paper with the provided arXiv ID
+2. download_paper: If the paper is not already available locally, use this tool to download it first
+3. search_papers: Find related papers on the same topic to provide context
+4. list_papers: Check which papers are already downloaded and available for reading
+
+WORKFLOW FOR PAPER ANALYSIS:
+1. Preparation:
+   - First, use the list_papers tool to check if the paper is already downloaded
+   - If not found, use the download_paper tool to retrieve it
+   - Then use the read_paper tool with the ID {{paper_id}} to get the full content
+   - If the paper is not found, use the search_papers tool to find related papers while you wait
+   - If you find related papers, use the download_paper tool to get the full content of the related papers and read those too
+
+2. Comprehensive Analysis:
+   - Executive Summary: Summarize the paper in 2-3 sentences
+   - What is the main contribution of the paper?
+   - What is the main problem that the paper solves?
+   - What is the main methodology used in the paper?
+   - What are the main results of the paper?
+   - What is the main conclusion of the paper?
+
+3. Research Context:
+   - Research area and specific problem addressed
+   - Key prior approaches and their limitations
+   - How this paper aims to advance the field
+   - How does this paper compare to other papers in the field?
+
+4. Methodology Analysis:
+   - Step-by-step breakdown of the approach
+   - Key innovations in the methodology
+   - Theoretical foundations and assumptions
+   - Technical implementation details
+   - Algorithmic complexity and performance characteristics
+   - Anything the reader should know about the methodology if they wanted to replicate the paper
+
+5. Results Analysis:
+   - Experimental setup (datasets, benchmarks, metrics)
+   - Main experimental results and their significance
+   - Statistical validity and robustness of results
+   - How results support or challenge the paper's claims
+   - Comparison to state-of-the-art approaches
+
+6. Practical Implications:
+   - How could this be implemented or applied?
+   - Required resources and potential challenges
+   - Available code, datasets, or resources
+
+7. Theoretical Implications:
+   - How this work advances fundamental understanding
+   - New concepts or paradigms introduced
+   - Challenges to existing theories or assumptions
+   - Open questions raised
+
+8. Future Directions:
+   - Limitations that future work could address
+   - Promising follow-up research questions
+   - Potential for integration with other approaches
+   - Long-term research agenda this work enables
+
+9. Broader Impact:
+   - Societal, ethical, or policy implications
+   - Environmental or economic considerations
+   - Potential real-world applications and timeframe
+
+KEEP IN MIND:
+- Use the search_papers tool to find related work or papers building on this work
+- Cross-reference findings with other papers you've analyzed
+- Use your artifacts to create diagrams, pseudocode, and other visualizations to illustrate key concepts
+- Summarize key results in tables for easy reference
+
+Structure your analysis with clear headings, maintain technical accuracy while being accessible, and include your critical assessment where appropriate. Your analysis should be comprehensive but concise. Be sure to critically evaluate the statistical significance and reproducibility of any reported results.""" },
+]
+
+[tools.search-papers]
+name = "search-papers"
+description = """Search for papers on arXiv with advanced filtering and query optimization.
+
+QUERY CONSTRUCTION GUIDELINES:
+- Use QUOTED PHRASES for exact matches: "multi-agent systems", "neural networks", "machine learning"
+- Combine related concepts with OR: "AI agents" OR "software agents" OR "intelligent agents"  
+- Use field-specific searches for precision:
+  - ti:"exact title phrase" - search in titles only
+  - au:"author name" - search by author
+  - abs:"keyword" - search in abstracts only
+- Use ANDNOT to exclude unwanted results: "machine learning" ANDNOT "survey"
+- For best results, use 2-4 core concepts rather than long keyword lists
+
+ADVANCED SEARCH PATTERNS:
+- Field + phrase: ti:"transformer architecture" for papers with exact title phrase
+- Multiple fields: au:"Smith" AND ti:"quantum" for author Smith's quantum papers  
+- Exclusions: "deep learning" ANDNOT ("survey" OR "review") to exclude survey papers
+- Broad + narrow: "artificial intelligence" AND (robotics OR "computer vision")
+
+CATEGORY FILTERING (highly recommended for relevance):
+- cs.AI: Artificial Intelligence
+- cs.MA: Multi-Agent Systems  
+- cs.LG: Machine Learning
+- cs.CL: Computation and Language (NLP)
+- cs.CV: Computer Vision
+- cs.RO: Robotics
+- cs.HC: Human-Computer Interaction
+- cs.CR: Cryptography and Security
+- cs.DB: Databases
+
+EXAMPLES OF EFFECTIVE QUERIES:
+- ti:"reinforcement learning" with categories: ["cs.LG", "cs.AI"] - for RL papers by title
+- au:"Hinton" AND "deep learning" with categories: ["cs.LG"] - for Hinton's deep learning work
+- "multi-agent" ANDNOT "survey" with categories: ["cs.MA"] - exclude survey papers
+- abs:"transformer" AND ti:"attention" with categories: ["cs.CL"] - attention papers with transformer abstracts
+
+DATE FILTERING: Use YYYY-MM-DD format for historical research:
+- date_to: "2015-12-31" - for foundational/classic work (pre-2016)
+- date_from: "2020-01-01" - for recent developments (post-2020)
+- Both together for specific time periods
+
+RESULT QUALITY: Results sorted by RELEVANCE (most relevant papers first), not just newest papers.
+This ensures you get the most pertinent results regardless of publication date.
+
+TIPS FOR FOUNDATIONAL RESEARCH:
+- Use date_to: "2010-12-31" to find classic papers on BDI, SOAR, ACT-R
+- Combine with field searches: ti:"BDI" AND abs:"belief desire intention"  
+- Try author searches: au:"Rao" AND "BDI" for Anand Rao's foundational BDI work"""
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search query using quoted phrases for exact matches (e.g., '\"machine learning\" OR \"deep learning\"') or specific technical terms. Avoid overly broad or generic terms." }, max_results = { type = "integer", description = "Maximum number of results to return (default: 10, max: 50). Use 15-20 for comprehensive searches." }, date_from = { type = "string", description = "Start date for papers (YYYY-MM-DD format). Use to find recent work, e.g., '2023-01-01' for last 2 years." }, date_to = { type = "string", description = "End date for papers (YYYY-MM-DD format). Use with date_from to find historical work, e.g., '2020-12-31' for older research." }, categories = { type = "array", items = { type = "string" }, description = "Strongly recommended: arXiv categories to focus search (e.g., ['cs.AI', 'cs.MA'] for agent research, ['cs.LG'] for ML, ['cs.CL'] for NLP, ['cs.CV'] for vision). Greatly improves relevance." }, sort_by = { type = "string", enum = [
+	"relevance",
+	"date",
+], description = "Sort results by 'relevance' (most relevant first, default) or 'date' (newest first). Use 'relevance' for focused searches, 'date' for recent developments." } }, required = [
+	"query",
+] }
+function = "search_papers"
+[tools.search-papers.annotations]
+title = "Search ArXiv Papers"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.search-papers.permissions]
+hosts = ["https://export.arxiv.org"]
+
+[tools.download-paper]
+name = "download-paper"
+description = "Download a paper and create a resource for it"
+input_schema = { type = "object", properties = { paper_id = { type = "string", description = "The arXiv ID of the paper to download" }, check_status = { type = "boolean", description = "If true, only check conversion status without downloading", default = false } }, required = [
+	"paper_id",
+] }
+function = "download_paper"
+[tools.download-paper.annotations]
+title = "Download ArXiv Paper"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.download-paper.permissions]
+hosts = ["https://export.arxiv.org", "https://arxiv.org"]
+write_dirs = ["user_defined"]
+
+[tools.list-papers]
+name = "list-papers"
+description = "List all existing papers available as resources"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "list_papers"
+[tools.list-papers.annotations]
+title = "List Downloaded Papers"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.list-papers.permissions]
+read_dirs = ["user_defined"]
+
+[tools.read-paper]
+name = "read-paper"
+description = "Read the full content of a stored paper in markdown format"
+input_schema = { type = "object", properties = { paper_id = { type = "string", description = "The arXiv ID of the paper to read" } }, required = [
+	"paper_id",
+] }
+function = "read_paper"
+[tools.read-paper.annotations]
+title = "Read Paper Content"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.read-paper.permissions]
+read_dirs = ["user_defined"]

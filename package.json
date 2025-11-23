@@ -17,7 +17,8 @@
 		"met-museum",
 		"rust-docs",
 		"grafana",
-		"wikipedia"
+		"wikipedia",
+		"arxiv"
 	],
 	"devDependencies": {
 		"@jilebi/types": "^1.0.2",
