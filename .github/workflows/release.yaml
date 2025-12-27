@@ -26,24 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Configure Git
-        run: |
-          git config user.name "semver-bot"
-          git config user.email "bot@jilebi.ai"
-
-      - name: Run changeset version
-        run: npx @changesets/cli version
-
-      - name: Push version changes
-        run: |
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No version changes to commit"
-          else
-            git commit -m "chore: version packages"
-            git push
-          fi
-
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
@@ -78,6 +60,12 @@ jobs:
             # Get version from package.json
             version=$(jq -r '.version' package.json)
             echo "Plugin $plugin version: $version"
+
+            # Update version in manifest.toml to match package.json
+            if [ -f "manifest.toml" ]; then
+              sed -i "s/^version = .*/version = \"$version\"/" manifest.toml
+              echo "Updated manifest.toml version to $version"
+            fi
 
             # Build the plugin if it has a build script
             if npm run build --silent 2>/dev/null; then
