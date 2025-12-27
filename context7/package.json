@@ -1,6 +1,6 @@
 {
 	"name": "context7-jilebi-plugin",
-	"version": "1.0.13",
+	"version": "1.1.0",
 	"description": "Jilebi plugin for Context7 documentation access",
 	"type": "module",
 	"main": "index.ts",

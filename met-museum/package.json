@@ -1,6 +1,6 @@
 {
 	"name": "met-museum",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A Jilebi plugin for accessing the Metropolitan Museum of Art collection",
 	"main": "index.js",
 	"type": "module",
