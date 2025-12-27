@@ -104,6 +104,33 @@ Provides comprehensive GitHub integration including repository search, issue man
 
 ---
 
+### Fetch Plugin
+
+**Tools**: URL fetching and content extraction  
+**Resources**: None  
+**Prompts**: None  
+**Permissions**: `hosts: ["https://*", "http://*"]`  
+**Secrets**: None  
+
+Fetch web content from URLs and convert HTML pages to clean, readable markdown format.
+
+**Key Tools**:
+- `fetch_url` - Fetch a URL and return content as markdown or raw text
+
+**Parameters**:
+- `url` (required) - The URL to fetch (HTTP or HTTPS)
+- `max_length` (optional) - Maximum characters to return (default: 5000, max: 1000000)
+- `start_index` (optional) - Starting index for pagination (default: 0)
+- `raw` (optional) - Return raw HTML instead of markdown (default: false)
+
+**Features**:
+- Automatic HTML to markdown conversion
+- Body content extraction (removes head, scripts, styles)
+- Content pagination for large pages
+- Raw mode for unprocessed HTML
+
+---
+
 ### Filesystem Plugin
 
 The filesystem plugin was derived from the [filesystem MCP implementation](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem)

@@ -18,10 +18,12 @@
 		"rust-docs",
 		"grafana",
 		"wikipedia",
-		"arxiv"
+		"arxiv",
+		"fetch"
 	],
 	"devDependencies": {
-		"@jilebi/types": "^1.0.2",
+		"@changesets/cli": "^2.29.8",
+		"@jilebi/types": "^1.0.3",
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-json": "^6.1.0",
 		"@rollup/plugin-node-resolve": "^15.3.0",

@@ -1,0 +1,33 @@
+name = "fetch"
+version = "1.0.0"
+homepage = "jilebi.ai"
+creator = "jilebi"
+contact = "support@jilebi.ai"
+
+[resources]
+
+[prompts.fetch]
+name = "fetch"
+description = "Fetch a URL and extract its contents as markdown"
+arguments = [
+	{ name = "url", description = "URL to fetch", required = true },
+]
+messages = [
+	{ role = "user", type = "text", content = "Please fetch the contents of {{url}} and provide them to me." },
+]
+
+[tools.fetch]
+name = "fetch"
+description = "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that."
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL to fetch" }, max_length = { type = "number", description = "Maximum number of characters to return.", default = 5000 }, start_index = { type = "number", description = "On return output starting at this character index, useful if a previous fetch was truncated and more context is required.", default = 0 }, raw = { type = "boolean", description = "Get the actual HTML content of the requested page, without simplification.", default = false } }, required = [
+	"url",
+] }
+function = "fetch_url"
+[tools.fetch.annotations]
+title = "Fetch URL"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.fetch.permissions]
+hosts = ["*"]
