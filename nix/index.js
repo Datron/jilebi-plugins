@@ -30,14 +30,24 @@ class ChannelCache {
     resolvedChannels = null;
     usingFallback = false;
     async getAvailable() {
+        console.log(' getAvailable: checking cache');
         if (this.availableChannels === null) {
+            console.log(' getAvailable: cache miss, discovering channels');
             this.availableChannels = await this.discoverAvailableChannels();
+        }
+        else {
+            console.log(' getAvailable: cache hit');
         }
         return this.availableChannels || {};
     }
     async getResolved() {
+        console.log(' getResolved: checking cache');
         if (this.resolvedChannels === null) {
+            console.log(' getResolved: cache miss, resolving channels');
             this.resolvedChannels = await this.resolveChannels();
+        }
+        else {
+            console.log(' getResolved: cache hit');
         }
         return this.resolvedChannels || {};
     }
@@ -45,6 +55,7 @@ class ChannelCache {
         return this.usingFallback;
     }
     async discoverAvailableChannels() {
+        console.log(' discoverAvailableChannels: starting channel discovery');
         const generations = [43, 44, 45, 46];
         const versions = ["unstable", "25.05", "25.11", "26.05", "30.05"];
         const available = {};
@@ -54,6 +65,7 @@ class ChannelCache {
                 try {
                     const url = `${NIXOS_API}/${pattern}/_count`;
                     const auth = btoa(`${NIXOS_AUTH_USER}:${NIXOS_AUTH_PASS}`);
+                    console.log(` discoverAvailableChannels: checking pattern ${pattern}`);
                     const response = await fetch(url, {
                         method: "POST",
                         headers: {
@@ -66,21 +78,26 @@ class ChannelCache {
                         const data = await response.json();
                         const count = data.count || 0;
                         if (count > 0) {
+                            console.log(` discoverAvailableChannels: found ${pattern} with ${count} documents`);
                             available[pattern] = `${count.toLocaleString()} documents`;
                         }
                     }
                 }
                 catch (error) {
+                    console.log(` discoverAvailableChannels: pattern ${pattern} unavailable - ${error}`);
                     continue;
                 }
             }
         }
+        console.log(` discoverAvailableChannels: discovery complete, found ${Object.keys(available).length} channels`);
         return available;
     }
     async resolveChannels() {
+        console.log(' resolveChannels: starting channel resolution');
         const available = await this.getAvailable();
         const resolved = {};
         if (Object.keys(available).length === 0) {
+            console.warn(' resolveChannels: no channels discovered, using fallback');
             this.usingFallback = true;
             return FALLBACK_CHANNELS;
         }
@@ -89,12 +106,14 @@ class ChannelCache {
             let found = false;
             for (const [pattern, _] of Object.entries(available)) {
                 if (pattern.includes(baseChannel)) {
+                    console.log(` resolveChannels: mapped ${name} -> ${pattern}`);
                     resolved[name] = pattern;
                     found = true;
                     break;
                 }
             }
             if (!found && FALLBACK_CHANNELS[name]) {
+                console.log(` resolveChannels: using fallback for ${name} -> ${FALLBACK_CHANNELS[name]}`);
                 resolved[name] = FALLBACK_CHANNELS[name];
             }
         }
@@ -104,11 +123,14 @@ class ChannelCache {
             .sort()
             .reverse();
         if (stableVersions.length > 0) {
+            console.log(` resolveChannels: mapped stable -> ${stableVersions[0]}`);
             resolved["stable"] = stableVersions[0];
         }
         else if (FALLBACK_CHANNELS["stable"]) {
+            console.log(` resolveChannels: using fallback for stable`);
             resolved["stable"] = FALLBACK_CHANNELS["stable"];
         }
+        console.log(` resolveChannels: resolution complete, ${Object.keys(resolved).length} channels resolved`);
         return resolved;
     }
 }
@@ -119,6 +141,7 @@ function createError(message, errorType) {
     return errorType ? `ERROR [${errorType}]: ${message}` : `ERROR: ${message}`;
 }
 async function getChannels() {
+    console.log(' getChannels: fetching resolved channels');
     return await channelCache.getResolved();
 }
 function getChannelSuggestions(channel, channels) {
@@ -126,9 +149,11 @@ function getChannelSuggestions(channel, channels) {
     return `Available channels: ${available}`;
 }
 async function esQuery(index, query, size = 20) {
+    console.log(` esQuery: querying index="${index}" with size=${size}`);
     try {
         const url = `${NIXOS_API}/${index}/_search`;
         const auth = btoa(`${NIXOS_AUTH_USER}:${NIXOS_AUTH_PASS}`);
+        console.log(` esQuery: url=${url}`);
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -139,15 +164,19 @@ async function esQuery(index, query, size = 20) {
         });
         const data = await response.json();
         if (data && data.hits && data.hits.hits) {
+            console.log(` esQuery: retrieved ${data.hits.hits.length} hits from index ${index}`);
             return data.hits.hits;
         }
+        console.warn(` esQuery: no hits found in response from index ${index}`);
         return [];
     }
     catch (error) {
+        console.error(` esQuery: API error for index ${index}:`, error);
         throw new Error(`API error: ${error instanceof Error ? error.message : String(error)}`);
     }
 }
 async function parseHtmlOptions(url, query = "", prefix = "", limit = 100) {
+    console.log(` parseHtmlOptions: fetching from ${url}, query="${query}", prefix="${prefix}", limit=${limit}`);
     try {
         const response = await fetch(url);
         const html = await response.text();
@@ -226,9 +255,11 @@ function compareVersions(a, b) {
 }
 // Tool Functions
 async function nixos_search(request, env) {
+    console.log(` nixos_search: starting search - query="${request.query}", type=${request.search_type || 'packages'}, channel=${request.channel || 'unstable'}, limit=${request.limit || 20}`);
     try {
         const { query, search_type = "packages", limit = 20, channel = "unstable", } = request;
         if (!["packages", "options", "programs", "flakes"].includes(search_type)) {
+            console.warn(` nixos_search: invalid search_type "${search_type}"`);
             return {
                 content: [
                     { type: "text", text: createError(`Invalid type '${search_type}'`) },
@@ -238,6 +269,7 @@ async function nixos_search(request, env) {
         }
         const channels = await getChannels();
         if (!(channel in channels)) {
+            console.warn(` nixos_search: invalid channel "${channel}"`);
             const suggestions = getChannelSuggestions(channel, channels);
             return {
                 content: [
@@ -249,13 +281,16 @@ async function nixos_search(request, env) {
                 isError: true,
             };
         }
+        console.log(` nixos_search: using channel "${channel}" -> "${channels[channel]}"`);
         if (limit < 1 || limit > 100) {
+            console.warn(` nixos_search: invalid limit ${limit}`);
             return {
                 content: [{ type: "text", text: createError("Limit must be 1-100") }],
                 isError: true,
             };
         }
         if (search_type === "flakes") {
+            console.log(` nixos_search: delegating to nixos_flakes_search`);
             return await nixos_flakes_search(request, env);
         }
         let esQueryObj;
@@ -297,12 +332,14 @@ async function nixos_search(request, env) {
         }
         const hits = await esQuery(channels[channel], esQueryObj, limit);
         if (hits.length === 0) {
+            console.log(` nixos_search: no results found for query="${query}" in ${search_type}`);
             return {
                 content: [
                     { type: "text", text: `No ${search_type} found matching '${query}'` },
                 ],
             };
         }
+        console.log(` nixos_search: found ${hits.length} results for query="${query}"`);
         const results = [];
         results.push(`Found ${hits.length} ${search_type} matching '${query}':\n`);
         for (const hit of hits) {
@@ -342,11 +379,13 @@ async function nixos_search(request, env) {
                 }
             }
         }
+        console.log(` nixos_search: returning ${results.length} formatted results`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' nixos_search: error occurred:', error);
         return {
             content: [
                 {
@@ -359,9 +398,11 @@ async function nixos_search(request, env) {
     }
 }
 async function nixos_info(request, env) {
+    console.log(` nixos_info: getting info for name="${request.name}", type=${request.type || 'package'}, channel=${request.channel || 'unstable'}`);
     try {
         const { name, type = "package", channel = "unstable" } = request;
         if (!["package", "option"].includes(type)) {
+            console.warn(` nixos_info: invalid type "${type}"`);
             return {
                 content: [
                     {
@@ -374,6 +415,7 @@ async function nixos_info(request, env) {
         }
         const channels = await getChannels();
         if (!(channel in channels)) {
+            console.warn(` nixos_info: invalid channel "${channel}"`);
             const suggestions = getChannelSuggestions(channel, channels);
             return {
                 content: [
@@ -393,6 +435,7 @@ async function nixos_info(request, env) {
         };
         const hits = await esQuery(channels[channel], query, 1);
         if (hits.length === 0) {
+            console.log(` nixos_info: ${type} "${name}" not found`);
             return {
                 content: [
                     {
@@ -449,6 +492,7 @@ async function nixos_info(request, env) {
         };
     }
     catch (error) {
+        console.error(' nixos_info: error occurred:', error);
         return {
             content: [
                 {
@@ -461,6 +505,7 @@ async function nixos_info(request, env) {
     }
 }
 async function nixos_channels(request, env) {
+    console.log(' nixos_channels: listing available channels');
     try {
         const configured = await getChannels();
         const available = await channelCache.getAvailable();
@@ -515,11 +560,13 @@ async function nixos_channels(request, env) {
             results.push("\nWARNING: Fallback channels may not reflect the latest available versions.");
             results.push("   Please check your network connection to search.nixos.org.");
         }
+        console.log(` nixos_channels: found ${Object.keys(configured).length} configured channels`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' nixos_channels: error occurred:', error);
         return {
             content: [
                 {
@@ -532,6 +579,7 @@ async function nixos_channels(request, env) {
     }
 }
 async function nixos_stats(request, env) {
+    console.log(` nixos_stats: getting stats for channel=${request.channel || 'unstable'}`);
     try {
         const { channel = "unstable" } = request;
         const channels = await getChannels();
@@ -591,11 +639,13 @@ async function nixos_stats(request, env) {
             };
         }
         const result = `NixOS Statistics for ${channel} channel:\n• Packages: ${pkgCount.toLocaleString()}\n• Options: ${optCount.toLocaleString()}`;
+        console.log(` nixos_stats: retrieved stats - packages: ${pkgCount}, options: ${optCount}`);
         return {
             content: [{ type: "text", text: result }],
         };
     }
     catch (error) {
+        console.error(' nixos_stats: error occurred:', error);
         return {
             content: [
                 {
@@ -608,9 +658,11 @@ async function nixos_stats(request, env) {
     }
 }
 async function home_manager_search(request, env) {
+    console.log(` home_manager_search: searching for query="${request.query}", limit=${request.limit || 20}`);
     try {
         const { query, limit = 20 } = request;
         if (limit < 1 || limit > 100) {
+            console.warn(` home_manager_search: invalid limit ${limit}`);
             return {
                 content: [{ type: "text", text: createError("Limit must be 1-100") }],
                 isError: true,
@@ -618,6 +670,7 @@ async function home_manager_search(request, env) {
         }
         const options = await parseHtmlOptions(HOME_MANAGER_URL, query, "", limit);
         if (options.length === 0) {
+            console.log(` home_manager_search: no results found for query="${query}"`);
             return {
                 content: [
                     {
@@ -627,6 +680,7 @@ async function home_manager_search(request, env) {
                 ],
             };
         }
+        console.log(` home_manager_search: found ${options.length} results for query="${query}"`);
         const results = [];
         results.push(`Found ${options.length} Home Manager options matching '${query}':\n`);
         for (const opt of options) {
@@ -644,6 +698,7 @@ async function home_manager_search(request, env) {
         };
     }
     catch (error) {
+        console.error(' home_manager_search: error occurred:', error);
         return {
             content: [
                 {
@@ -656,6 +711,7 @@ async function home_manager_search(request, env) {
     }
 }
 async function home_manager_info(request, env) {
+    console.log(` home_manager_info: getting info for name="${request.name}"`);
     try {
         const { name } = request;
         const options = await parseHtmlOptions(HOME_MANAGER_URL, name, "", 100);
@@ -697,6 +753,7 @@ async function home_manager_info(request, env) {
         };
     }
     catch (error) {
+        console.error(' home_manager_info: error occurred:', error);
         return {
             content: [
                 {
@@ -709,6 +766,7 @@ async function home_manager_info(request, env) {
     }
 }
 async function home_manager_stats(request, env) {
+    console.log(' home_manager_stats: getting Home Manager statistics');
     try {
         const options = await parseHtmlOptions(HOME_MANAGER_URL, "", "", 10000);
         const categories = new Set();
@@ -719,11 +777,13 @@ async function home_manager_stats(request, env) {
             }
         }
         const result = `Home Manager Statistics:\n• Total options: ${options.length.toLocaleString()}\n• Top-level categories: ${categories.size}`;
+        console.log(` home_manager_stats: found ${options.length} options in ${categories.size} categories`);
         return {
             content: [{ type: "text", text: result }],
         };
     }
     catch (error) {
+        console.error(' home_manager_stats: error occurred:', error);
         return {
             content: [
                 {
@@ -736,6 +796,7 @@ async function home_manager_stats(request, env) {
     }
 }
 async function home_manager_list_options(request, env) {
+    console.log(' home_manager_list_options: listing all option categories');
     try {
         const options = await parseHtmlOptions(HOME_MANAGER_URL, "", "", 10000);
         const categories = new Map();
@@ -751,11 +812,13 @@ async function home_manager_list_options(request, env) {
         for (const [cat, count] of Array.from(categories.entries()).sort()) {
             results.push(`• ${cat} (${count} options)`);
         }
+        console.log(` home_manager_list_options: found ${categories.size} categories`);
         return {
             content: [{ type: "text", text: results.join("\n") }],
         };
     }
     catch (error) {
+        console.error(' home_manager_list_options: error occurred:', error);
         return {
             content: [
                 {
@@ -768,6 +831,7 @@ async function home_manager_list_options(request, env) {
     }
 }
 async function home_manager_options_by_prefix(request, env) {
+    console.log(` home_manager_options_by_prefix: getting options with prefix="${request.prefix}", limit=${request.limit || 50}`);
     try {
         const { prefix, limit = 50 } = request;
         const options = await parseHtmlOptions(HOME_MANAGER_URL, "", prefix, limit);
@@ -793,11 +857,13 @@ async function home_manager_options_by_prefix(request, env) {
             }
             results.push("");
         }
+        console.log(` home_manager_options_by_prefix: found ${results.length} options with prefix "${prefix}"`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' home_manager_options_by_prefix: error occurred:', error);
         return {
             content: [
                 {
@@ -810,9 +876,11 @@ async function home_manager_options_by_prefix(request, env) {
     }
 }
 async function darwin_search(request, env) {
+    console.log(` darwin_search: searching for query="${request.query}", limit=${request.limit || 20}`);
     try {
         const { query, limit = 20 } = request;
         if (limit < 1 || limit > 100) {
+            console.warn(` darwin_search: invalid limit ${limit}`);
             return {
                 content: [{ type: "text", text: createError("Limit must be 1-100") }],
                 isError: true,
@@ -820,6 +888,7 @@ async function darwin_search(request, env) {
         }
         const options = await parseHtmlOptions(DARWIN_URL, query, "", limit);
         if (options.length === 0) {
+            console.log(` darwin_search: no results found for query="${query}"`);
             return {
                 content: [
                     {
@@ -829,6 +898,7 @@ async function darwin_search(request, env) {
                 ],
             };
         }
+        console.log(` darwin_search: found ${options.length} results for query="${query}"`);
         const results = [];
         results.push(`Found ${options.length} nix-darwin options matching '${query}':\n`);
         for (const opt of options) {
@@ -846,6 +916,7 @@ async function darwin_search(request, env) {
         };
     }
     catch (error) {
+        console.error(' darwin_search: error occurred:', error);
         return {
             content: [
                 {
@@ -858,6 +929,7 @@ async function darwin_search(request, env) {
     }
 }
 async function darwin_info(request, env) {
+    console.log(` darwin_info: getting info for name="${request.name}"`);
     try {
         const { name } = request;
         const options = await parseHtmlOptions(DARWIN_URL, name, "", 100);
@@ -899,6 +971,7 @@ async function darwin_info(request, env) {
         };
     }
     catch (error) {
+        console.error(' darwin_info: error occurred:', error);
         return {
             content: [
                 {
@@ -911,6 +984,7 @@ async function darwin_info(request, env) {
     }
 }
 async function darwin_stats(request, env) {
+    console.log(' darwin_stats: getting darwin statistics');
     try {
         const options = await parseHtmlOptions(DARWIN_URL, "", "", 10000);
         const categories = new Set();
@@ -921,11 +995,13 @@ async function darwin_stats(request, env) {
             }
         }
         const result = `nix-darwin Statistics:\n• Total options: ${options.length.toLocaleString()}\n• Top-level categories: ${categories.size}`;
+        console.log(` darwin_stats: found ${options.length} options in ${categories.size} categories`);
         return {
             content: [{ type: "text", text: result }],
         };
     }
     catch (error) {
+        console.error(' darwin_stats: error occurred:', error);
         return {
             content: [
                 {
@@ -938,6 +1014,7 @@ async function darwin_stats(request, env) {
     }
 }
 async function darwin_list_options(request, env) {
+    console.log(' darwin_list_options: listing all darwin option categories');
     try {
         const options = await parseHtmlOptions(DARWIN_URL, "", "", 10000);
         const categories = new Map();
@@ -953,11 +1030,13 @@ async function darwin_list_options(request, env) {
         for (const [cat, count] of Array.from(categories.entries()).sort()) {
             results.push(`• ${cat} (${count} options)`);
         }
+        console.log(` darwin_list_options: found ${categories.size} categories`);
         return {
             content: [{ type: "text", text: results.join("\n") }],
         };
     }
     catch (error) {
+        console.error(' darwin_list_options: error occurred:', error);
         return {
             content: [
                 {
@@ -970,6 +1049,7 @@ async function darwin_list_options(request, env) {
     }
 }
 async function darwin_options_by_prefix(request, env) {
+    console.log(` darwin_options_by_prefix: getting options with prefix="${request.prefix}", limit=${request.limit || 50}`);
     try {
         const { prefix, limit = 50 } = request;
         const options = await parseHtmlOptions(DARWIN_URL, "", prefix, limit);
@@ -995,11 +1075,13 @@ async function darwin_options_by_prefix(request, env) {
             }
             results.push("");
         }
+        console.log(` darwin_options_by_prefix: found ${results.length} options with prefix "${prefix}"`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' darwin_options_by_prefix: error occurred:', error);
         return {
             content: [
                 {
@@ -1012,6 +1094,7 @@ async function darwin_options_by_prefix(request, env) {
     }
 }
 async function nixos_flakes_stats(request, env) {
+    console.log(' nixos_flakes_stats: getting flakes statistics');
     try {
         const flakeIndex = "latest-43-group-manual";
         const auth = btoa(`${NIXOS_AUTH_USER}:${NIXOS_AUTH_PASS}`);
@@ -1029,11 +1112,13 @@ async function nixos_flakes_stats(request, env) {
         results.push("NixOS Flakes Statistics:");
         results.push(`• Available flakes: ${totalPackages.toLocaleString()}`);
         results.push("\nNote: Flakes are community-contributed and indexed separately from official packages.");
+        console.log(` nixos_flakes_stats: found ${totalPackages} flakes`);
         return {
             content: [{ type: "text", text: results.join("\n") }],
         };
     }
     catch (error) {
+        console.error(' nixos_flakes_stats: error occurred:', error);
         return {
             content: [
                 {
@@ -1046,9 +1131,11 @@ async function nixos_flakes_stats(request, env) {
     }
 }
 async function nixos_flakes_search(request, env) {
+    console.log(` nixos_flakes_search: searching flakes for query="${request.query}", limit=${request.limit || 20}`);
     try {
         const { query, limit = 20 } = request;
         if (limit < 1 || limit > 100) {
+            console.warn(` nixos_flakes_search: invalid limit ${limit}`);
             return {
                 content: [{ type: "text", text: createError("Limit must be 1-100") }],
                 isError: true,
@@ -1068,12 +1155,14 @@ async function nixos_flakes_search(request, env) {
         };
         const hits = await esQuery(flakeIndex, esQueryObj, limit * 2);
         if (hits.length === 0) {
+            console.log(` nixos_flakes_search: no results found for query="${query}"`);
             return {
                 content: [
                     { type: "text", text: `No flakes found matching '${query}'` },
                 ],
             };
         }
+        console.log(` nixos_flakes_search: found ${hits.length} results for query="${query}"`);
         // Deduplicate by flake name
         const seenFlakes = new Set();
         const uniqueHits = [];
@@ -1104,11 +1193,13 @@ async function nixos_flakes_search(request, env) {
             }
             results.push("");
         }
+        console.log(` nixos_flakes_search: returning ${uniqueHits.length} unique flakes`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' nixos_flakes_search: error occurred:', error);
         return {
             content: [
                 {
@@ -1121,6 +1212,7 @@ async function nixos_flakes_search(request, env) {
     }
 }
 async function nixhub_package_versions(request, env) {
+    console.log(` nixhub_package_versions: getting versions for package="${request.package_name}", limit=${request.limit || 10}`);
     try {
         const { package_name, limit = 10 } = request;
         if (!package_name || !package_name.trim()) {
@@ -1239,11 +1331,13 @@ async function nixhub_package_versions(request, env) {
             results.push("1. Pin nixpkgs to the commit hash");
             results.push("2. Use the attribute path to install the package");
         }
+        console.log(` nixhub_package_versions: returning ${results.length} version entries`);
         return {
             content: [{ type: "text", text: results.join("\n").trim() }],
         };
     }
     catch (error) {
+        console.error(' nixhub_package_versions: error occurred:', error);
         return {
             content: [
                 {
@@ -1256,6 +1350,7 @@ async function nixhub_package_versions(request, env) {
     }
 }
 async function nixhub_find_version(request, env) {
+    console.log(` nixhub_find_version: finding package="${request.package_name}", version="${request.version}"`);
     try {
         const { package_name, version } = request;
         if (!package_name || !package_name.trim()) {
@@ -1387,11 +1482,13 @@ async function nixhub_find_version(request, env) {
             results.push("• Use Docker/containers with the specific version");
             results.push("• Find an old nixpkgs commit from before the version was removed");
         }
+        console.log(` nixhub_find_version: completed search for ${package_name}@${version}`);
         return {
             content: [{ type: "text", text: results.join("\n") }],
         };
     }
     catch (error) {
+        console.error(' nixhub_find_version: error occurred:', error);
         return {
             content: [
                 {
