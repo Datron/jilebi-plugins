@@ -84,7 +84,7 @@ jobs:
 
             # Create versioned directory structure in bin
             mkdir -p "../bin/${plugin}/${version}"
-            cp manifest.toml "../bin/${plugin}/${version}" 2>/dev/null || echo "manifest.toml not found for $plugin $version"
+            cp manifest.toml "../bin/${plugin}/${version}" 2>/dev/null || echo "manifest.toml not found for $plugin"
 
             # Create zip file with versioned path
             cd "../temp_$plugin"
