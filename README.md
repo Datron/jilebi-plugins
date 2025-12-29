@@ -381,6 +381,66 @@ Access and analyze Wikipedia content with support for searching, reading article
 - `get-coordinates` - Get geographic coordinates associated with an article
 - `test-wikipedia-connectivity` - Diagnostic tool for Wikipedia API connectivity
 
+---
+
+### Nix Plugin
+
+[original MCP server](https://github.com/utensils/mcp-nixos)
+
+**Tools**: NixOS packages, options, Home Manager, nix-darwin, flakes, and NixHub version tracking  
+**Resources**: None  
+**Prompts**: None  
+**Permissions**: `hosts: ["https://search.nixos.org", "https://nix-community.github.io", "https://nix-darwin.github.io", "https://www.nixhub.io"]`  
+**Environment**: `ELASTICSEARCH_URL` (optional, default: "https://search.nixos.org/backend")  
+**Secrets**: None  
+
+Comprehensive NixOS ecosystem integration providing access to 130K+ packages, 22K+ configuration options, Home Manager settings, nix-darwin macOS configurations, community flakes, and package version history via NixHub.
+
+**Key Features**:
+- Real-time data from official NixOS Elasticsearch APIs
+- Dynamic channel discovery and resolution (stable always points to current stable release)
+- Smart option suggestions when exact matches aren't found
+- Version-aware package searches with nixpkgs commit hashes
+- Category browsing for organized option exploration
+- Cross-platform compatibility (works on any system)
+- Comprehensive console.log debugging throughout
+
+**NixOS Tools**:
+- `nixos-search` - Search packages, options, programs, or flakes with channel selection
+- `nixos-info` - Get detailed information about packages or options
+- `nixos-channels` - List available NixOS channels with status and document counts
+- `nixos-stats` - Get package and option counts for channels
+
+**Home Manager Tools**:
+- `home-manager-search` - Search Home Manager configuration options
+- `home-manager-info` - Get detailed option information with type and description
+- `home-manager-stats` - Statistics about available options and categories
+- `home-manager-list-options` - List all option categories with counts
+- `home-manager-options-by-prefix` - Explore options by prefix (e.g., "programs.git")
+
+**nix-darwin Tools**:
+- `darwin-search` - Search macOS configuration options
+- `darwin-info` - Get detailed nix-darwin option information
+- `darwin-stats` - Statistics about available darwin options
+- `darwin-list-options` - List all darwin option categories
+- `darwin-options-by-prefix` - Explore darwin options by prefix (e.g., "system.defaults")
+
+**Flakes Tools**:
+- `nixos-flakes-stats` - Statistics about available community flakes
+- `nixos-flakes-search` - Search community NixOS flakes by name or description
+
+**NixHub Tools**:
+- `nixhub-package-versions` - Get version history with nixpkgs commit hashes (up to 50 versions)
+- `nixhub-find-version` - Find specific package version with commit hash for pinning
+
+**Data Sources**:
+- [search.nixos.org](https://search.nixos.org) - Official NixOS package and option search
+- [NixHub.io](https://www.nixhub.io) - Package version history and commit tracking
+- [Home Manager docs](https://nix-community.github.io/home-manager/) - User configuration options
+- [nix-darwin docs](https://nix-darwin.github.io/nix-darwin/) - macOS configuration options
+
+---
+
 ## Security Model
 
 Jilebi's sandbox architecture ensures that:

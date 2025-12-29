@@ -19,7 +19,8 @@
 		"grafana",
 		"wikipedia",
 		"arxiv",
-		"fetch"
+		"fetch",
+		"nix"
 	],
 	"devDependencies": {
 		"@changesets/cli": "^2.29.8",
