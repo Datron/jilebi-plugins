@@ -1,0 +1,266 @@
+name = "nix"
+version = "1.0.0"
+homepage = "https://github.com/datron/jilebi-plugins"
+creator = "datron"
+contact = "support@jilebi.ai"
+
+[env]
+ELASTICSEARCH_URL = { schema = { type = "string" }, default = "https://search.nixos.org/backend" }
+
+[secrets]
+
+[resources]
+
+[prompts]
+
+[tools.nixos-search]
+name = "nixos-search"
+description = "Search NixOS packages, options, or programs"
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search term to look for" }, search_type = { type = "string", description = "Type of search - 'packages', 'options', 'programs', or 'flakes'", default = "packages" }, limit = { type = "number", description = "Maximum number of results to return (1-100)", default = 20 }, channel = { type = "string", description = "NixOS channel to search in (e.g., 'unstable', 'stable', '25.05')", default = "unstable" } }, required = ["query"] }
+function = "nixos_search"
+[tools.nixos-search.annotations]
+title = "Search NixOS"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-search.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.nixos-info]
+name = "nixos-info"
+description = "Get detailed info about a NixOS package or option"
+input_schema = { type = "object", properties = { name = { type = "string", description = "Name of the package or option to look up" }, type = { type = "string", description = "Type of lookup - 'package' or 'option'", default = "package" }, channel = { type = "string", description = "NixOS channel to search in (e.g., 'unstable', 'stable', '25.05')", default = "unstable" } }, required = ["name"] }
+function = "nixos_info"
+[tools.nixos-info.annotations]
+title = "Get NixOS Info"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-info.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.nixos-channels]
+name = "nixos-channels"
+description = "List available NixOS channels with their status"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "nixos_channels"
+[tools.nixos-channels.annotations]
+title = "List NixOS Channels"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-channels.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.nixos-stats]
+name = "nixos-stats"
+description = "Get NixOS statistics for a channel"
+input_schema = { type = "object", properties = { channel = { type = "string", description = "NixOS channel to get stats for (e.g., 'unstable', 'stable', '25.05')", default = "unstable" } }, required = [] }
+function = "nixos_stats"
+[tools.nixos-stats.annotations]
+title = "Get NixOS Statistics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-stats.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.home-manager-search]
+name = "home-manager-search"
+description = "Search Home Manager configuration options"
+input_schema = { type = "object", properties = { query = { type = "string", description = "The search query string to match against option names and descriptions" }, limit = { type = "number", description = "Maximum number of results to return (default: 20, max: 100)", default = 20 } }, required = ["query"] }
+function = "home_manager_search"
+[tools.home-manager-search.annotations]
+title = "Search Home Manager"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.home-manager-search.permissions]
+hosts = ["https://nix-community.github.io"]
+
+[tools.home-manager-info]
+name = "home-manager-info"
+description = "Get detailed information about a specific Home Manager option"
+input_schema = { type = "object", properties = { name = { type = "string", description = "The exact option name (e.g., 'programs.git.enable')" } }, required = ["name"] }
+function = "home_manager_info"
+[tools.home-manager-info.annotations]
+title = "Get Home Manager Info"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.home-manager-info.permissions]
+hosts = ["https://nix-community.github.io"]
+
+[tools.home-manager-stats]
+name = "home-manager-stats"
+description = "Get statistics about Home Manager options"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "home_manager_stats"
+[tools.home-manager-stats.annotations]
+title = "Get Home Manager Statistics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.home-manager-stats.permissions]
+hosts = ["https://nix-community.github.io"]
+
+[tools.home-manager-list-options]
+name = "home-manager-list-options"
+description = "List all Home Manager option categories"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "home_manager_list_options"
+[tools.home-manager-list-options.annotations]
+title = "List Home Manager Options"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.home-manager-list-options.permissions]
+hosts = ["https://nix-community.github.io"]
+
+[tools.home-manager-options-by-prefix]
+name = "home-manager-options-by-prefix"
+description = "Explore Home Manager options by prefix"
+input_schema = { type = "object", properties = { prefix = { type = "string", description = "Option prefix to filter by (e.g., 'programs.git')" }, limit = { type = "number", description = "Maximum number of results to return", default = 50 } }, required = ["prefix"] }
+function = "home_manager_options_by_prefix"
+[tools.home-manager-options-by-prefix.annotations]
+title = "Browse Home Manager Options"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.home-manager-options-by-prefix.permissions]
+hosts = ["https://nix-community.github.io"]
+
+[tools.darwin-search]
+name = "darwin-search"
+description = "Search nix-darwin (macOS) configuration options"
+input_schema = { type = "object", properties = { query = { type = "string", description = "The search query string to match against option names and descriptions" }, limit = { type = "number", description = "Maximum number of results to return (default: 20, max: 100)", default = 20 } }, required = ["query"] }
+function = "darwin_search"
+[tools.darwin-search.annotations]
+title = "Search nix-darwin"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.darwin-search.permissions]
+hosts = ["https://nix-darwin.github.io"]
+
+[tools.darwin-info]
+name = "darwin-info"
+description = "Get detailed information about a specific nix-darwin option"
+input_schema = { type = "object", properties = { name = { type = "string", description = "The exact option name (e.g., 'system.defaults.dock.autohide')" } }, required = ["name"] }
+function = "darwin_info"
+[tools.darwin-info.annotations]
+title = "Get nix-darwin Info"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.darwin-info.permissions]
+hosts = ["https://nix-darwin.github.io"]
+
+[tools.darwin-stats]
+name = "darwin-stats"
+description = "Get statistics about nix-darwin options"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "darwin_stats"
+[tools.darwin-stats.annotations]
+title = "Get nix-darwin Statistics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.darwin-stats.permissions]
+hosts = ["https://nix-darwin.github.io"]
+
+[tools.darwin-list-options]
+name = "darwin-list-options"
+description = "List all nix-darwin option categories"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "darwin_list_options"
+[tools.darwin-list-options.annotations]
+title = "List nix-darwin Options"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.darwin-list-options.permissions]
+hosts = ["https://nix-darwin.github.io"]
+
+[tools.darwin-options-by-prefix]
+name = "darwin-options-by-prefix"
+description = "Explore nix-darwin options by prefix"
+input_schema = { type = "object", properties = { prefix = { type = "string", description = "Option prefix to filter by (e.g., 'system.defaults')" }, limit = { type = "number", description = "Maximum number of results to return", default = 50 } }, required = ["prefix"] }
+function = "darwin_options_by_prefix"
+[tools.darwin-options-by-prefix.annotations]
+title = "Browse nix-darwin Options"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.darwin-options-by-prefix.permissions]
+hosts = ["https://nix-darwin.github.io"]
+
+[tools.nixos-flakes-stats]
+name = "nixos-flakes-stats"
+description = "Get statistics about available NixOS flakes"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "nixos_flakes_stats"
+[tools.nixos-flakes-stats.annotations]
+title = "Get Flakes Statistics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-flakes-stats.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.nixos-flakes-search]
+name = "nixos-flakes-search"
+description = "Search community NixOS flakes"
+input_schema = { type = "object", properties = { query = { type = "string", description = "Search term to look for in flakes" }, limit = { type = "number", description = "Maximum number of results to return (1-100)", default = 20 } }, required = ["query"] }
+function = "nixos_flakes_search"
+[tools.nixos-flakes-search.annotations]
+title = "Search Flakes"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixos-flakes-search.permissions]
+hosts = ["https://search.nixos.org"]
+
+[tools.nixhub-package-versions]
+name = "nixhub-package-versions"
+description = "Get version history and nixpkgs commit hashes for a specific package from NixHub.io"
+input_schema = { type = "object", properties = { package_name = { type = "string", description = "Name of the package to query (e.g., 'firefox', 'python')" }, limit = { type = "number", description = "Maximum number of versions to return (default: 10, max: 50)", default = 10 } }, required = ["package_name"] }
+function = "nixhub_package_versions"
+[tools.nixhub-package-versions.annotations]
+title = "Get Package Versions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixhub-package-versions.permissions]
+hosts = ["https://www.nixhub.io"]
+
+[tools.nixhub-find-version]
+name = "nixhub-find-version"
+description = "Find a specific version of a package in NixHub with smart search"
+input_schema = { type = "object", properties = { package_name = { type = "string", description = "Name of the package to query (e.g., 'ruby', 'python')" }, version = { type = "string", description = "Specific version to find (e.g., '2.6.7', '3.5.9')" } }, required = ["package_name", "version"] }
+function = "nixhub_find_version"
+[tools.nixhub-find-version.annotations]
+title = "Find Package Version"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.nixhub-find-version.permissions]
+hosts = ["https://www.nixhub.io"]

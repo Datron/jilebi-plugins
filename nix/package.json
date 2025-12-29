@@ -1,0 +1,41 @@
+{
+  "name": "nix-jilebi-plugin",
+  "version": "1.0.0",
+  "description": "Comprehensive NixOS, Home Manager, nix-darwin, and NixHub integration plugin for Jilebi",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rm -rf index.js index.js.map",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nix",
+    "nixos",
+    "home-manager",
+    "darwin",
+    "nixhub",
+    "jilebi",
+    "plugin",
+    "mcp",
+    "package-manager"
+  ],
+  "author": "datron",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/datron/jilebi-plugins"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@jilebi/types": "^1.0.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.1",
+    "rollup": "^4.28.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {}
+}
