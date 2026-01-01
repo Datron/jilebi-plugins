@@ -3,54 +3,66 @@ import typescript from "@rollup/plugin-typescript";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
+import terser from "@rollup/plugin-terser";
 import { builtinModules } from "module";
 
 export default defineConfig({
-	input: "index.ts",
-	output: {
-		file: "index.js",
-		format: "es",
-		sourcemap: true,
-		inlineDynamicImports: true
-	},
-	plugins: [
-		// Resolve node modules
-		resolve({
-			preferBuiltins: true,
-			exportConditions: ["node"],
-			browser: true
-		}),
+  input: "index.ts",
+  output: {
+    file: "index.js",
+    format: "es",
+    sourcemap: false,
+    inlineDynamicImports: true,
+  },
+  plugins: [
+    // Resolve node modules
+    resolve({
+      preferBuiltins: true,
+      exportConditions: ["node"],
+      browser: true,
+    }),
 
-		// Convert CommonJS modules to ES6
-		commonjs(),
+    // Convert CommonJS modules to ES6
+    commonjs(),
 
-		// Handle JSON imports
-		json(),
+    // Handle JSON imports
+    json(),
 
-		// TypeScript compilation
-		typescript({
-			tsconfig: "./tsconfig.json",
-			sourceMap: true,
-			inlineSources: true
-		})
-	],
+    // TypeScript compilation
+    typescript({
+      tsconfig: "./tsconfig.json",
+      sourceMap: false,
+      inlineSources: false,
+    }),
 
-	// External dependencies that should not be bundled
-	external: [
-		// Node.js built-in modules
-		...builtinModules,
-		...builtinModules.map((m) => `node:${m}`)
-	],
+    // Minify the output while preserving function names
+    terser({
+      keep_fnames: true,
+      mangle: {
+        keep_fnames: true,
+      },
+      compress: {
+        keep_fnames: true,
+      },
+    }),
+  ],
 
-	// Suppress warnings for certain cases
-	onwarn(warning, warn) {
-		// Suppress "this is undefined" warnings
-		if (warning.code === "THIS_IS_UNDEFINED") return;
+  // External dependencies that should not be bundled
+  external: [
+    // Node.js built-in modules
+    ...builtinModules,
+    ...builtinModules.map((m) => `node:${m}`),
+  ],
 
-		// Suppress circular dependency warnings for known safe cases
-		if (warning.code === "CIRCULAR_DEPENDENCY") return;
+  // Suppress warnings for certain cases
+  onwarn(warning, warn) {
+    // Suppress "this is undefined" warnings
+    if (warning.code === "THIS_IS_UNDEFINED") return;
 
-		// Use default for everything else
-		warn(warning);
-	}
+    // Suppress circular dependency warnings for known safe cases
+    if (warning.code === "CIRCULAR_DEPENDENCY") return;
+
+    // Use default for everything else
+    warn(warning);
+  },
 });

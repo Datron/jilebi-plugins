@@ -25,17 +25,21 @@ export default defineConfig({
 
     // Handle JSON imports
     json(),
-
-    // TypeScript compilation
     typescript({
       tsconfig: "./tsconfig.json",
       sourceMap: false,
       inlineSources: false,
     }),
 
-    // Minify the output while preserving function names
+    // Minify the output, keeping function names
     terser({
       keep_fnames: true,
+      mangle: {
+        keep_fnames: true,
+      },
+      compress: {
+        keep_fnames: true,
+      },
     }),
   ],
 
@@ -48,7 +52,10 @@ export default defineConfig({
 
   // Suppress warnings for certain cases
   onwarn(warning, warn) {
-    // Ignore circular dependency warnings
+    // Suppress "this is undefined" warnings
+    if (warning.code === "THIS_IS_UNDEFINED") return;
+
+    // Suppress circular dependency warnings for known safe cases
     if (warning.code === "CIRCULAR_DEPENDENCY") return;
 
     // Use default for everything else

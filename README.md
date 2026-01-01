@@ -440,6 +440,24 @@ Comprehensive NixOS ecosystem integration providing access to 130K+ packages, 22
 - [nix-darwin docs](https://nix-darwin.github.io/nix-darwin/) - macOS configuration options
 
 ---
+## AWS Plugins
+
+A suite of plugins for interacting with Amazon Web Services (AWS). These plugins were migrated from the [AWS MCP Servers](https://github.com/awslabs/mcp) and provide comprehensive AWS functionality.
+
+### AWS Documentation Plugin (aws-docs)
+
+**Tools**: AWS documentation access and search  
+**Resources**: None  
+**Prompts**: `documentation-lookup`  
+**Permissions**: `hosts: ["https://docs.aws.amazon.com", "https://proxy.search.docs.aws.amazon.com", "https://contentrecs-api.docs.aws.amazon.com"]`  
+**Secrets**: None  
+
+Access AWS documentation, search for content, and get recommendations through official AWS documentation APIs.
+
+**Key Tools**:
+- `read-documentation` - Fetch and convert AWS documentation pages to markdown
+- `search-documentation` - Search AWS documentation using the official search API
+- `get-recommendations` - Get related content recommendations for documentation pages
 
 ## Security Model
 
