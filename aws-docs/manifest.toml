@@ -1,0 +1,71 @@
+name = "aws-docs"
+version = "1.0.0"
+homepage = "https://docs.aws.amazon.com"
+creator = "AWS Labs"
+contact = "support@jilebi.ai"
+
+[env]
+AWS_DOCUMENTATION_PARTITION = { schema = { type = "string" }, default = "aws" }
+
+[secrets]
+
+[resources]
+
+[prompts.documentation-lookup]
+name = "documentation-lookup"
+description = "Look up AWS documentation for a specific service or feature"
+arguments = [
+	{ name = "service", description = "AWS service name (e.g., S3, Lambda, EC2)", required = true },
+	{ name = "feature", description = "Specific feature or topic within the service", required = false },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are an AWS documentation expert. Help the user find and understand documentation for {{service}}{{#if feature}} specifically about {{feature}}{{/if}}. Use the search-documentation tool to find relevant pages, then use read-documentation to get the content. Always cite your sources with the documentation URL." },
+]
+
+[tools.read-documentation]
+name = "read-documentation"
+description = "Fetch and convert an AWS documentation page to markdown format. For long documents, use start_index for pagination."
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL of the AWS documentation page to read (must be from docs.aws.amazon.com and end with .html)" }, max_length = { type = "number", description = "Maximum number of characters to return", default = 5000 }, start_index = { type = "number", description = "Starting character index for pagination (useful if previous fetch was truncated)", default = 0 } }, required = [
+	"url",
+] }
+function = "read_documentation"
+[tools.read-documentation.annotations]
+title = "Read AWS Documentation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.read-documentation.permissions]
+hosts = ["https://docs.aws.amazon.com", "https://awsdocs-neuron.readthedocs-hosted.com"]
+
+[tools.search-documentation]
+name = "search-documentation"
+description = "Search AWS documentation using the official AWS Documentation Search API. Returns relevant documentation pages matching the search phrase."
+input_schema = { type = "object", properties = { search_phrase = { type = "string", description = "Search phrase to use for finding documentation" }, limit = { type = "number", description = "Maximum number of results to return (1-50)", default = 10 } }, required = [
+	"search_phrase",
+] }
+function = "search_documentation"
+[tools.search-documentation.annotations]
+title = "Search AWS Documentation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.search-documentation.permissions]
+hosts = ["https://proxy.search.docs.aws.amazon.com"]
+
+[tools.get-recommendations]
+name = "get-recommendations"
+description = "Get content recommendations for an AWS documentation page. Useful for discovering related content, new features, and additional resources."
+input_schema = { type = "object", properties = { url = { type = "string", description = "URL of the AWS documentation page to get recommendations for" } }, required = [
+	"url",
+] }
+function = "get_recommendations"
+[tools.get-recommendations.annotations]
+title = "Get Documentation Recommendations"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = true
+[tools.get-recommendations.permissions]
+hosts = ["https://contentrecs-api.docs.aws.amazon.com"]

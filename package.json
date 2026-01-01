@@ -20,7 +20,8 @@
 		"wikipedia",
 		"arxiv",
 		"fetch",
-		"nix"
+		"nix",
+		"aws-docs"
 	],
 	"devDependencies": {
 		"@changesets/cli": "^2.29.8",
@@ -28,6 +29,7 @@
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-json": "^6.1.0",
 		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-terser": "^0.4.4",
 		"@rollup/plugin-typescript": "^12.1.1",
 		"@types/node": "^22.10.1",
 		"rollup": "^4.28.1",
