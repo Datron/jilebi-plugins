@@ -21,7 +21,8 @@
 		"arxiv",
 		"fetch",
 		"nix",
-		"aws-docs"
+		"aws-docs",
+		"swe-manager"
 	],
 	"devDependencies": {
 		"@changesets/cli": "^2.29.8",
