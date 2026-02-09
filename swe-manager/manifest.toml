@@ -1,0 +1,173 @@
+name = "swe-manager"
+version = "1.0.0"
+homepage = "https://jilebi.ai/plugins/swe-manager"
+creator = "jilebi"
+contact = "support@jilebi.ai"
+
+[resources]
+
+[prompts]
+
+[tools.read-goals]
+input_schema = { "type" = "object", "properties" = {} }
+name = "read-goals"
+description = "Read all goals including yearly, quarterly, monthly, and weekly goals"
+function = "read_goals"
+[tools.read-goals.annotations]
+title = "Read Goals"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.set-yearly-goals]
+input_schema = { "type" = "object", "properties" = { "year" = { "type" = "number", "description" = "The year for the goals (e.g., 2024)" }, "goals" = { "type" = "array", "items" = { "type" = "string" }, "description" = "List of yearly goals" } }, "required" = [
+	"goals",
+] }
+name = "set-yearly-goals"
+description = "Set yearly goals for a specific year"
+function = "set_yearly_goals"
+[tools.set-yearly-goals.annotations]
+title = "Set Yearly Goals"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.set-quarterly-goals]
+input_schema = { "type" = "object", "properties" = { "quarter" = { "type" = "string", "description" = "The quarter identifier (e.g., 'Q1-2024', '2024-Q1')" }, "goals" = { "type" = "array", "items" = { "type" = "string" }, "description" = "List of quarterly goals" } }, "required" = [
+	"quarter",
+	"goals",
+] }
+name = "set-quarterly-goals"
+description = "Set quarterly goals for a specific quarter"
+function = "set_quarterly_goals"
+[tools.set-quarterly-goals.annotations]
+title = "Set Quarterly Goals"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.set-monthly-goals]
+input_schema = { "type" = "object", "properties" = { "month" = { "type" = "string", "description" = "The month identifier (e.g., '2024-01', 'January-2024')" }, "goals" = { "type" = "array", "items" = { "type" = "string" }, "description" = "List of monthly goals" } }, "required" = [
+	"month",
+	"goals",
+] }
+name = "set-monthly-goals"
+description = "Set monthly goals for a specific month"
+function = "set_monthly_goals"
+[tools.set-monthly-goals.annotations]
+title = "Set Monthly Goals"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.set-weekly-goals]
+input_schema = { "type" = "object", "properties" = { "week" = { "type" = "string", "description" = "The week identifier (e.g., 'W1-2024', '2024-W01')" }, "goals" = { "type" = "array", "items" = { "type" = "string" }, "description" = "List of weekly goals" } }, "required" = [
+	"week",
+	"goals",
+] }
+name = "set-weekly-goals"
+description = "Set weekly goals for a specific week"
+function = "set_weekly_goals"
+[tools.set-weekly-goals.annotations]
+title = "Set Weekly Goals"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-on-call-rotation]
+input_schema = { "type" = "object", "properties" = {} }
+name = "get-on-call-rotation"
+description = "Get the current on-call rotation schedule showing all users and their assigned rotation slots"
+function = "get_on_call_rotation"
+[tools.get-on-call-rotation.annotations]
+title = "Get On-Call Rotation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-current-on-call]
+input_schema = { "type" = "object", "properties" = {} }
+name = "get-current-on-call"
+description = "Get the user who is currently on-call"
+function = "get_current_on_call"
+[tools.get-current-on-call.annotations]
+title = "Get Current On-Call"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.add-user-to-rotation]
+input_schema = { "type" = "object", "properties" = { "username" = { "type" = "string", "description" = "The username to add to the rotation" } }, "required" = [
+	"username",
+] }
+name = "add-user-to-rotation"
+description = "Add a user to the on-call rotation"
+function = "add_user_to_rotation"
+[tools.add-user-to-rotation.annotations]
+title = "Add User to Rotation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.remove-user-from-rotation]
+input_schema = { "type" = "object", "properties" = { "username" = { "type" = "string", "description" = "The username to remove from the rotation" } }, "required" = [
+	"username",
+] }
+name = "remove-user-from-rotation"
+description = "Remove a user from the on-call rotation"
+function = "remove_user_from_rotation"
+[tools.remove-user-from-rotation.annotations]
+title = "Remove User from Rotation"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.skip-rotation]
+input_schema = { "type" = "object", "properties" = { "username" = { "type" = "string", "description" = "The username who wants to skip their rotation" }, "reason" = { "type" = "string", "description" = "Optional reason for skipping the rotation" } }, "required" = [
+	"username",
+] }
+name = "skip-rotation"
+description = "Allow a user to skip their upcoming on-call rotation"
+function = "skip_rotation"
+[tools.skip-rotation.annotations]
+title = "Skip Rotation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.swap-rotation]
+input_schema = { "type" = "object", "properties" = { "user1" = { "type" = "string", "description" = "The username of the first user" }, "user2" = { "type" = "string", "description" = "The username of the second user to swap with" } }, "required" = [
+	"user1",
+	"user2",
+] }
+name = "swap-rotation"
+description = "Swap on-call rotations between two users"
+function = "swap_rotation"
+[tools.swap-rotation.annotations]
+title = "Swap Rotation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.advance-rotation]
+input_schema = { "type" = "object", "properties" = {} }
+name = "advance-rotation"
+description = "Advance the on-call rotation to the next user, looping back to the beginning if needed"
+function = "advance_rotation"
+[tools.advance-rotation.annotations]
+title = "Advance Rotation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
