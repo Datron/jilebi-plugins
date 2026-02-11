@@ -1,0 +1,589 @@
+name = "jira"
+version = "1.0.0"
+homepage = "https://github.com/atlassian-labs/mcp-atlassian"
+creator = "Atlassian"
+contact = ""
+
+[secrets]
+JIRA_API_TOKEN = { schema = { type = "string" } }
+JIRA_EMAIL = { schema = { type = "string" } }
+
+[env]
+JIRA_BASE_URL = { schema = { type = "string" }, default = "https://your-domain.atlassian.net" }
+
+[resources]
+
+[prompts]
+
+[prompts.issue-triage-workflow]
+name = "issue-triage-workflow"
+description = "Triage and prioritize Jira issues by analyzing their details, status, and SLA metrics"
+arguments = [
+	{ name = "project_key", description = "Jira project key (e.g. PROJ)", required = true },
+	{ name = "jql_filter", description = "Optional JQL filter to narrow down issues (e.g. 'status = Open AND priority = High')", required = false },
+	{ name = "max_issues", description = "Maximum number of issues to triage (default 10)", required = false },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are a Jira issue triage assistant. Your goal is to help the user review, categorize, and prioritize issues. For each issue you should: 1) Summarize the issue details, 2) Check SLA/performance metrics if relevant, 3) Suggest priority level and next actions, 4) Identify any issues that need immediate attention (overdue, SLA breach, etc.)." },
+	{ role = "user", type = "text", content = "Please triage issues in project {{project_key}}.{{#if jql_filter}} Use this filter: {{jql_filter}}.{{/if}}{{#if max_issues}} Limit to {{max_issues}} issues.{{/if}} For each issue, provide a summary with current status, assignee, priority, and any SLA concerns. Highlight issues that need immediate attention." },
+	{ role = "assistant", type = "text", content = "I'll triage the issues in project {{project_key}}. Let me start by searching for the issues and analyzing their details and metrics." },
+]
+
+[prompts.sprint-planning-workflow]
+name = "sprint-planning-workflow"
+description = "Assist with sprint planning by analyzing backlog, current sprint status, team capacity, and suggesting sprint scope"
+arguments = [
+	{ name = "project_key", description = "Jira project key (e.g. PROJ)", required = true },
+	{ name = "board_name", description = "Name of the agile board to use", required = false },
+	{ name = "sprint_goal", description = "Optional sprint goal or theme to guide planning", required = false },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are a sprint planning assistant for Jira. Your goal is to help the user plan an upcoming sprint. You should: 1) Review the current sprint status and any carry-over items, 2) Analyze the backlog for candidate issues, 3) Check issue sizes, priorities, and dependencies, 4) Suggest a sprint scope based on capacity and priorities, 5) Help create or update the sprint if needed." },
+	{ role = "user", type = "text", content = "Help me plan the next sprint for project {{project_key}}.{{#if board_name}} Use the board named '{{board_name}}'.{{/if}}{{#if sprint_goal}} The sprint goal is: {{sprint_goal}}.{{/if}} Please review the current sprint status, analyze the backlog, and suggest which issues to include in the next sprint." },
+	{ role = "assistant", type = "text", content = "I'll help you plan the next sprint for {{project_key}}. Let me start by finding the relevant board and reviewing the current sprint and backlog." },
+]
+
+[prompts.bug-investigation-workflow]
+name = "bug-investigation-workflow"
+description = "Investigate a bug by gathering issue details, related issues, changelogs, and timeline information"
+arguments = [
+	{ name = "issue_key", description = "The bug issue key (e.g. PROJ-123)", required = true },
+	{ name = "include_related", description = "Whether to check linked/related issues (default true)", required = false },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are a bug investigation assistant for Jira. Your goal is to help the user understand and diagnose a bug. You should: 1) Get the full issue details including description, comments, and attachments, 2) Review the changelog to understand when and how the issue evolved, 3) Check linked issues and dependencies for related problems, 4) Analyze the timeline (dates, SLA metrics) to understand response and resolution patterns, 5) Summarize findings and suggest next steps." },
+	{ role = "user", type = "text", content = "Please investigate bug {{issue_key}}. I need a comprehensive analysis of this issue including its history, related issues, timeline, and any patterns that might help diagnose the problem.{{#if include_related}} Also check any linked or related issues for additional context.{{/if}}" },
+	{ role = "assistant", type = "text", content = "I'll investigate bug {{issue_key}} thoroughly. Let me start by gathering the issue details, changelog, and related information." },
+]
+
+# ===================== READ TOOLS =====================
+
+[tools.get-user-profile]
+name = "get-user-profile"
+description = "Get profile information for a Jira user by account ID, email, or display name. Returns display name, email, active status, timezone and locale."
+function = "get_user_profile"
+input_schema = { type = "object", properties = { user_identifier = { type = "string", description = "The user's account ID, email address, or display name" } }, required = ["user_identifier"] }
+
+[tools.get-user-profile.annotations]
+title = "Get User Profile"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-user-profile.permissions]
+hosts = ["user_defined"]
+
+[tools.get-issue]
+name = "get-issue"
+description = "Get details of a specific Jira issue including status, assignee, description, comments, links, subtasks, and attachments. Use the fields parameter to control which fields are returned."
+function = "get_issue"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, fields = { type = "string", description = "Comma-separated list of fields to return, or '*all' for all fields. Default: summary,description,status,assignee,reporter,labels,priority,created,updated,issuetype" }, expand = { type = "string", description = "Comma-separated list of fields to expand (e.g. 'changelog,renderedFields')" }, comment_limit = { type = "number", description = "Maximum number of comments to include (0-100, default 10)" } }, required = ["issue_key"] }
+
+[tools.get-issue.annotations]
+title = "Get Issue"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-issue.permissions]
+hosts = ["user_defined"]
+
+[tools.search-issues]
+name = "search-issues"
+description = "Search for Jira issues using JQL (Jira Query Language). Examples: 'project = PROJ AND status = \"In Progress\"', 'assignee = currentUser() AND resolution = Unresolved', 'labels = bug AND priority = High ORDER BY created DESC'."
+function = "search_issues"
+input_schema = { type = "object", properties = { jql = { type = "string", description = "JQL query string" }, fields = { type = "string", description = "Comma-separated list of fields to return, or '*all' for all fields" }, limit = { type = "number", description = "Maximum number of results (1-50, default 10)" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" }, expand = { type = "string", description = "Comma-separated list of fields to expand" } }, required = ["jql"] }
+
+[tools.search-issues.annotations]
+title = "Search Issues"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-issues.permissions]
+hosts = ["user_defined"]
+
+[tools.search-fields]
+name = "search-fields"
+description = "Search Jira fields by keyword. Returns field ID, name, type, and whether it's custom. Useful for finding custom field IDs needed for create/update operations."
+function = "search_fields"
+input_schema = { type = "object", properties = { keyword = { type = "string", description = "Keyword to search for in field names, IDs, and clause names. Leave empty to list all fields." }, limit = { type = "number", description = "Maximum number of results (1-100, default 10)" } }, required = [] }
+
+[tools.search-fields.annotations]
+title = "Search Fields"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.search-fields.permissions]
+hosts = ["user_defined"]
+
+[tools.get-project-issues]
+name = "get-project-issues"
+description = "Get all issues for a specific Jira project, ordered by most recently updated."
+function = "get_project_issues"
+input_schema = { type = "object", properties = { project_key = { type = "string", description = "The project key (e.g. 'PROJ')" }, limit = { type = "number", description = "Maximum number of results (1-50, default 10)" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" } }, required = ["project_key"] }
+
+[tools.get-project-issues.annotations]
+title = "Get Project Issues"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-project-issues.permissions]
+hosts = ["user_defined"]
+
+[tools.get-transitions]
+name = "get-transitions"
+description = "Get available status transitions for a Jira issue. Returns transition IDs and names needed for the transition-issue tool."
+function = "get_transitions"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" } }, required = ["issue_key"] }
+
+[tools.get-transitions.annotations]
+title = "Get Transitions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-transitions.permissions]
+hosts = ["user_defined"]
+
+[tools.get-worklog]
+name = "get-worklog"
+description = "Get worklog entries for a Jira issue. Returns time spent, author, start time, and comments."
+function = "get_worklog"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" } }, required = ["issue_key"] }
+
+[tools.get-worklog.annotations]
+title = "Get Worklog"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-worklog.permissions]
+hosts = ["user_defined"]
+
+[tools.get-agile-boards]
+name = "get-agile-boards"
+description = "Get Jira agile boards, optionally filtered by name, project, or type (scrum/kanban)."
+function = "get_agile_boards"
+input_schema = { type = "object", properties = { board_name = { type = "string", description = "Filter by board name (substring match)" }, project_key = { type = "string", description = "Filter by project key" }, board_type = { type = "string", description = "Filter by board type: 'scrum' or 'kanban'" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" }, limit = { type = "number", description = "Maximum number of results (1-50, default 50)" } }, required = [] }
+
+[tools.get-agile-boards.annotations]
+title = "Get Agile Boards"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-agile-boards.permissions]
+hosts = ["user_defined"]
+
+[tools.get-board-issues]
+name = "get-board-issues"
+description = "Get issues linked to a specific agile board, optionally filtered by JQL."
+function = "get_board_issues"
+input_schema = { type = "object", properties = { board_id = { type = "string", description = "The board ID" }, jql = { type = "string", description = "Optional JQL filter to apply" }, fields = { type = "string", description = "Comma-separated list of fields to return" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" }, limit = { type = "number", description = "Maximum number of results (1-50, default 50)" } }, required = ["board_id"] }
+
+[tools.get-board-issues.annotations]
+title = "Get Board Issues"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-board-issues.permissions]
+hosts = ["user_defined"]
+
+[tools.get-sprints-from-board]
+name = "get-sprints-from-board"
+description = "Get sprints from a specific agile board, optionally filtered by state (active, future, closed)."
+function = "get_sprints_from_board"
+input_schema = { type = "object", properties = { board_id = { type = "string", description = "The board ID" }, state = { type = "string", description = "Filter by sprint state: 'active', 'future', or 'closed'" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" }, limit = { type = "number", description = "Maximum number of results (1-50, default 50)" } }, required = ["board_id"] }
+
+[tools.get-sprints-from-board.annotations]
+title = "Get Sprints from Board"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-sprints-from-board.permissions]
+hosts = ["user_defined"]
+
+[tools.get-sprint-issues]
+name = "get-sprint-issues"
+description = "Get issues from a specific sprint."
+function = "get_sprint_issues"
+input_schema = { type = "object", properties = { sprint_id = { type = "string", description = "The sprint ID" }, fields = { type = "string", description = "Comma-separated list of fields to return" }, start_at = { type = "number", description = "Pagination offset (0-based, default 0)" }, limit = { type = "number", description = "Maximum number of results (1-50, default 50)" } }, required = ["sprint_id"] }
+
+[tools.get-sprint-issues.annotations]
+title = "Get Sprint Issues"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-sprint-issues.permissions]
+hosts = ["user_defined"]
+
+[tools.get-link-types]
+name = "get-link-types"
+description = "Get all available issue link types (e.g. 'Blocks', 'Relates to', 'Duplicates'). Returns the link type ID, name, inward and outward descriptions."
+function = "get_link_types"
+input_schema = { type = "object", properties = {}, required = [] }
+
+[tools.get-link-types.annotations]
+title = "Get Link Types"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-link-types.permissions]
+hosts = ["user_defined"]
+
+[tools.get-all-projects]
+name = "get-all-projects"
+description = "Get all Jira projects accessible to the authenticated user."
+function = "get_all_projects"
+input_schema = { type = "object", properties = { include_archived = { type = "boolean", description = "Whether to include archived projects (default false)" } }, required = [] }
+
+[tools.get-all-projects.annotations]
+title = "Get All Projects"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-all-projects.permissions]
+hosts = ["user_defined"]
+
+[tools.get-project-versions]
+name = "get-project-versions"
+description = "Get all fix versions for a specific Jira project."
+function = "get_project_versions"
+input_schema = { type = "object", properties = { project_key = { type = "string", description = "The project key (e.g. 'PROJ')" } }, required = ["project_key"] }
+
+[tools.get-project-versions.annotations]
+title = "Get Project Versions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-project-versions.permissions]
+hosts = ["user_defined"]
+
+# ===================== WRITE TOOLS =====================
+
+[tools.create-issue]
+name = "create-issue"
+description = "Create a new Jira issue. Supports setting project, summary, type, description (in markdown), assignee (account ID), components, and additional custom fields via JSON."
+function = "create_issue"
+input_schema = { type = "object", properties = { project_key = { type = "string", description = "The project key (e.g. 'PROJ')" }, summary = { type = "string", description = "Issue summary/title" }, issue_type = { type = "string", description = "Issue type name (e.g. 'Bug', 'Story', 'Task', 'Epic')" }, description = { type = "string", description = "Issue description in markdown format" }, assignee = { type = "string", description = "Assignee account ID" }, components = { type = "string", description = "Comma-separated component names" }, additional_fields = { type = "string", description = "JSON string of additional fields (e.g. '{\"priority\": \"High\", \"labels\": \"bug,urgent\"}')" } }, required = ["project_key", "summary", "issue_type"] }
+
+[tools.create-issue.annotations]
+title = "Create Issue"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-issue.permissions]
+hosts = ["user_defined"]
+
+[tools.batch-create-issues]
+name = "batch-create-issues"
+description = "Create multiple Jira issues in a single batch. Provide a JSON array of issue definitions with project_key, summary, issue_type, and optional description/assignee."
+function = "batch_create_issues"
+input_schema = { type = "object", properties = { issues = { type = "string", description = "JSON array of issue objects, each with project_key, summary, issue_type, and optional description and assignee" } }, required = ["issues"] }
+
+[tools.batch-create-issues.annotations]
+title = "Batch Create Issues"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.batch-create-issues.permissions]
+hosts = ["user_defined"]
+
+[tools.update-issue]
+name = "update-issue"
+description = "Update an existing Jira issue. Supports updating standard fields (summary, description, assignee, priority, labels, components, fixVersions) and custom fields via additional_fields JSON."
+function = "update_issue"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, fields = { type = "object", description = "Object of field names to new values. Standard fields like 'summary', 'description' (markdown), 'assignee' (account ID), 'priority' (name), 'labels' (comma-separated), 'components' (comma-separated), 'fixVersions' (comma-separated) are automatically formatted." }, additional_fields = { type = "string", description = "JSON string of additional/custom fields to set" } }, required = ["issue_key", "fields"] }
+
+[tools.update-issue.annotations]
+title = "Update Issue"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.update-issue.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-issue]
+name = "delete-issue"
+description = "Delete a Jira issue. This action is irreversible."
+function = "delete_issue"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key to delete (e.g. 'PROJ-123')" } }, required = ["issue_key"] }
+
+[tools.delete-issue.annotations]
+title = "Delete Issue"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.delete-issue.permissions]
+hosts = ["user_defined"]
+
+[tools.add-comment]
+name = "add-comment"
+description = "Add a comment to a Jira issue. Comment content should be in markdown format."
+function = "add_comment"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, comment = { type = "string", description = "Comment content in markdown format" }, visibility = { type = "string", description = "Optional visibility restriction - a role name (e.g. 'Developers') or JSON object {\"type\": \"role\", \"value\": \"Developers\"}" } }, required = ["issue_key", "comment"] }
+
+[tools.add-comment.annotations]
+title = "Add Comment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.add-comment.permissions]
+hosts = ["user_defined"]
+
+[tools.edit-comment]
+name = "edit-comment"
+description = "Edit an existing comment on a Jira issue."
+function = "edit_comment"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, comment_id = { type = "string", description = "The comment ID to edit" }, comment = { type = "string", description = "New comment content in markdown format" }, visibility = { type = "string", description = "Optional visibility restriction" } }, required = ["issue_key", "comment_id", "comment"] }
+
+[tools.edit-comment.annotations]
+title = "Edit Comment"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.edit-comment.permissions]
+hosts = ["user_defined"]
+
+[tools.add-worklog]
+name = "add-worklog"
+description = "Add a worklog entry to a Jira issue. Time spent should be in Jira format (e.g. '2h 30m', '1d', '30m')."
+function = "add_worklog"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, time_spent = { type = "string", description = "Time spent in Jira format (e.g. '2h 30m', '1d', '30m')" }, comment = { type = "string", description = "Optional worklog comment" }, started = { type = "string", description = "Optional start time in ISO 8601 format" }, original_estimate = { type = "string", description = "Optional: reduce remaining estimate by this amount" }, remaining_estimate = { type = "string", description = "Optional: set remaining estimate to this value" } }, required = ["issue_key", "time_spent"] }
+
+[tools.add-worklog.annotations]
+title = "Add Worklog"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.add-worklog.permissions]
+hosts = ["user_defined"]
+
+[tools.link-to-epic]
+name = "link-to-epic"
+description = "Link a Jira issue to an epic. Tries the parent field first (next-gen projects), then falls back to the Epic Link custom field."
+function = "link_to_epic"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key to link (e.g. 'PROJ-456')" }, epic_key = { type = "string", description = "The epic key to link to (e.g. 'PROJ-123')" } }, required = ["issue_key", "epic_key"] }
+
+[tools.link-to-epic.annotations]
+title = "Link to Epic"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.link-to-epic.permissions]
+hosts = ["user_defined"]
+
+[tools.create-issue-link]
+name = "create-issue-link"
+description = "Create a link between two Jira issues (e.g. 'Blocks', 'Relates to', 'Duplicates'). Use get-link-types to see available link types."
+function = "create_issue_link"
+input_schema = { type = "object", properties = { link_type = { type = "string", description = "Link type name (e.g. 'Blocks', 'Relates to', 'Duplicates')" }, inward_issue_key = { type = "string", description = "The inward issue key (e.g. the issue that 'is blocked by')" }, outward_issue_key = { type = "string", description = "The outward issue key (e.g. the issue that 'blocks')" }, comment = { type = "string", description = "Optional comment to add with the link" } }, required = ["link_type", "inward_issue_key", "outward_issue_key"] }
+
+[tools.create-issue-link.annotations]
+title = "Create Issue Link"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.create-issue-link.permissions]
+hosts = ["user_defined"]
+
+[tools.create-remote-issue-link]
+name = "create-remote-issue-link"
+description = "Create a web/external link on a Jira issue (e.g. to a Confluence page, GitHub PR, or any URL)."
+function = "create_remote_issue_link"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, url = { type = "string", description = "The URL to link to" }, title = { type = "string", description = "Display title for the link" }, summary = { type = "string", description = "Optional summary/description of the link" }, relationship = { type = "string", description = "Optional relationship type (e.g. 'relates to')" }, icon_url = { type = "string", description = "Optional 16x16 icon URL for the link" } }, required = ["issue_key", "url", "title"] }
+
+[tools.create-remote-issue-link.annotations]
+title = "Create Remote Issue Link"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-remote-issue-link.permissions]
+hosts = ["user_defined"]
+
+[tools.remove-issue-link]
+name = "remove-issue-link"
+description = "Remove a link between two Jira issues by link ID. Get the link ID from the issue's links array."
+function = "remove_issue_link"
+input_schema = { type = "object", properties = { link_id = { type = "string", description = "The issue link ID to remove" } }, required = ["link_id"] }
+
+[tools.remove-issue-link.annotations]
+title = "Remove Issue Link"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.remove-issue-link.permissions]
+hosts = ["user_defined"]
+
+[tools.transition-issue]
+name = "transition-issue"
+description = "Transition a Jira issue to a new status. Use get-transitions first to get available transition IDs. Optionally include fields required by the transition screen and a comment."
+function = "transition_issue"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, transition_id = { type = "string", description = "The transition ID (from get-transitions)" }, fields = { type = "string", description = "Optional JSON string of fields required by the transition screen" }, comment = { type = "string", description = "Optional comment to add during the transition" } }, required = ["issue_key", "transition_id"] }
+
+[tools.transition-issue.annotations]
+title = "Transition Issue"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.transition-issue.permissions]
+hosts = ["user_defined"]
+
+[tools.create-sprint]
+name = "create-sprint"
+description = "Create a new sprint for an agile board."
+function = "create_sprint"
+input_schema = { type = "object", properties = { board_id = { type = "string", description = "The board ID to create the sprint on" }, sprint_name = { type = "string", description = "Name of the sprint" }, start_date = { type = "string", description = "Sprint start date in ISO 8601 format (e.g. '2024-01-15T09:00:00.000Z')" }, end_date = { type = "string", description = "Sprint end date in ISO 8601 format" }, goal = { type = "string", description = "Optional sprint goal" } }, required = ["board_id", "sprint_name", "start_date", "end_date"] }
+
+[tools.create-sprint.annotations]
+title = "Create Sprint"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-sprint.permissions]
+hosts = ["user_defined"]
+
+[tools.update-sprint]
+name = "update-sprint"
+description = "Update an existing sprint's name, state, dates, or goal. Set state to 'active' to start a sprint or 'closed' to complete it."
+function = "update_sprint"
+input_schema = { type = "object", properties = { sprint_id = { type = "string", description = "The sprint ID to update" }, sprint_name = { type = "string", description = "New sprint name" }, state = { type = "string", description = "New sprint state: 'active', 'closed', or 'future'" }, start_date = { type = "string", description = "New start date in ISO 8601 format" }, end_date = { type = "string", description = "New end date in ISO 8601 format" }, goal = { type = "string", description = "New sprint goal" } }, required = ["sprint_id"] }
+
+[tools.update-sprint.annotations]
+title = "Update Sprint"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.update-sprint.permissions]
+hosts = ["user_defined"]
+
+[tools.create-version]
+name = "create-version"
+description = "Create a fix version in a Jira project."
+function = "create_version"
+input_schema = { type = "object", properties = { project_key = { type = "string", description = "The project key (e.g. 'PROJ')" }, name = { type = "string", description = "Version name (e.g. 'v1.0.0')" }, start_date = { type = "string", description = "Optional start date (YYYY-MM-DD)" }, release_date = { type = "string", description = "Optional release date (YYYY-MM-DD)" }, description = { type = "string", description = "Optional version description" } }, required = ["project_key", "name"] }
+
+[tools.create-version.annotations]
+title = "Create Version"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-version.permissions]
+hosts = ["user_defined"]
+
+[tools.batch-get-changelogs]
+name = "batch-get-changelogs"
+description = "Fetch changelogs (change history) for one or more Jira issues in bulk. Returns all field changes grouped by issue. Cloud only."
+function = "batch_get_changelogs"
+input_schema = { type = "object", properties = { issue_ids_or_keys = { type = "string", description = "Comma-separated list of issue IDs or keys (e.g. 'PROJ-1,PROJ-2,PROJ-3')" }, fields = { type = "string", description = "Optional comma-separated field names to filter changelog entries (e.g. 'status,assignee')" }, limit = { type = "number", description = "Maximum number of changelog entries per issue (-1 for all, default -1)" } }, required = ["issue_ids_or_keys"] }
+
+[tools.batch-get-changelogs.annotations]
+title = "Batch Get Changelogs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.batch-get-changelogs.permissions]
+hosts = ["user_defined"]
+
+[tools.batch-create-versions]
+name = "batch-create-versions"
+description = "Create multiple fix versions in a Jira project at once. Each version needs at least a name; optional startDate, releaseDate, and description."
+function = "batch_create_versions"
+input_schema = { type = "object", properties = { project_key = { type = "string", description = "The project key (e.g. 'PROJ')" }, versions = { type = "string", description = "JSON array of version objects, each with name (required), startDate, releaseDate, description (e.g. '[{\"name\":\"v1.0\"},{\"name\":\"v2.0\",\"releaseDate\":\"2024-06-01\"}]')" } }, required = ["project_key", "versions"] }
+
+[tools.batch-create-versions.annotations]
+title = "Batch Create Versions"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.batch-create-versions.permissions]
+hosts = ["user_defined"]
+
+[tools.jira-get-issue-dates]
+name = "jira-get-issue-dates"
+description = "Get comprehensive date information for a Jira issue including created, updated, due date, resolution date, status change timeline, and time spent in each status."
+function = "jira_get_issue_dates"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, include_status_changes = { type = "boolean", description = "Include detailed status change timeline (default true)" }, include_status_summary = { type = "boolean", description = "Include aggregated time-per-status summary (default true)" } }, required = ["issue_key"] }
+
+[tools.jira-get-issue-dates.annotations]
+title = "Get Issue Dates"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.jira-get-issue-dates.permissions]
+hosts = ["user_defined"]
+
+[tools.jira-get-issue-sla]
+name = "jira-get-issue-sla"
+description = "Calculate SLA/performance metrics for a Jira issue. Available metrics: cycle_time (created→resolved), lead_time (created→resolved or now), time_in_status (per-status breakdown), due_date_compliance (met/missed), resolution_time (first in-progress→resolved), first_response_time (created→first transition)."
+function = "jira_get_issue_sla"
+input_schema = { type = "object", properties = { issue_key = { type = "string", description = "The issue key (e.g. 'PROJ-123')" }, metrics = { type = "string", description = "Comma-separated list of metrics to calculate. Options: cycle_time, lead_time, time_in_status, due_date_compliance, resolution_time, first_response_time. Default: 'cycle_time,time_in_status'" } }, required = ["issue_key"] }
+
+[tools.jira-get-issue-sla.annotations]
+title = "Get Issue SLA"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.jira-get-issue-sla.permissions]
+hosts = ["user_defined"]

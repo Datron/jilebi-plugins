@@ -22,7 +22,9 @@
 		"fetch",
 		"nix",
 		"aws-docs",
-		"swe-manager"
+		"swe-manager",
+		"jira",
+		"confluence"
 	],
 	"devDependencies": {
 		"@changesets/cli": "^2.29.8",
