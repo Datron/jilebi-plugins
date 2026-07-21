@@ -1,0 +1,75 @@
+name = "aws-pricing"
+version = "1.0.0"
+homepage = "https://aws.amazon.com/pricing"
+creator = "AWS Labs"
+contact = "support@jilebi.ai"
+
+[env]
+AWS_REGION = { schema = { type = "string" }, default = "us-east-1" }
+PRICING_ENDPOINT = { schema = { type = "string" }, default = "" }
+
+[secrets]
+AWS_ACCESS_KEY_ID = { schema = { type = "string" } }
+AWS_SECRET_ACCESS_KEY = { schema = { type = "string" } }
+AWS_SESSION_TOKEN = { schema = { type = "string" } }
+AWS_PROFILE = { schema = { type = "string" } }
+
+[tools.get-pricing]
+name = "get-pricing"
+description = "Get detailed pricing information from AWS Price List API with optional filters. Supports EQUALS, ANY_OF, CONTAINS, NONE_OF filter types."
+input_schema = { type = "object", properties = { service_code = { type = "string", description = "AWS service code (e.g., AmazonEC2, AmazonS3)" }, region = { type = "string", description = "AWS region (e.g., us-east-1). Omit for global services like CloudFront." }, filters = { type = "array", items = { type = "object", properties = { Field = { type = "string" }, Value = { type = "string" }, Type = { type = "string" } } }, description = "Optional list of filters" }, max_allowed_characters = { type = "number", default = 100000 }, max_results = { type = "number", default = 100 } }, required = ["service_code"] }
+function = "get_pricing"
+[tools.get-pricing.annotations]
+title = "Get AWS Pricing"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-pricing-service-codes]
+name = "get-pricing-service-codes"
+description = "Get all available AWS service codes from the Price List API. Optional regex filter."
+input_schema = { type = "object", properties = { filter = { type = "string", description = "Optional regex pattern to filter service codes" } }, required = [] }
+function = "get_pricing_service_codes"
+[tools.get-pricing-service-codes.annotations]
+title = "Get Pricing Service Codes"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-pricing-service-attributes]
+name = "get-pricing-service-attributes"
+description = "Get filterable attributes available for an AWS service in the Pricing API."
+input_schema = { type = "object", properties = { service_code = { type = "string", description = "AWS service code" }, filter = { type = "string", description = "Optional regex pattern to filter attribute names" } }, required = ["service_code"] }
+function = "get_pricing_service_attributes"
+[tools.get-pricing-service-attributes.annotations]
+title = "Get Pricing Service Attributes"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-pricing-attribute-values]
+name = "get-pricing-attribute-values"
+description = "Get valid values for specific pricing filter attributes of an AWS service."
+input_schema = { type = "object", properties = { service_code = { type = "string", description = "AWS service code" }, attribute_names = { type = "array", items = { type = "string" }, description = "List of attribute names to get values for" }, filters = { type = "object", description = "Optional dict mapping attribute names to regex patterns" } }, required = ["service_code", "attribute_names"] }
+function = "get_pricing_attribute_values"
+[tools.get-pricing-attribute-values.annotations]
+title = "Get Pricing Attribute Values"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-price-list-urls]
+name = "get-price-list-urls"
+description = "Get download URLs for bulk AWS pricing data files (CSV, JSON) for historical analysis."
+input_schema = { type = "object", properties = { service_code = { type = "string", description = "AWS service code" }, region = { type = "string", description = "AWS region" }, effective_date = { type = "string", description = "Effective date in YYYY-MM-DD HH:MM format" } }, required = ["service_code", "region"] }
+function = "get_price_list_urls"
+[tools.get-price-list-urls.annotations]
+title = "Get Price List URLs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

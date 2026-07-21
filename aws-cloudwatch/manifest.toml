@@ -1,0 +1,98 @@
+name = "aws-cloudwatch"
+version = "1.0.0"
+homepage = "https://aws.amazon.com/cloudwatch"
+creator = "AWS Labs"
+contact = "support@jilebi.ai"
+
+[env]
+AWS_REGION = { schema = { type = "string" }, default = "us-east-1" }
+
+[secrets]
+AWS_ACCESS_KEY_ID = { schema = { type = "string" } }
+AWS_SECRET_ACCESS_KEY = { schema = { type = "string" } }
+AWS_SESSION_TOKEN = { schema = { type = "string" } }
+AWS_PROFILE = { schema = { type = "string" } }
+
+[tools.get-metric-data]
+name = "get-metric-data"
+description = "Get CloudWatch metric data for a specific namespace and metric name with optional dimensions, time range, and statistic."
+input_schema = { type = "object", properties = { namespace = { type = "string", description = "Metric namespace (e.g., AWS/EC2, AWS/Lambda)" }, metric_name = { type = "string", description = "Metric name (e.g., CPUUtilization)" }, dimensions = { type = "array", items = { type = "object", properties = { Name = { type = "string" }, Value = { type = "string" } } } }, start_time = { type = "string", description = "Start time in ISO 8601 format" }, end_time = { type = "string", description = "End time in ISO 8601 format" }, statistic = { type = "string", default = "Average", enum = ["Average", "Sum", "Maximum", "Minimum", "SampleCount"] }, period = { type = "number", default = 300 }, region = { type = "string" } }, required = ["namespace", "metric_name"] }
+function = "get_metric_data"
+[tools.get-metric-data.annotations]
+title = "Get Metric Data"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.describe-log-groups]
+name = "describe-log-groups"
+description = "List CloudWatch Log Groups with optional prefix filter."
+input_schema = { type = "object", properties = { log_group_name_prefix = { type = "string" }, limit = { type = "number", default = 50 }, region = { type = "string" } }, required = [] }
+function = "describe_log_groups"
+[tools.describe-log-groups.annotations]
+title = "Describe Log Groups"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.execute-log-insights-query]
+name = "execute-log-insights-query"
+description = "Start a CloudWatch Logs Insights query. Use get_logs_insight_query_results with the returned queryId to fetch results."
+input_schema = { type = "object", properties = { log_group_names = { type = "array", items = { type = "string" } }, query_string = { type = "string", description = "CloudWatch Logs Insights query (e.g., 'fields @timestamp, @message | sort @timestamp desc | limit 20')" }, start_time = { type = "string", description = "Start time in ISO 8601" }, end_time = { type = "string", description = "End time in ISO 8601" }, limit = { type = "number" }, region = { type = "string" } }, required = ["log_group_names", "query_string", "start_time", "end_time"] }
+function = "execute_log_insights_query"
+[tools.execute-log-insights-query.annotations]
+title = "Execute Log Insights Query"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-logs-insight-query-results]
+name = "get-logs-insight-query-results"
+description = "Retrieve results of a previously started CloudWatch Logs Insights query by queryId."
+input_schema = { type = "object", properties = { query_id = { type = "string" }, region = { type = "string" } }, required = ["query_id"] }
+function = "get_logs_insight_query_results"
+[tools.get-logs-insight-query-results.annotations]
+title = "Get Logs Insight Query Results"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.cancel-logs-insight-query]
+name = "cancel-logs-insight-query"
+description = "Cancel a running CloudWatch Logs Insights query."
+input_schema = { type = "object", properties = { query_id = { type = "string" }, region = { type = "string" } }, required = ["query_id"] }
+function = "cancel_logs_insight_query"
+[tools.cancel-logs-insight-query.annotations]
+title = "Cancel Logs Insight Query"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-active-alarms]
+name = "get-active-alarms"
+description = "Get all CloudWatch Alarms currently in ALARM state, including both metric and composite alarms."
+input_schema = { type = "object", properties = { max_items = { type = "number", default = 50 }, region = { type = "string" } }, required = [] }
+function = "get_active_alarms"
+[tools.get-active-alarms.annotations]
+title = "Get Active Alarms"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-alarm-history]
+name = "get-alarm-history"
+description = "Get history for a specific CloudWatch alarm, including state transitions and configuration changes."
+input_schema = { type = "object", properties = { alarm_name = { type = "string" }, start_time = { type = "string" }, end_time = { type = "string" }, history_item_type = { type = "string", default = "StateUpdate" }, max_results = { type = "number", default = 50 }, region = { type = "string" } }, required = ["alarm_name"] }
+function = "get_alarm_history"
+[tools.get-alarm-history.annotations]
+title = "Get Alarm History"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

@@ -1,0 +1,146 @@
+name = "aws-support"
+version = "1.0.0"
+homepage = "https://aws.amazon.com/premiumsupport"
+creator = "AWS Labs"
+contact = "support@jilebi.ai"
+
+[env]
+AWS_REGION = { schema = { type = "string" }, default = "us-east-1" }
+
+[secrets]
+AWS_ACCESS_KEY_ID = { schema = { type = "string" } }
+AWS_SECRET_ACCESS_KEY = { schema = { type = "string" } }
+AWS_SESSION_TOKEN = { schema = { type = "string" } }
+AWS_PROFILE = { schema = { type = "string" } }
+
+[tools.create-support-case]
+name = "create-support-case"
+description = "Create a new AWS Support case. Requires service_code (use describe_services), category_code, severity_code (low/normal/high/urgent/critical), and communication_body."
+input_schema = { type = "object", properties = { subject = { type = "string" }, service_code = { type = "string" }, category_code = { type = "string" }, severity_code = { type = "string", enum = ["low", "normal", "high", "urgent", "critical"] }, communication_body = { type = "string" }, cc_email_addresses = { type = "array", items = { type = "string" } }, language = { type = "string", default = "en" }, issue_type = { type = "string", default = "technical" }, attachment_set_id = { type = "string" } }, required = ["subject", "service_code", "category_code", "severity_code", "communication_body"] }
+function = "create_support_case"
+[tools.create-support-case.annotations]
+title = "Create Support Case"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.describe-support-cases]
+name = "describe-support-cases"
+description = "List/search existing AWS Support cases. Filter by ID, date range, resolved status."
+input_schema = { type = "object", properties = { case_id_list = { type = "array", items = { type = "string" } }, display_id = { type = "string" }, after_time = { type = "string" }, before_time = { type = "string" }, include_resolved_cases = { type = "boolean", default = false }, include_communications = { type = "boolean", default = true }, language = { type = "string", default = "en" }, max_results = { type = "number" }, next_token = { type = "string" }, format = { type = "string", default = "json" } }, required = [] }
+function = "describe_support_cases"
+[tools.describe-support-cases.annotations]
+title = "Describe Support Cases"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.describe-severity-levels]
+name = "describe-severity-levels"
+description = "Get available severity levels for AWS Support cases."
+input_schema = { type = "object", properties = { language = { type = "string", default = "en" }, format = { type = "string", default = "json" } }, required = [] }
+function = "describe_severity_levels"
+[tools.describe-severity-levels.annotations]
+title = "Describe Severity Levels"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.add-communication-to-case]
+name = "add-communication-to-case"
+description = "Add a communication/reply to an existing AWS Support case."
+input_schema = { type = "object", properties = { case_id = { type = "string" }, communication_body = { type = "string" }, cc_email_addresses = { type = "array", items = { type = "string" } }, attachment_set_id = { type = "string" } }, required = ["case_id", "communication_body"] }
+function = "add_communication_to_case"
+[tools.add-communication-to-case.annotations]
+title = "Add Communication to Case"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.resolve-support-case]
+name = "resolve-support-case"
+description = "Resolve/close an AWS Support case."
+input_schema = { type = "object", properties = { case_id = { type = "string" } }, required = ["case_id"] }
+function = "resolve_support_case"
+[tools.resolve-support-case.annotations]
+title = "Resolve Support Case"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = false
+open_world_hint = false
+
+[tools.describe-services]
+name = "describe-services"
+description = "List AWS services and their category codes available for support cases."
+input_schema = { type = "object", properties = { service_code_list = { type = "array", items = { type = "string" } }, language = { type = "string", default = "en" }, format = { type = "string", default = "json" } }, required = [] }
+function = "describe_services"
+[tools.describe-services.annotations]
+title = "Describe AWS Services"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.describe-communications]
+name = "describe-communications"
+description = "Get the full communication history for a support case."
+input_schema = { type = "object", properties = { case_id = { type = "string" }, after_time = { type = "string" }, before_time = { type = "string" }, max_results = { type = "number" }, next_token = { type = "string" } }, required = ["case_id"] }
+function = "describe_communications"
+[tools.describe-communications.annotations]
+title = "Describe Communications"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.describe-supported-languages]
+name = "describe-supported-languages"
+description = "Get supported languages for a specific service and category."
+input_schema = { type = "object", properties = { service_code = { type = "string" }, category_code = { type = "string" }, issue_type = { type = "string", default = "technical" } }, required = ["service_code", "category_code"] }
+function = "describe_supported_languages"
+[tools.describe-supported-languages.annotations]
+title = "Describe Supported Languages"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.describe-create-case-options]
+name = "describe-create-case-options"
+description = "Check support hours and language availability for a service."
+input_schema = { type = "object", properties = { service_code = { type = "string" }, language = { type = "string", default = "en" }, category_code = { type = "string" }, issue_type = { type = "string" } }, required = ["service_code"] }
+function = "describe_create_case_options"
+[tools.describe-create-case-options.annotations]
+title = "Describe Create Case Options"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.add-attachments-to-set]
+name = "add-attachments-to-set"
+description = "Upload files to an attachment set. Use before create_support_case or add_communication_to_case."
+input_schema = { type = "object", properties = { attachments = { type = "array", items = { type = "object", properties = { fileName = { type = "string" }, data = { type = "string" } } } }, attachment_set_id = { type = "string" } }, required = ["attachments"] }
+function = "add_attachments_to_set"
+[tools.add-attachments-to-set.annotations]
+title = "Add Attachments to Set"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.describe-attachment]
+name = "describe-attachment"
+description = "Download an attachment by ID. Get IDs from describe_communications."
+input_schema = { type = "object", properties = { attachment_id = { type = "string" } }, required = ["attachment_id"] }
+function = "describe_attachment"
+[tools.describe-attachment.annotations]
+title = "Describe Attachment"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false

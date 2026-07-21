@@ -22,9 +22,19 @@
 		"fetch",
 		"nix",
 		"aws-docs",
-		"swe-manager"
+		"swe-manager",
+		"aws-pricing",
+		"aws-support",
+		"aws-cloudwatch"
 	],
+	"scripts": {
+		"inspect": "npx @modelcontextprotocol/inspector"
+	},
 	"devDependencies": {
+		"@aws-sdk/client-cloudwatch": "^3.1091.0",
+		"@aws-sdk/client-cloudwatch-logs": "^3.1091.0",
+		"@aws-sdk/client-pricing": "^3.1091.0",
+		"@aws-sdk/client-support": "^3.1091.0",
 		"@changesets/cli": "^2.29.8",
 		"@jilebi/types": "^1.0.3",
 		"@rollup/plugin-commonjs": "^28.0.1",
