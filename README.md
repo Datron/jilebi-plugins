@@ -459,6 +459,38 @@ Access AWS documentation, search for content, and get recommendations through of
 - `search-documentation` - Search AWS documentation using the official search API
 - `get-recommendations` - Get related content recommendations for documentation pages
 
+---
+
+### Superposition Plugin
+
+[Superposition](https://github.com/juspay/superposition) is an open-source, context-based configuration management platform (feature flags, experiments, dynamic config).
+
+**Tools**: Config resolution, contexts, dimensions, experiments, default-configs, functions, workspaces, organisations, webhooks, secrets  
+**Resources**: None  
+**Prompts**: None  
+**Permissions**: `hosts: ["user_defined"]` (your Superposition server, e.g. `http://localhost:8080`)  
+**Environment**: `SUPERPOSITION_BASE_URL` (default: `http://localhost:8080`), `SUPERPOSITION_ORG_ID`, `SUPERPOSITION_WORKSPACE`  
+**Original API**: [Superposition OpenAPI](https://github.com/juspay/superposition/blob/main/docs/docs/api/Superposition.openapi.json)
+
+Run the demo server locally with `docker run -p 8080:8080 ghcr.io/juspay/superposition-demo:latest`, then:
+
+```bash
+jilebi plugins add superposition
+jilebi plugins env set superposition SUPERPOSITION_BASE_URL http://localhost:8080
+jilebi plugins env set superposition SUPERPOSITION_ORG_ID localorg
+jilebi plugins env set superposition SUPERPOSITION_WORKSPACE dev
+```
+
+**Key Tools** (87 total, generated from the upstream OpenAPI spec):
+- `get-resolved-config` - Resolve and merge config values for a context
+- `create-context` / `list-contexts` / `delete-context` - Manage targeting contexts
+- `create-dimension` / `list-dimensions` - Manage dimensions (e.g. `city`, `country`)
+- `create-default-config` / `list-default-configs` - Manage default config keys
+- `create-experiment` / `list-experiment` - Manage experiments
+- `list-workspace` / `list-organisation` / `list-audit-logs` - Admin and audit
+
+---
+
 ## Security Model
 
 Jilebi's sandbox architecture ensures that:

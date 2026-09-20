@@ -1,0 +1,3795 @@
+name = "superposition"
+version = "1.0.0"
+homepage = "https://github.com/juspay/superposition"
+creator = "juspay"
+contact = "https://github.com/juspay/superposition/issues"
+
+[env]
+SUPERPOSITION_BASE_URL = { schema = { type = "string" }, default = "http://localhost:8080" }
+SUPERPOSITION_ORG_ID = { schema = { type = "string" } }
+SUPERPOSITION_WORKSPACE = { schema = { type = "string" } }
+
+[resources]
+
+[prompts]
+
+[tools.add-members-to-group]
+name = "add-members-to-group"
+description = "Adds members to an existing experiment group."
+function = "add_members_to_group"
+
+[tools.add-members-to-group.input_schema]
+type = "object"
+required = ["id", "change_reason", "member_experiment_ids"]
+
+[tools.add-members-to-group.input_schema.properties.id]
+type = "string"
+
+[tools.add-members-to-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.add-members-to-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.add-members-to-group.input_schema.properties.change_reason]
+type = "string"
+description = "Reason for adding these members."
+
+[tools.add-members-to-group.input_schema.properties.member_experiment_ids]
+type = "array"
+description = "List of experiment IDs to add/remove to this group."
+
+[tools.add-members-to-group.input_schema.properties.member_experiment_ids.items]
+type = "string"
+
+[tools.add-members-to-group.annotations]
+title = "AddMembersToGroup"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.add-members-to-group.permissions]
+hosts = ["user_defined"]
+
+[tools.applicable-variants]
+name = "applicable-variants"
+description = "Determines which experiment variants are applicable to a given context, used for experiment evaluation and variant selection."
+function = "applicable_variants"
+
+[tools.applicable-variants.input_schema]
+type = "object"
+required = ["identifier", "context"]
+
+[tools.applicable-variants.input_schema.properties.identifier]
+type = "string"
+
+[tools.applicable-variants.input_schema.properties.prefix]
+type = "array"
+
+[tools.applicable-variants.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.applicable-variants.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.applicable-variants.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.applicable-variants.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.applicable-variants.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.applicable-variants.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.applicable-variants.annotations]
+title = "ApplicableVariants"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.applicable-variants.permissions]
+hosts = ["user_defined"]
+
+[tools.bulk-operation]
+name = "bulk-operation"
+description = "Executes multiple context operations (PUT, REPLACE, DELETE, MOVE) in a single atomic transaction for efficient batch processing."
+function = "bulk_operation"
+
+[tools.bulk-operation.input_schema]
+type = "object"
+required = ["operations"]
+
+[tools.bulk-operation.input_schema.properties.config_tags]
+type = "string"
+
+[tools.bulk-operation.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.bulk-operation.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.bulk-operation.input_schema.properties.operations]
+type = "array"
+description = "operations"
+
+[tools.bulk-operation.input_schema.properties.operations.items]
+type = "object"
+
+[tools.bulk-operation.annotations]
+title = "BulkOperation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.bulk-operation.permissions]
+hosts = ["user_defined"]
+
+[tools.conclude-experiment]
+name = "conclude-experiment"
+description = "Concludes an inprogress experiment by selecting a winning variant and transitioning the experiment to a concluded state."
+function = "conclude_experiment"
+
+[tools.conclude-experiment.input_schema]
+type = "object"
+required = ["id", "chosen_variant", "change_reason"]
+
+[tools.conclude-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.conclude-experiment.input_schema.properties.config_tags]
+type = "string"
+
+[tools.conclude-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.conclude-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.conclude-experiment.input_schema.properties.chosen_variant]
+type = "string"
+description = "chosen_variant"
+
+[tools.conclude-experiment.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.conclude-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.conclude-experiment.annotations]
+title = "ConcludeExperiment"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.conclude-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.create-context]
+name = "create-context"
+description = "Creates a new context with specified conditions and overrides. Contexts define conditional rules for config management."
+function = "create_context"
+
+[tools.create-context.input_schema]
+type = "object"
+required = ["context", "override", "change_reason"]
+
+[tools.create-context.input_schema.properties.config_tags]
+type = "string"
+
+[tools.create-context.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-context.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-context.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.create-context.input_schema.properties.override]
+type = "object"
+description = "Configuration overrides that replace default values when context conditions are met. Keys represent configuration keys and values are the override data."
+
+[tools.create-context.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-context.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-context.annotations]
+title = "CreateContext"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.create-context.permissions]
+hosts = ["user_defined"]
+
+[tools.create-default-config]
+name = "create-default-config"
+description = "Creates a new default config entry with specified key, value, schema, and metadata. Default configs serve as fallback values when no specific context matches."
+function = "create_default_config"
+
+[tools.create-default-config.input_schema]
+type = "object"
+required = ["key", "value", "schema", "description", "change_reason"]
+
+[tools.create-default-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-default-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-default-config.input_schema.properties.key]
+type = "string"
+description = "key"
+
+[tools.create-default-config.input_schema.properties.value]
+type = "string"
+description = "value"
+
+[tools.create-default-config.input_schema.properties.schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.create-default-config.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-default-config.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-default-config.input_schema.properties.value_validation_function_name]
+type = "string"
+description = "value_validation_function_name"
+
+[tools.create-default-config.input_schema.properties.value_compute_function_name]
+type = "string"
+description = "value_compute_function_name"
+
+[tools.create-default-config.annotations]
+title = "CreateDefaultConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-default-config.permissions]
+hosts = ["user_defined"]
+
+[tools.create-dimension]
+name = "create-dimension"
+description = "Creates a new dimension with the specified json schema. Dimensions define categorical attributes used for context-based config management."
+function = "create_dimension"
+
+[tools.create-dimension.input_schema]
+type = "object"
+required = ["dimension", "position", "schema", "description", "change_reason"]
+
+[tools.create-dimension.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-dimension.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-dimension.input_schema.properties.dimension]
+type = "string"
+description = "dimension"
+
+[tools.create-dimension.input_schema.properties.position]
+type = "number"
+description = "position"
+
+[tools.create-dimension.input_schema.properties.schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.create-dimension.input_schema.properties.value_validation_function_name]
+type = "string"
+description = "value_validation_function_name"
+
+[tools.create-dimension.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-dimension.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-dimension.input_schema.properties.dimension_type]
+type = "object"
+description = "dimension_type"
+
+[tools.create-dimension.input_schema.properties.value_compute_function_name]
+type = "string"
+description = "value_compute_function_name"
+
+[tools.create-dimension.annotations]
+title = "CreateDimension"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-dimension.permissions]
+hosts = ["user_defined"]
+
+[tools.create-experiment]
+name = "create-experiment"
+description = "Creates a new experiment with variants, context and conditions. You can optionally specify metrics and experiment group for tracking and analysis."
+function = "create_experiment"
+
+[tools.create-experiment.input_schema]
+type = "object"
+required = ["name", "context", "variants", "description", "change_reason"]
+
+[tools.create-experiment.input_schema.properties.idempotency_key]
+type = "string"
+
+[tools.create-experiment.input_schema.properties.config_tags]
+type = "string"
+
+[tools.create-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-experiment.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-experiment.input_schema.properties.experiment_type]
+type = "string"
+description = "experiment_type"
+enum = ["DEFAULT", "DELETE_OVERRIDES"]
+
+[tools.create-experiment.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.create-experiment.input_schema.properties.variants]
+type = "array"
+description = "variants"
+
+[tools.create-experiment.input_schema.properties.variants.items]
+type = "object"
+
+[tools.create-experiment.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-experiment.input_schema.properties.metrics]
+type = "string"
+description = "Optional metrics for the experiment. May carry a selection drawn from the workspace's metric list (primary and guardrail required, secondary optional) and/or a per-experiment source override; both are optional independently. A per-experiment source is only accepted when the workspace has a source co"
+
+[tools.create-experiment.input_schema.properties.experiment_group_id]
+type = "string"
+description = "experiment_group_id"
+
+[tools.create-experiment.annotations]
+title = "CreateExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.create-experiment-group]
+name = "create-experiment-group"
+description = "Creates a new experiment group."
+function = "create_experiment_group"
+
+[tools.create-experiment-group.input_schema]
+type = "object"
+required = ["name", "description", "change_reason", "context", "traffic_percentage"]
+
+[tools.create-experiment-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-experiment-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-experiment-group.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-experiment-group.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-experiment-group.input_schema.properties.change_reason]
+type = "string"
+description = "Reason for creating this experiment group."
+
+[tools.create-experiment-group.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.create-experiment-group.input_schema.properties.traffic_percentage]
+type = "number"
+description = "traffic_percentage"
+
+[tools.create-experiment-group.input_schema.properties.member_experiment_ids]
+type = "array"
+description = "List of experiment IDs that are members of this group."
+
+[tools.create-experiment-group.input_schema.properties.member_experiment_ids.items]
+type = "string"
+
+[tools.create-experiment-group.annotations]
+title = "CreateExperimentGroup"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-experiment-group.permissions]
+hosts = ["user_defined"]
+
+[tools.create-function]
+name = "create-function"
+description = "Creates a new custom function for value_validation, value_compute, context_validation or change_reason_validation with specified code, runtime version, and function type."
+function = "create_function"
+
+[tools.create-function.input_schema]
+type = "object"
+required = ["function_name", "description", "change_reason", "function", "runtime_version", "function_type"]
+
+[tools.create-function.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-function.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-function.input_schema.properties.function_name]
+type = "string"
+description = "function_name"
+
+[tools.create-function.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-function.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-function.input_schema.properties.function]
+type = "string"
+description = "function"
+
+[tools.create-function.input_schema.properties.runtime_version]
+type = "string"
+description = "runtime_version"
+enum = ["1.0"]
+
+[tools.create-function.input_schema.properties.function_type]
+type = "string"
+description = "function_type"
+enum = ["VALUE_VALIDATION", "VALUE_COMPUTE", "CONTEXT_VALIDATION", "CHANGE_REASON_VALIDATION"]
+
+[tools.create-function.annotations]
+title = "CreateFunction"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-function.permissions]
+hosts = ["user_defined"]
+
+[tools.create-organisation]
+name = "create-organisation"
+description = "Creates a new organisation with specified name and administrator email. This is the top-level entity that contains workspaces and manages organizational-level settings."
+function = "create_organisation"
+
+[tools.create-organisation.input_schema]
+type = "object"
+required = ["admin_email", "name"]
+
+[tools.create-organisation.input_schema.properties.country_code]
+type = "string"
+description = "country_code"
+
+[tools.create-organisation.input_schema.properties.contact_email]
+type = "string"
+description = "contact_email"
+
+[tools.create-organisation.input_schema.properties.contact_phone]
+type = "string"
+description = "contact_phone"
+
+[tools.create-organisation.input_schema.properties.admin_email]
+type = "string"
+description = "admin_email"
+
+[tools.create-organisation.input_schema.properties.sector]
+type = "string"
+description = "sector"
+
+[tools.create-organisation.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-organisation.input_schema.properties.org_id]
+type = "string"
+description = "Organisation ID. Falls back to SUPERPOSITION_ORG_ID env."
+
+[tools.create-organisation.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.create-organisation.annotations]
+title = "CreateOrganisation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-organisation.permissions]
+hosts = ["user_defined"]
+
+[tools.create-secret]
+name = "create-secret"
+description = "Creates a new encrypted secret with the specified name and value. The secret is encrypted with the workspace's current encryption key. Secret values are never returned in responses for security."
+function = "create_secret"
+
+[tools.create-secret.input_schema]
+type = "object"
+required = ["name", "value", "description", "change_reason"]
+
+[tools.create-secret.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-secret.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-secret.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-secret.input_schema.properties.value]
+type = "string"
+description = "Plaintext value to be encrypted and stored."
+
+[tools.create-secret.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-secret.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-secret.annotations]
+title = "CreateSecret"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-secret.permissions]
+hosts = ["user_defined"]
+
+[tools.create-type-templates]
+name = "create-type-templates"
+description = "Creates a new type template with specified schema definition, providing reusable type definitions for config validation."
+function = "create_type_templates"
+
+[tools.create-type-templates.input_schema]
+type = "object"
+required = ["type_name", "type_schema", "description", "change_reason"]
+
+[tools.create-type-templates.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-type-templates.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-type-templates.input_schema.properties.type_name]
+type = "string"
+description = "type_name"
+
+[tools.create-type-templates.input_schema.properties.type_schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.create-type-templates.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-type-templates.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-type-templates.annotations]
+title = "CreateTypeTemplates"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-type-templates.permissions]
+hosts = ["user_defined"]
+
+[tools.create-variable]
+name = "create-variable"
+description = "Creates a new variable with the specified name and value."
+function = "create_variable"
+
+[tools.create-variable.input_schema]
+type = "object"
+required = ["name", "value", "description", "change_reason"]
+
+[tools.create-variable.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-variable.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-variable.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-variable.input_schema.properties.value]
+type = "string"
+description = "value"
+
+[tools.create-variable.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-variable.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-variable.annotations]
+title = "CreateVariable"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-variable.permissions]
+hosts = ["user_defined"]
+
+[tools.create-webhook]
+name = "create-webhook"
+description = "Creates a new webhook config to receive HTTP notifications when specified events occur in the system."
+function = "create_webhook"
+
+[tools.create-webhook.input_schema]
+type = "object"
+required = ["name", "description", "enabled", "url", "method", "events", "change_reason"]
+
+[tools.create-webhook.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-webhook.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-webhook.input_schema.properties.name]
+type = "string"
+description = "name"
+
+[tools.create-webhook.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.create-webhook.input_schema.properties.enabled]
+type = "boolean"
+description = "enabled"
+
+[tools.create-webhook.input_schema.properties.url]
+type = "string"
+description = "url"
+
+[tools.create-webhook.input_schema.properties.method]
+type = "string"
+description = "method"
+enum = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]
+
+[tools.create-webhook.input_schema.properties.version]
+type = "string"
+description = "version"
+enum = ["V1"]
+
+[tools.create-webhook.input_schema.properties.custom_headers]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.create-webhook.input_schema.properties.events]
+type = "array"
+description = "events"
+
+[tools.create-webhook.input_schema.properties.events.items]
+type = "string"
+
+[tools.create-webhook.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.create-webhook.annotations]
+title = "CreateWebhook"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-webhook.permissions]
+hosts = ["user_defined"]
+
+[tools.create-workspace]
+name = "create-workspace"
+description = "Creates a new workspace within an organisation, including database schema setup and isolated environment for config management with specified admin and settings."
+function = "create_workspace"
+
+[tools.create-workspace.input_schema]
+type = "object"
+required = ["workspace_admin_email", "workspace_name"]
+
+[tools.create-workspace.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.create-workspace.input_schema.properties.workspace_admin_email]
+type = "string"
+description = "workspace_admin_email"
+
+[tools.create-workspace.input_schema.properties.workspace_name]
+type = "string"
+description = "workspace_name"
+
+[tools.create-workspace.input_schema.properties.workspace_status]
+type = "string"
+description = "workspace_status"
+enum = ["ENABLED", "DISABLED"]
+
+[tools.create-workspace.input_schema.properties.metrics]
+type = "string"
+description = "Workspace metric source and catalog. Each metric definition contains a unique name and whether higher or lower values are better."
+
+[tools.create-workspace.input_schema.properties.allow_experiment_self_approval]
+type = "boolean"
+description = "allow_experiment_self_approval"
+
+[tools.create-workspace.input_schema.properties.auto_populate_control]
+type = "boolean"
+description = "auto_populate_control"
+
+[tools.create-workspace.input_schema.properties.enable_context_validation]
+type = "boolean"
+description = "enable_context_validation"
+
+[tools.create-workspace.input_schema.properties.enable_change_reason_validation]
+type = "boolean"
+description = "enable_change_reason_validation"
+
+[tools.create-workspace.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.create-workspace.annotations]
+title = "CreateWorkspace"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-workspace.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-context]
+name = "delete-context"
+description = "Permanently removes a context from the workspace. This operation cannot be undone and will affect config resolution."
+function = "delete_context"
+
+[tools.delete-context.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.delete-context.input_schema.properties.id]
+type = "string"
+
+[tools.delete-context.input_schema.properties.config_tags]
+type = "string"
+
+[tools.delete-context.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-context.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-context.annotations]
+title = "DeleteContext"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-context.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-default-config]
+name = "delete-default-config"
+description = "Permanently removes a default config entry from the workspace. This operation cannot be performed if it affects config resolution for contexts that rely on this fallback value."
+function = "delete_default_config"
+
+[tools.delete-default-config.input_schema]
+type = "object"
+required = ["key"]
+
+[tools.delete-default-config.input_schema.properties.key]
+type = "string"
+
+[tools.delete-default-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-default-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-default-config.annotations]
+title = "DeleteDefaultConfig"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-default-config.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-dimension]
+name = "delete-dimension"
+description = "Permanently removes a dimension from the workspace. This operation will fail if the dimension has active dependencies or is referenced by existing configurations."
+function = "delete_dimension"
+
+[tools.delete-dimension.input_schema]
+type = "object"
+required = ["dimension"]
+
+[tools.delete-dimension.input_schema.properties.dimension]
+type = "string"
+
+[tools.delete-dimension.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-dimension.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-dimension.annotations]
+title = "DeleteDimension"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-dimension.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-experiment-group]
+name = "delete-experiment-group"
+description = "Deletes an experiment group."
+function = "delete_experiment_group"
+
+[tools.delete-experiment-group.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.delete-experiment-group.input_schema.properties.id]
+type = "string"
+
+[tools.delete-experiment-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-experiment-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-experiment-group.annotations]
+title = "DeleteExperimentGroup"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-experiment-group.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-function]
+name = "delete-function"
+description = "Permanently removes a function from the workspace, deleting both draft and published versions along with all associated code. It fails if already in use"
+function = "delete_function"
+
+[tools.delete-function.input_schema]
+type = "object"
+required = ["function_name"]
+
+[tools.delete-function.input_schema.properties.function_name]
+type = "string"
+
+[tools.delete-function.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-function.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-function.annotations]
+title = "DeleteFunction"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-function.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-secret]
+name = "delete-secret"
+description = "Permanently deletes a secret from the workspace. The encrypted value is removed and cannot be recovered."
+function = "delete_secret"
+
+[tools.delete-secret.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.delete-secret.input_schema.properties.name]
+type = "string"
+
+[tools.delete-secret.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-secret.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-secret.annotations]
+title = "DeleteSecret"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-secret.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-type-templates]
+name = "delete-type-templates"
+description = "Permanently removes a type template from the workspace. No checks performed while deleting"
+function = "delete_type_templates"
+
+[tools.delete-type-templates.input_schema]
+type = "object"
+required = ["type_name"]
+
+[tools.delete-type-templates.input_schema.properties.type_name]
+type = "string"
+
+[tools.delete-type-templates.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-type-templates.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-type-templates.annotations]
+title = "DeleteTypeTemplates"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-type-templates.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-variable]
+name = "delete-variable"
+description = "Permanently deletes a variable from the workspace."
+function = "delete_variable"
+
+[tools.delete-variable.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.delete-variable.input_schema.properties.name]
+type = "string"
+
+[tools.delete-variable.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-variable.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-variable.annotations]
+title = "DeleteVariable"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-variable.permissions]
+hosts = ["user_defined"]
+
+[tools.delete-webhook]
+name = "delete-webhook"
+description = "Permanently removes a webhook config from the workspace, stopping all future event notifications to that endpoint."
+function = "delete_webhook"
+
+[tools.delete-webhook.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.delete-webhook.input_schema.properties.name]
+type = "string"
+
+[tools.delete-webhook.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-webhook.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.delete-webhook.annotations]
+title = "DeleteWebhook"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-webhook.permissions]
+hosts = ["user_defined"]
+
+[tools.discard-experiment]
+name = "discard-experiment"
+description = "Discards an experiment without selecting a winner, effectively canceling the experiment and removing its effects."
+function = "discard_experiment"
+
+[tools.discard-experiment.input_schema]
+type = "object"
+required = ["id", "change_reason"]
+
+[tools.discard-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.discard-experiment.input_schema.properties.config_tags]
+type = "string"
+
+[tools.discard-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.discard-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.discard-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.discard-experiment.annotations]
+title = "DiscardExperiment"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.discard-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.get-config]
+name = "get-config"
+description = "Retrieves config data with context evaluation, including applicable contexts, overrides, and default values based on provided conditions."
+function = "get_config"
+
+[tools.get-config.input_schema]
+type = "object"
+
+[tools.get-config.input_schema.properties.prefix]
+type = "array"
+
+[tools.get-config.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.get-config.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.get-config.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.get-config.input_schema.properties.version]
+type = "string"
+
+[tools.get-config.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.get-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-config.annotations]
+title = "GetConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-config.permissions]
+hosts = ["user_defined"]
+
+[tools.get-config-json]
+name = "get-config-json"
+description = "Retrieves the full config in JSON format, including default configs with schemas, dimensions, and overrides. This endpoint is optimized for clients that prefer JSON format for configuration management."
+function = "get_config_json"
+
+[tools.get-config-json.input_schema]
+type = "object"
+
+[tools.get-config-json.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.get-config-json.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config-json.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config-json.annotations]
+title = "GetConfigJson"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-config-json.permissions]
+hosts = ["user_defined"]
+
+[tools.get-config-toml]
+name = "get-config-toml"
+description = "Retrieves the full config in TOML format, including default configs with schemas, dimensions, and overrides. This endpoint is optimized for clients that prefer TOML format for configuration management."
+function = "get_config_toml"
+
+[tools.get-config-toml.input_schema]
+type = "object"
+
+[tools.get-config-toml.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.get-config-toml.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config-toml.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-config-toml.annotations]
+title = "GetConfigToml"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-config-toml.permissions]
+hosts = ["user_defined"]
+
+[tools.get-context]
+name = "get-context"
+description = "Retrieves detailed information about a specific context by its unique identifier, including conditions, overrides, and metadata."
+function = "get_context"
+
+[tools.get-context.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-context.input_schema.properties.id]
+type = "string"
+
+[tools.get-context.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-context.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-context.annotations]
+title = "GetContext"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-context.permissions]
+hosts = ["user_defined"]
+
+[tools.get-context-from-condition]
+name = "get-context-from-condition"
+description = "Retrieves context information by matching against provided conditions. Used to find contexts that would apply to specific scenarios."
+function = "get_context_from_condition"
+
+[tools.get-context-from-condition.input_schema]
+type = "object"
+
+[tools.get-context-from-condition.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-context-from-condition.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-context-from-condition.input_schema.properties.body]
+type = "object"
+description = "Request body as a JSON object."
+
+[tools.get-context-from-condition.annotations]
+title = "GetContextFromCondition"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-context-from-condition.permissions]
+hosts = ["user_defined"]
+
+[tools.get-default-config]
+name = "get-default-config"
+description = "Retrieves a specific default config entry by its key, including its value, schema, function mappings, and metadata."
+function = "get_default_config"
+
+[tools.get-default-config.input_schema]
+type = "object"
+required = ["key"]
+
+[tools.get-default-config.input_schema.properties.key]
+type = "string"
+
+[tools.get-default-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-default-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-default-config.annotations]
+title = "GetDefaultConfig"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-default-config.permissions]
+hosts = ["user_defined"]
+
+[tools.get-detailed-resolved-config]
+name = "get-detailed-resolved-config"
+description = "Resolves config values and returns each key with default-config metadata."
+function = "get_detailed_resolved_config"
+
+[tools.get-detailed-resolved-config.input_schema]
+type = "object"
+
+[tools.get-detailed-resolved-config.input_schema.properties.prefix]
+type = "array"
+
+[tools.get-detailed-resolved-config.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.get-detailed-resolved-config.input_schema.properties.exclude_prefix]
+type = "array"
+description = "Excludes configuration keys that start with any of the supplied prefixes. When combined with prefix, exclusion is applied to the allow-listed keys."
+
+[tools.get-detailed-resolved-config.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.get-detailed-resolved-config.input_schema.properties.version]
+type = "string"
+
+[tools.get-detailed-resolved-config.input_schema.properties.show_reasoning]
+type = "boolean"
+
+[tools.get-detailed-resolved-config.input_schema.properties.context_id]
+type = "string"
+
+[tools.get-detailed-resolved-config.input_schema.properties.resolve_remote]
+type = "boolean"
+description = "Intended for control resolution. If true, evaluates and includes remote cohort-based contexts during config resolution."
+
+[tools.get-detailed-resolved-config.input_schema.properties.merge_strategy]
+type = "string"
+enum = ["MERGE", "REPLACE"]
+
+[tools.get-detailed-resolved-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-detailed-resolved-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-detailed-resolved-config.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-detailed-resolved-config.annotations]
+title = "GetDetailedResolvedConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-detailed-resolved-config.permissions]
+hosts = ["user_defined"]
+
+[tools.get-dimension]
+name = "get-dimension"
+description = "Retrieves detailed information about a specific dimension, including its schema, cohort dependency graph, and configuration metadata."
+function = "get_dimension"
+
+[tools.get-dimension.input_schema]
+type = "object"
+required = ["dimension"]
+
+[tools.get-dimension.input_schema.properties.dimension]
+type = "string"
+
+[tools.get-dimension.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-dimension.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-dimension.annotations]
+title = "GetDimension"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-dimension.permissions]
+hosts = ["user_defined"]
+
+[tools.get-experiment]
+name = "get-experiment"
+description = "Retrieves detailed information about a specific experiment, including its config, variants, status, and metrics."
+function = "get_experiment"
+
+[tools.get-experiment.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.get-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment.annotations]
+title = "GetExperiment"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.get-experiment-config]
+name = "get-experiment-config"
+description = "Retrieves the experiment configuration for a given workspace and organization. The response includes details of all experiment groups and experiments that match the specified filters."
+function = "get_experiment_config"
+
+[tools.get-experiment-config.input_schema]
+type = "object"
+
+[tools.get-experiment-config.input_schema.properties.prefix]
+type = "array"
+
+[tools.get-experiment-config.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.get-experiment-config.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.get-experiment-config.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.get-experiment-config.input_schema.properties.dimension_match_strategy]
+type = "string"
+description = "Strategy to follow while filter items based on the context"
+enum = ["exact", "subset", "non_conflicting"]
+
+[tools.get-experiment-config.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.get-experiment-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment-config.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-experiment-config.annotations]
+title = "GetExperimentConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-experiment-config.permissions]
+hosts = ["user_defined"]
+
+[tools.get-experiment-group]
+name = "get-experiment-group"
+description = "Retrieves an existing experiment group by its ID."
+function = "get_experiment_group"
+
+[tools.get-experiment-group.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-experiment-group.input_schema.properties.id]
+type = "string"
+
+[tools.get-experiment-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-experiment-group.annotations]
+title = "GetExperimentGroup"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-experiment-group.permissions]
+hosts = ["user_defined"]
+
+[tools.get-function]
+name = "get-function"
+description = "Retrieves detailed information about a specific function including its published and draft versions, code, and metadata."
+function = "get_function"
+
+[tools.get-function.input_schema]
+type = "object"
+required = ["function_name"]
+
+[tools.get-function.input_schema.properties.function_name]
+type = "string"
+
+[tools.get-function.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-function.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-function.annotations]
+title = "GetFunction"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-function.permissions]
+hosts = ["user_defined"]
+
+[tools.get-organisation]
+name = "get-organisation"
+description = "Retrieves detailed information about a specific organisation including its status, contact details, and administrative metadata."
+function = "get_organisation"
+
+[tools.get-organisation.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-organisation.input_schema.properties.id]
+type = "string"
+
+[tools.get-organisation.input_schema.properties.org_id]
+type = "string"
+description = "Organisation ID. Falls back to SUPERPOSITION_ORG_ID env."
+
+[tools.get-organisation.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.get-organisation.annotations]
+title = "GetOrganisation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-organisation.permissions]
+hosts = ["user_defined"]
+
+[tools.get-resolved-config]
+name = "get-resolved-config"
+description = "Resolves and merges config values based on context conditions, applying overrides and merge strategies to produce the final configuration."
+function = "get_resolved_config"
+
+[tools.get-resolved-config.input_schema]
+type = "object"
+
+[tools.get-resolved-config.input_schema.properties.prefix]
+type = "array"
+
+[tools.get-resolved-config.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.get-resolved-config.input_schema.properties.exclude_prefix]
+type = "array"
+description = "Excludes configuration keys that start with any of the supplied prefixes. When combined with prefix, exclusion is applied to the allow-listed keys."
+
+[tools.get-resolved-config.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.get-resolved-config.input_schema.properties.version]
+type = "string"
+
+[tools.get-resolved-config.input_schema.properties.show_reasoning]
+type = "boolean"
+
+[tools.get-resolved-config.input_schema.properties.context_id]
+type = "string"
+
+[tools.get-resolved-config.input_schema.properties.resolve_remote]
+type = "boolean"
+description = "Intended for control resolution. If true, evaluates and includes remote cohort-based contexts during config resolution."
+
+[tools.get-resolved-config.input_schema.properties.merge_strategy]
+type = "string"
+enum = ["MERGE", "REPLACE"]
+
+[tools.get-resolved-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-resolved-config.annotations]
+title = "GetResolvedConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-resolved-config.permissions]
+hosts = ["user_defined"]
+
+[tools.get-resolved-config-explanation]
+name = "get-resolved-config-explanation"
+description = "Explains how matching contexts affect a single resolved config key."
+function = "get_resolved_config_explanation"
+
+[tools.get-resolved-config-explanation.input_schema]
+type = "object"
+required = ["key"]
+
+[tools.get-resolved-config-explanation.input_schema.properties.key]
+type = "string"
+
+[tools.get-resolved-config-explanation.input_schema.properties.version]
+type = "string"
+
+[tools.get-resolved-config-explanation.input_schema.properties.context_id]
+type = "string"
+
+[tools.get-resolved-config-explanation.input_schema.properties.resolve_remote]
+type = "boolean"
+description = "Intended for control resolution. If true, evaluates and includes remote cohort-based contexts during config resolution."
+
+[tools.get-resolved-config-explanation.input_schema.properties.merge_strategy]
+type = "string"
+enum = ["MERGE", "REPLACE"]
+
+[tools.get-resolved-config-explanation.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config-explanation.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config-explanation.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-resolved-config-explanation.annotations]
+title = "GetResolvedConfigExplanation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-resolved-config-explanation.permissions]
+hosts = ["user_defined"]
+
+[tools.get-resolved-config-with-identifier]
+name = "get-resolved-config-with-identifier"
+description = "Resolves and merges config values based on context conditions and identifier, applying overrides and merge strategies to produce the final configuration."
+function = "get_resolved_config_with_identifier"
+
+[tools.get-resolved-config-with-identifier.input_schema]
+type = "object"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.prefix]
+type = "array"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.version]
+type = "string"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.show_reasoning]
+type = "boolean"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.context_id]
+type = "string"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.resolve_remote]
+type = "boolean"
+description = "Intended for control resolution. If true, evaluates and includes remote cohort-based contexts during config resolution."
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.identifier]
+type = "string"
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.merge_strategy]
+type = "string"
+enum = ["MERGE", "REPLACE"]
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-resolved-config-with-identifier.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.get-resolved-config-with-identifier.annotations]
+title = "GetResolvedConfigWithIdentifier"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.get-resolved-config-with-identifier.permissions]
+hosts = ["user_defined"]
+
+[tools.get-secret]
+name = "get-secret"
+description = "Retrieves detailed information about a specific secret by its name. The value is masked for security."
+function = "get_secret"
+
+[tools.get-secret.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.get-secret.input_schema.properties.name]
+type = "string"
+
+[tools.get-secret.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-secret.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-secret.annotations]
+title = "GetSecret"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-secret.permissions]
+hosts = ["user_defined"]
+
+[tools.get-type-template]
+name = "get-type-template"
+description = "Retrieves detailed information about a specific type template including its schema and metadata."
+function = "get_type_template"
+
+[tools.get-type-template.input_schema]
+type = "object"
+required = ["type_name"]
+
+[tools.get-type-template.input_schema.properties.type_name]
+type = "string"
+
+[tools.get-type-template.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-type-template.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-type-template.annotations]
+title = "GetTypeTemplate"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-type-template.permissions]
+hosts = ["user_defined"]
+
+[tools.get-type-templates-list]
+name = "get-type-templates-list"
+description = "Retrieves a paginated list of all type templates in the workspace, including their schemas and metadata for type management."
+function = "get_type_templates_list"
+
+[tools.get-type-templates-list.input_schema]
+type = "object"
+
+[tools.get-type-templates-list.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.get-type-templates-list.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.get-type-templates-list.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.get-type-templates-list.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-type-templates-list.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-type-templates-list.annotations]
+title = "GetTypeTemplatesList"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-type-templates-list.permissions]
+hosts = ["user_defined"]
+
+[tools.get-variable]
+name = "get-variable"
+description = "Retrieves detailed information about a specific variable by its name."
+function = "get_variable"
+
+[tools.get-variable.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.get-variable.input_schema.properties.name]
+type = "string"
+
+[tools.get-variable.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-variable.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-variable.annotations]
+title = "GetVariable"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-variable.permissions]
+hosts = ["user_defined"]
+
+[tools.get-version]
+name = "get-version"
+description = "Retrieves a specific config version along with its metadata for audit and rollback purposes."
+function = "get_version"
+
+[tools.get-version.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.get-version.input_schema.properties.id]
+type = "string"
+
+[tools.get-version.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-version.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-version.annotations]
+title = "GetVersion"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-version.permissions]
+hosts = ["user_defined"]
+
+[tools.get-webhook]
+name = "get-webhook"
+description = "Retrieves detailed information about a specific webhook config, including its events, headers, and trigger history."
+function = "get_webhook"
+
+[tools.get-webhook.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.get-webhook.input_schema.properties.name]
+type = "string"
+
+[tools.get-webhook.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-webhook.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-webhook.annotations]
+title = "GetWebhook"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-webhook.permissions]
+hosts = ["user_defined"]
+
+[tools.get-webhook-by-event]
+name = "get-webhook-by-event"
+description = "Retrieves a webhook configuration based on a specific event type, allowing users to find which webhook is set to trigger for that event."
+function = "get_webhook_by_event"
+
+[tools.get-webhook-by-event.input_schema]
+type = "object"
+required = ["event"]
+
+[tools.get-webhook-by-event.input_schema.properties.event]
+type = "string"
+
+[tools.get-webhook-by-event.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-webhook-by-event.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-webhook-by-event.annotations]
+title = "GetWebhookByEvent"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-webhook-by-event.permissions]
+hosts = ["user_defined"]
+
+[tools.get-workspace]
+name = "get-workspace"
+description = "Retrieves detailed information about a specific workspace including its configuration and metadata."
+function = "get_workspace"
+
+[tools.get-workspace.input_schema]
+type = "object"
+required = ["workspace_name"]
+
+[tools.get-workspace.input_schema.properties.workspace_name]
+type = "string"
+
+[tools.get-workspace.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.get-workspace.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.get-workspace.annotations]
+title = "GetWorkspace"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-workspace.permissions]
+hosts = ["user_defined"]
+
+[tools.list-audit-logs]
+name = "list-audit-logs"
+description = "Retrieves a paginated list of audit logs with support for filtering by date range, table names, actions, and usernames for compliance and monitoring purposes."
+function = "list_audit_logs"
+
+[tools.list-audit-logs.input_schema]
+type = "object"
+
+[tools.list-audit-logs.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-audit-logs.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-audit-logs.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-audit-logs.input_schema.properties.from_date]
+type = "string"
+
+[tools.list-audit-logs.input_schema.properties.to_date]
+type = "string"
+
+[tools.list-audit-logs.input_schema.properties.table]
+type = "array"
+
+[tools.list-audit-logs.input_schema.properties.table.items]
+type = "string"
+
+[tools.list-audit-logs.input_schema.properties.action]
+type = "array"
+
+[tools.list-audit-logs.input_schema.properties.action.items]
+type = "string"
+
+[tools.list-audit-logs.input_schema.properties.username]
+type = "string"
+
+[tools.list-audit-logs.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order enumeration for list operations."
+enum = ["desc", "asc"]
+
+[tools.list-audit-logs.input_schema.properties.dimension_params]
+type = "object"
+description = "Additional dimension filter query parameters. Keys must be full query parameter names accepted by the API, for example `dimension[country]`."
+
+[tools.list-audit-logs.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-audit-logs.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-audit-logs.annotations]
+title = "ListAuditLogs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-audit-logs.permissions]
+hosts = ["user_defined"]
+
+[tools.list-contexts]
+name = "list-contexts"
+description = "Retrieves a paginated list of contexts with support for filtering by creation date, modification date, weight, and other criteria."
+function = "list_contexts"
+
+[tools.list-contexts.input_schema]
+type = "object"
+
+[tools.list-contexts.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-contexts.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-contexts.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-contexts.input_schema.properties.prefix]
+type = "array"
+
+[tools.list-contexts.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.list-contexts.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.list-contexts.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.list-contexts.input_schema.properties.sort_on]
+type = "string"
+enum = ["last_modified_at", "created_at", "weight"]
+
+[tools.list-contexts.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order enumeration for list operations."
+enum = ["desc", "asc"]
+
+[tools.list-contexts.input_schema.properties.created_by]
+type = "array"
+
+[tools.list-contexts.input_schema.properties.created_by.items]
+type = "string"
+
+[tools.list-contexts.input_schema.properties.last_modified_by]
+type = "array"
+
+[tools.list-contexts.input_schema.properties.last_modified_by.items]
+type = "string"
+
+[tools.list-contexts.input_schema.properties.plaintext]
+type = "string"
+
+[tools.list-contexts.input_schema.properties.dimension_match_strategy]
+type = "string"
+description = "Strategy to follow while filter items based on the context"
+enum = ["exact", "subset", "non_conflicting"]
+
+[tools.list-contexts.input_schema.properties.dimension_params]
+type = "object"
+description = "Additional dimension filter query parameters. Keys must be full query parameter names accepted by the API, for example `dimension[country]`."
+
+[tools.list-contexts.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-contexts.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-contexts.annotations]
+title = "ListContexts"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-contexts.permissions]
+hosts = ["user_defined"]
+
+[tools.list-default-configs]
+name = "list-default-configs"
+description = "Retrieves a paginated list of all default config entries in the workspace, including their values, schemas, and metadata."
+function = "list_default_configs"
+
+[tools.list-default-configs.input_schema]
+type = "object"
+
+[tools.list-default-configs.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-default-configs.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-default-configs.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-default-configs.input_schema.properties.name]
+type = "string"
+
+[tools.list-default-configs.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-default-configs.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-default-configs.annotations]
+title = "ListDefaultConfigs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-default-configs.permissions]
+hosts = ["user_defined"]
+
+[tools.list-dimensions]
+name = "list-dimensions"
+description = "Retrieves a paginated list of all dimensions in the workspace. Dimensions are returned with their details and metadata."
+function = "list_dimensions"
+
+[tools.list-dimensions.input_schema]
+type = "object"
+
+[tools.list-dimensions.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-dimensions.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-dimensions.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-dimensions.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-dimensions.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-dimensions.annotations]
+title = "ListDimensions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-dimensions.permissions]
+hosts = ["user_defined"]
+
+[tools.list-experiment]
+name = "list-experiment"
+description = "Retrieves a paginated list of experiments with support for filtering by status, date range, name, creator, and experiment group."
+function = "list_experiment"
+
+[tools.list-experiment.input_schema]
+type = "object"
+
+[tools.list-experiment.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-experiment.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-experiment.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-experiment.input_schema.properties.status]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.status.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.from_date]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.to_date]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.experiment_name]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.experiment_ids]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.experiment_ids.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.experiment_group_ids]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.experiment_group_ids.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.created_by]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.created_by.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.sort_on]
+type = "string"
+enum = ["last_modified_at", "created_at"]
+
+[tools.list-experiment.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order enumeration for list operations."
+enum = ["desc", "asc"]
+
+[tools.list-experiment.input_schema.properties.global_experiments_only]
+type = "boolean"
+
+[tools.list-experiment.input_schema.properties.dimension_match_strategy]
+type = "string"
+description = "Strategy to follow while filter items based on the context"
+enum = ["exact", "subset", "non_conflicting"]
+
+[tools.list-experiment.input_schema.properties.prefix]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.prefix.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.exclude_prefix]
+type = "array"
+
+[tools.list-experiment.input_schema.properties.exclude_prefix.items]
+type = "string"
+
+[tools.list-experiment.input_schema.properties.dimension_params]
+type = "object"
+description = "Additional dimension filter query parameters. Keys must be full query parameter names accepted by the API, for example `dimension[country]`."
+
+[tools.list-experiment.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.list-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-experiment.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.list-experiment.annotations]
+title = "ListExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.list-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.list-experiment-groups]
+name = "list-experiment-groups"
+description = "Lists experiment groups, with support for filtering and pagination."
+function = "list_experiment_groups"
+
+[tools.list-experiment-groups.input_schema]
+type = "object"
+
+[tools.list-experiment-groups.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-experiment-groups.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-experiment-groups.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-experiment-groups.input_schema.properties.name]
+type = "string"
+description = "Filter by experiment group name (exact match or substring, depending on backend implementation)."
+
+[tools.list-experiment-groups.input_schema.properties.created_by]
+type = "string"
+description = "Filter by the user who created the experiment group."
+
+[tools.list-experiment-groups.input_schema.properties.last_modified_by]
+type = "string"
+description = "Filter by the user who last modified the experiment group."
+
+[tools.list-experiment-groups.input_schema.properties.sort_on]
+type = "string"
+description = "Field to sort the results by."
+enum = ["name", "created_at", "last_modified_at"]
+
+[tools.list-experiment-groups.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order (ascending or descending)."
+enum = ["desc", "asc"]
+
+[tools.list-experiment-groups.input_schema.properties.group_type]
+type = "array"
+description = "Filter by the type of group (USER_CREATED or SYSTEM_GENERATED)."
+
+[tools.list-experiment-groups.input_schema.properties.group_type.items]
+type = "string"
+
+[tools.list-experiment-groups.input_schema.properties.dimension_match_strategy]
+type = "string"
+description = "Strategy to follow while filter items based on the context"
+enum = ["exact", "subset", "non_conflicting"]
+
+[tools.list-experiment-groups.input_schema.properties.dimension_params]
+type = "object"
+description = "Additional dimension filter query parameters. Keys must be full query parameter names accepted by the API, for example `dimension[country]`."
+
+[tools.list-experiment-groups.input_schema.properties.if_modified_since]
+type = "string"
+description = "While using this, 304 response is treated as error, which needs to be handled separately by checking the response code of the http response. This is required to make sure that clients can cache the response and avoid unnecessary calls when there are no updates."
+
+[tools.list-experiment-groups.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-experiment-groups.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-experiment-groups.input_schema.properties.context]
+type = "object"
+description = "Map representing the context.\nKeys correspond to the names of the dimensions."
+
+[tools.list-experiment-groups.annotations]
+title = "ListExperimentGroups"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.list-experiment-groups.permissions]
+hosts = ["user_defined"]
+
+[tools.list-function]
+name = "list-function"
+description = "Retrieves a paginated list of all functions in the workspace with their basic information and current status."
+function = "list_function"
+
+[tools.list-function.input_schema]
+type = "object"
+
+[tools.list-function.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-function.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-function.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-function.input_schema.properties.function_type]
+type = "array"
+
+[tools.list-function.input_schema.properties.function_type.items]
+type = "string"
+
+[tools.list-function.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-function.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-function.annotations]
+title = "ListFunction"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-function.permissions]
+hosts = ["user_defined"]
+
+[tools.list-organisation]
+name = "list-organisation"
+description = "Retrieves a paginated list of all organisations with their basic information, creation details, and current status."
+function = "list_organisation"
+
+[tools.list-organisation.input_schema]
+type = "object"
+
+[tools.list-organisation.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-organisation.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-organisation.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-organisation.input_schema.properties.org_id]
+type = "string"
+description = "Organisation ID. Falls back to SUPERPOSITION_ORG_ID env."
+
+[tools.list-organisation.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.list-organisation.annotations]
+title = "ListOrganisation"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-organisation.permissions]
+hosts = ["user_defined"]
+
+[tools.list-secrets]
+name = "list-secrets"
+description = "Retrieves a paginated list of all secrets in the workspace with optional filtering and sorting. All secret values are masked."
+function = "list_secrets"
+
+[tools.list-secrets.input_schema]
+type = "object"
+
+[tools.list-secrets.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-secrets.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-secrets.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-secrets.input_schema.properties.name]
+type = "array"
+description = "Filter by secret name."
+
+[tools.list-secrets.input_schema.properties.name.items]
+type = "string"
+
+[tools.list-secrets.input_schema.properties.created_by]
+type = "array"
+description = "Filter by the user who created the secret."
+
+[tools.list-secrets.input_schema.properties.created_by.items]
+type = "string"
+
+[tools.list-secrets.input_schema.properties.last_modified_by]
+type = "array"
+description = "Filter by the user who last modified the secret."
+
+[tools.list-secrets.input_schema.properties.last_modified_by.items]
+type = "string"
+
+[tools.list-secrets.input_schema.properties.sort_on]
+type = "string"
+description = "Field to sort the results by."
+enum = ["name", "created_at", "last_modified_at"]
+
+[tools.list-secrets.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order (ascending or descending)."
+enum = ["desc", "asc"]
+
+[tools.list-secrets.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-secrets.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-secrets.annotations]
+title = "ListSecrets"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-secrets.permissions]
+hosts = ["user_defined"]
+
+[tools.list-variables]
+name = "list-variables"
+description = "Retrieves a paginated list of all variables in the workspace with optional filtering and sorting."
+function = "list_variables"
+
+[tools.list-variables.input_schema]
+type = "object"
+
+[tools.list-variables.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-variables.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-variables.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-variables.input_schema.properties.name]
+type = "array"
+description = "Filter by variable name (exact match or substring, depending on backend implementation)."
+
+[tools.list-variables.input_schema.properties.name.items]
+type = "string"
+
+[tools.list-variables.input_schema.properties.created_by]
+type = "array"
+description = "Filter by the user who created the variable"
+
+[tools.list-variables.input_schema.properties.created_by.items]
+type = "string"
+
+[tools.list-variables.input_schema.properties.last_modified_by]
+type = "array"
+description = "Filter by the user who last modified the variable"
+
+[tools.list-variables.input_schema.properties.last_modified_by.items]
+type = "string"
+
+[tools.list-variables.input_schema.properties.sort_on]
+type = "string"
+description = "Field to sort the results by."
+enum = ["name", "created_at", "last_modified_at"]
+
+[tools.list-variables.input_schema.properties.sort_by]
+type = "string"
+description = "Sort order (ascending or descending)."
+enum = ["desc", "asc"]
+
+[tools.list-variables.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-variables.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-variables.annotations]
+title = "ListVariables"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-variables.permissions]
+hosts = ["user_defined"]
+
+[tools.list-versions]
+name = "list-versions"
+description = "Retrieves a paginated list of config versions with their metadata, hash values, and creation timestamps for audit and rollback purposes."
+function = "list_versions"
+
+[tools.list-versions.input_schema]
+type = "object"
+
+[tools.list-versions.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-versions.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-versions.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-versions.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-versions.annotations]
+title = "ListVersions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-versions.permissions]
+hosts = ["user_defined"]
+
+[tools.list-webhook]
+name = "list-webhook"
+description = "Retrieves a paginated list of all webhook configs in the workspace, including their status and config details."
+function = "list_webhook"
+
+[tools.list-webhook.input_schema]
+type = "object"
+
+[tools.list-webhook.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-webhook.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-webhook.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-webhook.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-webhook.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-webhook.annotations]
+title = "ListWebhook"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-webhook.permissions]
+hosts = ["user_defined"]
+
+[tools.list-workspace]
+name = "list-workspace"
+description = "Retrieves a paginated list of all workspaces with optional filtering by workspace name, including their status, config details, and administrative information."
+function = "list_workspace"
+
+[tools.list-workspace.input_schema]
+type = "object"
+
+[tools.list-workspace.input_schema.properties.count]
+type = "number"
+description = "Number of items to be returned in each page."
+
+[tools.list-workspace.input_schema.properties.page]
+type = "number"
+description = "Page number to retrieve, starting from 1."
+
+[tools.list-workspace.input_schema.properties.all]
+type = "boolean"
+description = "If true, returns all requested items, ignoring pagination parameters page and count."
+
+[tools.list-workspace.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.list-workspace.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.list-workspace.annotations]
+title = "ListWorkspace"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-workspace.permissions]
+hosts = ["user_defined"]
+
+[tools.migrate-workspace-schema]
+name = "migrate-workspace-schema"
+description = "Migrates the workspace database schema to the new version of the template"
+function = "migrate_workspace_schema"
+
+[tools.migrate-workspace-schema.input_schema]
+type = "object"
+required = ["workspace_name"]
+
+[tools.migrate-workspace-schema.input_schema.properties.workspace_name]
+type = "string"
+
+[tools.migrate-workspace-schema.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.migrate-workspace-schema.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.migrate-workspace-schema.annotations]
+title = "MigrateWorkspaceSchema"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.migrate-workspace-schema.permissions]
+hosts = ["user_defined"]
+
+[tools.move-context]
+name = "move-context"
+description = "Updates the condition of the mentioned context, if a context with the new condition already exists, it merges the override and effectively deleting the old context"
+function = "move_context"
+
+[tools.move-context.input_schema]
+type = "object"
+required = ["id", "context", "change_reason"]
+
+[tools.move-context.input_schema.properties.id]
+type = "string"
+
+[tools.move-context.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.move-context.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.move-context.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.move-context.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.move-context.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.move-context.annotations]
+title = "MoveContext"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.move-context.permissions]
+hosts = ["user_defined"]
+
+[tools.pause-experiment]
+name = "pause-experiment"
+description = "Temporarily pauses an inprogress experiment, suspending its effects while preserving the experiment config for later resumption."
+function = "pause_experiment"
+
+[tools.pause-experiment.input_schema]
+type = "object"
+required = ["id", "change_reason"]
+
+[tools.pause-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.pause-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.pause-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.pause-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.pause-experiment.annotations]
+title = "PauseExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.pause-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.publish]
+name = "publish"
+description = "Publishes the draft version of a function, making it the active version used for value_validation, value_compute, context_validation or change_reason_validation in the system."
+function = "publish"
+
+[tools.publish.input_schema]
+type = "object"
+required = ["function_name", "change_reason"]
+
+[tools.publish.input_schema.properties.function_name]
+type = "string"
+
+[tools.publish.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.publish.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.publish.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.publish.annotations]
+title = "Publish"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.publish.permissions]
+hosts = ["user_defined"]
+
+[tools.ramp-experiment]
+name = "ramp-experiment"
+description = "Adjusts the traffic percentage allocation for an in-progress experiment, allowing gradual rollout or rollback of experimental features."
+function = "ramp_experiment"
+
+[tools.ramp-experiment.input_schema]
+type = "object"
+required = ["id", "change_reason", "traffic_percentage"]
+
+[tools.ramp-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.ramp-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.ramp-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.ramp-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.ramp-experiment.input_schema.properties.traffic_percentage]
+type = "number"
+description = "traffic_percentage"
+
+[tools.ramp-experiment.annotations]
+title = "RampExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.ramp-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.remove-members-from-group]
+name = "remove-members-from-group"
+description = "Removes members from an existing experiment group."
+function = "remove_members_from_group"
+
+[tools.remove-members-from-group.input_schema]
+type = "object"
+required = ["id", "change_reason", "member_experiment_ids"]
+
+[tools.remove-members-from-group.input_schema.properties.id]
+type = "string"
+
+[tools.remove-members-from-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.remove-members-from-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.remove-members-from-group.input_schema.properties.change_reason]
+type = "string"
+description = "Reason for adding these members."
+
+[tools.remove-members-from-group.input_schema.properties.member_experiment_ids]
+type = "array"
+description = "List of experiment IDs to add/remove to this group."
+
+[tools.remove-members-from-group.input_schema.properties.member_experiment_ids.items]
+type = "string"
+
+[tools.remove-members-from-group.annotations]
+title = "RemoveMembersFromGroup"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.remove-members-from-group.permissions]
+hosts = ["user_defined"]
+
+[tools.resume-experiment]
+name = "resume-experiment"
+description = "Resumes a previously paused experiment, restoring its in-progress state and re-enabling variant evaluation."
+function = "resume_experiment"
+
+[tools.resume-experiment.input_schema]
+type = "object"
+required = ["id", "change_reason"]
+
+[tools.resume-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.resume-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.resume-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.resume-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.resume-experiment.annotations]
+title = "ResumeExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.resume-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.rotate-master-encryption-key]
+name = "rotate-master-encryption-key"
+description = "Rotates the master encryption key across all workspaces"
+function = "rotate_master_encryption_key"
+
+[tools.rotate-master-encryption-key.input_schema]
+type = "object"
+
+[tools.rotate-master-encryption-key.input_schema.properties.org_id]
+type = "string"
+description = "Organisation ID. Falls back to SUPERPOSITION_ORG_ID env."
+
+[tools.rotate-master-encryption-key.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.rotate-master-encryption-key.annotations]
+title = "RotateMasterEncryptionKey"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.rotate-master-encryption-key.permissions]
+hosts = ["user_defined"]
+
+[tools.rotate-workspace-encryption-key]
+name = "rotate-workspace-encryption-key"
+description = "Rotates the workspace encryption key. Generates a new encryption key and re-encrypts all secrets with the new key. This is a critical operation that should be done during low-traffic periods."
+function = "rotate_workspace_encryption_key"
+
+[tools.rotate-workspace-encryption-key.input_schema]
+type = "object"
+required = ["workspace_name"]
+
+[tools.rotate-workspace-encryption-key.input_schema.properties.workspace_name]
+type = "string"
+
+[tools.rotate-workspace-encryption-key.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.rotate-workspace-encryption-key.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.rotate-workspace-encryption-key.annotations]
+title = "RotateWorkspaceEncryptionKey"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.rotate-workspace-encryption-key.permissions]
+hosts = ["user_defined"]
+
+[tools.test]
+name = "test"
+description = "Executes a function in test mode with provided input parameters to validate its behavior before publishing or deployment."
+function = "test"
+
+[tools.test.input_schema]
+type = "object"
+required = ["function_name", "stage", "body"]
+
+[tools.test.input_schema.properties.function_name]
+type = "string"
+
+[tools.test.input_schema.properties.stage]
+type = "string"
+enum = ["draft", "published"]
+
+[tools.test.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.test.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.test.input_schema.properties.body]
+type = "object"
+description = "Request body as a JSON object."
+
+[tools.test.annotations]
+title = "Test"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.test.permissions]
+hosts = ["user_defined"]
+
+[tools.update-default-config]
+name = "update-default-config"
+description = "Updates an existing default config entry. Allows modification of value, schema, function mappings, and description while preserving the key identifier."
+function = "update_default_config"
+
+[tools.update-default-config.input_schema]
+type = "object"
+required = ["key", "change_reason"]
+
+[tools.update-default-config.input_schema.properties.key]
+type = "string"
+
+[tools.update-default-config.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-default-config.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-default-config.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-default-config.input_schema.properties.value]
+type = "string"
+description = "value"
+
+[tools.update-default-config.input_schema.properties.schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.update-default-config.input_schema.properties.value_validation_function_name]
+type = "string"
+description = "To unset the function name, pass \"null\" string."
+
+[tools.update-default-config.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-default-config.input_schema.properties.value_compute_function_name]
+type = "string"
+description = "To unset the function name, pass \"null\" string."
+
+[tools.update-default-config.annotations]
+title = "UpdateDefaultConfig"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-default-config.permissions]
+hosts = ["user_defined"]
+
+[tools.update-dimension]
+name = "update-dimension"
+description = "Updates an existing dimension's configuration. Allows modification of schema, position, function mappings, and other properties while maintaining dependency relationships."
+function = "update_dimension"
+
+[tools.update-dimension.input_schema]
+type = "object"
+required = ["dimension", "change_reason"]
+
+[tools.update-dimension.input_schema.properties.dimension]
+type = "string"
+
+[tools.update-dimension.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-dimension.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-dimension.input_schema.properties.schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.update-dimension.input_schema.properties.position]
+type = "number"
+description = "position"
+
+[tools.update-dimension.input_schema.properties.value_validation_function_name]
+type = "string"
+description = "To unset the function name, pass \"null\" string."
+
+[tools.update-dimension.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-dimension.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-dimension.input_schema.properties.value_compute_function_name]
+type = "string"
+description = "To unset the function name, pass \"null\" string."
+
+[tools.update-dimension.annotations]
+title = "UpdateDimension"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-dimension.permissions]
+hosts = ["user_defined"]
+
+[tools.update-experiment-group]
+name = "update-experiment-group"
+description = "Updates an existing experiment group. Allows partial updates to specified fields."
+function = "update_experiment_group"
+
+[tools.update-experiment-group.input_schema]
+type = "object"
+required = ["id", "change_reason"]
+
+[tools.update-experiment-group.input_schema.properties.id]
+type = "string"
+
+[tools.update-experiment-group.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-experiment-group.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-experiment-group.input_schema.properties.change_reason]
+type = "string"
+description = "Reason for this update."
+
+[tools.update-experiment-group.input_schema.properties.description]
+type = "string"
+description = "Optional new description for the group."
+
+[tools.update-experiment-group.input_schema.properties.traffic_percentage]
+type = "number"
+description = "Optional new traffic percentage for the group."
+
+[tools.update-experiment-group.annotations]
+title = "UpdateExperimentGroup"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-experiment-group.permissions]
+hosts = ["user_defined"]
+
+[tools.update-function]
+name = "update-function"
+description = "Updates the draft version of an existing function with new code, runtime version, or description while preserving the published version."
+function = "update_function"
+
+[tools.update-function.input_schema]
+type = "object"
+required = ["function_name", "change_reason"]
+
+[tools.update-function.input_schema.properties.function_name]
+type = "string"
+
+[tools.update-function.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-function.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-function.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-function.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-function.input_schema.properties.function]
+type = "string"
+description = "function"
+
+[tools.update-function.input_schema.properties.runtime_version]
+type = "string"
+description = "runtime_version"
+enum = ["1.0"]
+
+[tools.update-function.annotations]
+title = "UpdateFunction"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-function.permissions]
+hosts = ["user_defined"]
+
+[tools.update-organisation]
+name = "update-organisation"
+description = "Updates an existing organisation's information including contact details, status, and administrative properties."
+function = "update_organisation"
+
+[tools.update-organisation.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.update-organisation.input_schema.properties.id]
+type = "string"
+
+[tools.update-organisation.input_schema.properties.country_code]
+type = "string"
+description = "country_code"
+
+[tools.update-organisation.input_schema.properties.contact_email]
+type = "string"
+description = "contact_email"
+
+[tools.update-organisation.input_schema.properties.contact_phone]
+type = "string"
+description = "contact_phone"
+
+[tools.update-organisation.input_schema.properties.admin_email]
+type = "string"
+description = "admin_email"
+
+[tools.update-organisation.input_schema.properties.sector]
+type = "string"
+description = "sector"
+
+[tools.update-organisation.input_schema.properties.status]
+type = "string"
+description = "status"
+enum = ["Active", "Inactive", "PendingKyb"]
+
+[tools.update-organisation.input_schema.properties.org_id]
+type = "string"
+description = "Organisation ID. Falls back to SUPERPOSITION_ORG_ID env."
+
+[tools.update-organisation.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.update-organisation.annotations]
+title = "UpdateOrganisation"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-organisation.permissions]
+hosts = ["user_defined"]
+
+[tools.update-override]
+name = "update-override"
+description = "Updates the overrides for an existing context. Allows modification of override values while maintaining the context's conditions."
+function = "update_override"
+
+[tools.update-override.input_schema]
+type = "object"
+required = ["context", "override", "change_reason"]
+
+[tools.update-override.input_schema.properties.config_tags]
+type = "string"
+
+[tools.update-override.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-override.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-override.input_schema.properties.context]
+type = "object"
+description = "context"
+
+[tools.update-override.input_schema.properties.override]
+type = "object"
+description = "Configuration overrides that replace default values when context conditions are met. Keys represent configuration keys and values are the override data."
+
+[tools.update-override.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-override.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-override.annotations]
+title = "UpdateOverride"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-override.permissions]
+hosts = ["user_defined"]
+
+[tools.update-overrides-experiment]
+name = "update-overrides-experiment"
+description = "Updates the overrides for specific variants within an experiment, allowing modification of experiment behavior Updates the overrides for specific variants within an experiment, allowing modification of experiment behavior while it is in the created state."
+function = "update_overrides_experiment"
+
+[tools.update-overrides-experiment.input_schema]
+type = "object"
+required = ["id", "variant_list", "change_reason"]
+
+[tools.update-overrides-experiment.input_schema.properties.id]
+type = "string"
+
+[tools.update-overrides-experiment.input_schema.properties.config_tags]
+type = "string"
+
+[tools.update-overrides-experiment.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-overrides-experiment.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-overrides-experiment.input_schema.properties.variant_list]
+type = "array"
+description = "variant_list"
+
+[tools.update-overrides-experiment.input_schema.properties.variant_list.items]
+type = "object"
+
+[tools.update-overrides-experiment.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-overrides-experiment.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-overrides-experiment.input_schema.properties.metrics]
+type = "string"
+description = "Metric selection update using workspace metric definitions containing name and direction. Omit to preserve the current selection, pass null to clear it, or pass a selection object to replace it. Updates are allowed only while the experiment is in CREATED state."
+
+[tools.update-overrides-experiment.input_schema.properties.experiment_group_id]
+type = "string"
+description = "To unset experiment group, pass \"null\" string."
+
+[tools.update-overrides-experiment.annotations]
+title = "UpdateOverridesExperiment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-overrides-experiment.permissions]
+hosts = ["user_defined"]
+
+[tools.update-secret]
+name = "update-secret"
+description = "Updates an existing secret's value or description. The value is re-encrypted with the current workspace encryption key. Returns masked value."
+function = "update_secret"
+
+[tools.update-secret.input_schema]
+type = "object"
+required = ["name", "change_reason"]
+
+[tools.update-secret.input_schema.properties.name]
+type = "string"
+
+[tools.update-secret.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-secret.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-secret.input_schema.properties.value]
+type = "string"
+description = "New plaintext value to encrypt and store. If provided, will be encrypted with current key."
+
+[tools.update-secret.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-secret.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-secret.annotations]
+title = "UpdateSecret"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-secret.permissions]
+hosts = ["user_defined"]
+
+[tools.update-type-templates]
+name = "update-type-templates"
+description = "Updates an existing type template's schema definition and metadata while preserving its identifier and usage history."
+function = "update_type_templates"
+
+[tools.update-type-templates.input_schema]
+type = "object"
+required = ["type_name", "type_schema", "change_reason"]
+
+[tools.update-type-templates.input_schema.properties.type_name]
+type = "string"
+
+[tools.update-type-templates.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-type-templates.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-type-templates.input_schema.properties.type_schema]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.update-type-templates.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-type-templates.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-type-templates.annotations]
+title = "UpdateTypeTemplates"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-type-templates.permissions]
+hosts = ["user_defined"]
+
+[tools.update-variable]
+name = "update-variable"
+description = "Updates an existing variable's value, description, or tags."
+function = "update_variable"
+
+[tools.update-variable.input_schema]
+type = "object"
+required = ["name", "change_reason"]
+
+[tools.update-variable.input_schema.properties.name]
+type = "string"
+
+[tools.update-variable.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-variable.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-variable.input_schema.properties.value]
+type = "string"
+description = "value"
+
+[tools.update-variable.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-variable.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-variable.annotations]
+title = "UpdateVariable"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-variable.permissions]
+hosts = ["user_defined"]
+
+[tools.update-webhook]
+name = "update-webhook"
+description = "Updates an existing webhook config, allowing modification of URL, events, headers, and other webhook properties."
+function = "update_webhook"
+
+[tools.update-webhook.input_schema]
+type = "object"
+required = ["name", "change_reason"]
+
+[tools.update-webhook.input_schema.properties.name]
+type = "string"
+
+[tools.update-webhook.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-webhook.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-webhook.input_schema.properties.description]
+type = "string"
+description = "description"
+
+[tools.update-webhook.input_schema.properties.enabled]
+type = "boolean"
+description = "enabled"
+
+[tools.update-webhook.input_schema.properties.url]
+type = "string"
+description = "url"
+
+[tools.update-webhook.input_schema.properties.method]
+type = "string"
+description = "method"
+enum = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]
+
+[tools.update-webhook.input_schema.properties.version]
+type = "string"
+description = "version"
+enum = ["V1"]
+
+[tools.update-webhook.input_schema.properties.custom_headers]
+type = "object"
+description = "Generic key-value object structure used for flexible data representation throughout the API."
+
+[tools.update-webhook.input_schema.properties.events]
+type = "array"
+description = "events"
+
+[tools.update-webhook.input_schema.properties.events.items]
+type = "string"
+
+[tools.update-webhook.input_schema.properties.change_reason]
+type = "string"
+description = "change_reason"
+
+[tools.update-webhook.annotations]
+title = "UpdateWebhook"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-webhook.permissions]
+hosts = ["user_defined"]
+
+[tools.update-workspace]
+name = "update-workspace"
+description = "Updates an existing workspace configuration, allowing modification of admin settings, mandatory dimensions, and workspace properties. Validates config version existence if provided."
+function = "update_workspace"
+
+[tools.update-workspace.input_schema]
+type = "object"
+required = ["workspace_name"]
+
+[tools.update-workspace.input_schema.properties.workspace_name]
+type = "string"
+
+[tools.update-workspace.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.update-workspace.input_schema.properties.workspace_admin_email]
+type = "string"
+description = "workspace_admin_email"
+
+[tools.update-workspace.input_schema.properties.config_version]
+type = "string"
+description = "To unset config version, pass \"null\" string."
+
+[tools.update-workspace.input_schema.properties.mandatory_dimensions]
+type = "array"
+description = "mandatory_dimensions"
+
+[tools.update-workspace.input_schema.properties.mandatory_dimensions.items]
+type = "string"
+
+[tools.update-workspace.input_schema.properties.workspace_status]
+type = "string"
+description = "workspace_status"
+enum = ["ENABLED", "DISABLED"]
+
+[tools.update-workspace.input_schema.properties.metrics]
+type = "string"
+description = "Workspace metric source and catalog. Each metric definition contains a unique name and whether higher or lower values are better."
+
+[tools.update-workspace.input_schema.properties.allow_experiment_self_approval]
+type = "boolean"
+description = "allow_experiment_self_approval"
+
+[tools.update-workspace.input_schema.properties.auto_populate_control]
+type = "boolean"
+description = "auto_populate_control"
+
+[tools.update-workspace.input_schema.properties.enable_context_validation]
+type = "boolean"
+description = "enable_context_validation"
+
+[tools.update-workspace.input_schema.properties.enable_change_reason_validation]
+type = "boolean"
+description = "enable_change_reason_validation"
+
+[tools.update-workspace.input_schema.properties.workspace]
+type = "string"
+description = "Workspace name. Falls back to SUPERPOSITION_WORKSPACE env."
+
+[tools.update-workspace.annotations]
+title = "UpdateWorkspace"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-workspace.permissions]
+hosts = ["user_defined"]
+
+[tools.validate-context]
+name = "validate-context"
+description = "Validates if a given context condition is well-formed"
+function = "validate_context"
+
+[tools.validate-context.input_schema]
+type = "object"
+required = ["context"]
+
+[tools.validate-context.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.validate-context.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.validate-context.input_schema.properties.context]
+type = "object"
+description = "Represents conditional criteria used for context matching. Keys define dimension names and values specify the criteria that must be met."
+
+[tools.validate-context.annotations]
+title = "ValidateContext"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.validate-context.permissions]
+hosts = ["user_defined"]
+
+[tools.weight-recompute]
+name = "weight-recompute"
+description = "Recalculates and updates the priority weights for all contexts in the workspace based on their dimensions."
+function = "weight_recompute"
+
+[tools.weight-recompute.input_schema]
+type = "object"
+
+[tools.weight-recompute.input_schema.properties.config_tags]
+type = "string"
+
+[tools.weight-recompute.input_schema.properties.org_id]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.weight-recompute.input_schema.properties.workspace]
+type = "string"
+description = "Optional: falls back to SUPERPOSITION_ORG_ID / SUPERPOSITION_WORKSPACE env."
+
+[tools.weight-recompute.annotations]
+title = "WeightRecompute"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.weight-recompute.permissions]
+hosts = ["user_defined"]
