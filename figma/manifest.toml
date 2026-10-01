@@ -1,8 +1,8 @@
 name = "figma"
 version = "1.0.0"
-homepage = "https://github.com/figma/rest-api-spec"
-creator = "Figma"
-contact = "support@figma.com"
+homepage = "https://github.com/Datron/jilebi-plugins"
+creator = "jilebi"
+contact = "support@jilebi.ai"
 
 [secrets]
 FIGMA_TOKEN = { schema = { type = "string", description = "Figma personal access token (sent as X-Figma-Token header)" } }
