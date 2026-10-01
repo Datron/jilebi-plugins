@@ -1,0 +1,314 @@
+name = "figma"
+version = "1.0.0"
+homepage = "https://github.com/figma/rest-api-spec"
+creator = "Figma"
+contact = "support@figma.com"
+
+[secrets]
+FIGMA_TOKEN = { schema = { type = "string", description = "Figma personal access token (sent as X-Figma-Token header)" } }
+
+[resources]
+
+[prompts.design-review]
+name = "design-review"
+description = "Review a Figma file for design consistency, component usage and accessibility"
+arguments = [
+	{ name = "file_key", description = "Figma file key (from the file URL)", required = true },
+	{ name = "focus", description = "What to focus on (e.g. consistency, accessibility, component reuse)", required = false },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are a product design reviewer. Fetch the Figma file with get-file and its comments with get-comments, then review it for layout consistency, typography, color usage and component reuse." },
+	{ role = "user", type = "text", content = "Review Figma file {{file_key}}{{#if focus}} focusing on {{focus}}{{/if}}. Summarize findings as a prioritized list with file/node references." },
+]
+
+[prompts.dev-handoff]
+name = "dev-handoff"
+description = "Produce a developer handoff summary for Figma nodes (layout, assets, variables)"
+arguments = [
+	{ name = "file_key", description = "Figma file key (from the file URL)", required = true },
+	{ name = "node_ids", description = "Comma-separated node IDs to hand off", required = true },
+]
+messages = [
+	{ role = "user", type = "text", content = "You are a design-to-code handoff assistant. Use get-file-nodes to inspect the nodes, get-images for exportable assets, and get-local-variables plus get-dev-resources for tokens and links." },
+	{ role = "user", type = "text", content = "Prepare a developer handoff for file {{file_key}}, nodes {{node_ids}}: structure, dimensions, assets to export, variables/tokens and open questions." },
+]
+
+[tools.get-file]
+name = "get-file"
+description = "Get the JSON document of a Figma file (parse file_key from the file URL)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key) from the Figma file URL" }, version = { type = "string", description = "Specific version ID (omit for current version)" }, ids = { type = "string", description = "Comma-separated node IDs to return a subset of the document" }, depth = { type = "number", description = "How deep into the document tree to traverse" }, geometry = { type = "string", description = "Set to 'paths' to export vector data" }, plugin_data = { type = "string", description = "Comma-separated plugin IDs and/or 'shared'" }, branch_data = { type = "boolean", description = "Return branch metadata for the file" } }, required = ["file_key"] }
+function = "get_file"
+[tools.get-file.annotations]
+title = "Get File"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-nodes]
+name = "get-file-nodes"
+description = "Get JSON for specific nodes in a Figma file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, ids = { type = "string", description = "Comma-separated node IDs to retrieve" }, version = { type = "string", description = "Specific version ID" }, depth = { type = "number", description = "Depth to traverse from the requested nodes" }, geometry = { type = "string", description = "Set to 'paths' to export vector data" }, plugin_data = { type = "string", description = "Comma-separated plugin IDs and/or 'shared'" } }, required = ["file_key", "ids"] }
+function = "get_file_nodes"
+[tools.get-file-nodes.annotations]
+title = "Get File Nodes"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-nodes.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-images]
+name = "get-images"
+description = "Render images of file nodes (returns node ID to expiring image URL map)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, ids = { type = "string", description = "Comma-separated node IDs to render" }, version = { type = "string", description = "Specific version ID" }, scale = { type = "number", description = "Image scaling factor between 0.01 and 4" }, format = { type = "string", enum = ["jpg", "png", "svg", "pdf"], description = "Image output format (default png)" }, svg_outline_text = { type = "boolean", description = "Render text as outlines in SVGs" }, svg_include_id = { type = "boolean", description = "Include layer names as SVG id attributes" }, svg_include_node_id = { type = "boolean", description = "Include node IDs as data-node-id attributes" }, svg_simplify_stroke = { type = "boolean", description = "Simplify inside/outside strokes in SVGs" }, contents_only = { type = "boolean", description = "Exclude overlapping content from rendering" }, use_absolute_bounds = { type = "boolean", description = "Use full node dimensions regardless of cropping" } }, required = ["file_key", "ids"] }
+function = "get_images"
+[tools.get-images.annotations]
+title = "Render Images"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-images.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-image-fills]
+name = "get-image-fills"
+description = "Get download links for all images present in image fills in a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" } }, required = ["file_key"] }
+function = "get_image_fills"
+[tools.get-image-fills.annotations]
+title = "Get Image Fills"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-image-fills.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-meta]
+name = "get-file-meta"
+description = "Get metadata of a Figma file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" } }, required = ["file_key"] }
+function = "get_file_meta"
+[tools.get-file-meta.annotations]
+title = "Get File Metadata"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-meta.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-versions]
+name = "get-file-versions"
+description = "Get the version history of a Figma file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, page_size = { type = "number", description = "Items per page (default 30, max 50)" }, before = { type = "number", description = "Version ID to get versions before (for pagination)" }, after = { type = "number", description = "Version ID to get versions after (for pagination)" } }, required = ["file_key"] }
+function = "get_file_versions"
+[tools.get-file-versions.annotations]
+title = "Get File Versions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-versions.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-comments]
+name = "get-comments"
+description = "Get comments left on a Figma file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, as_md = { type = "boolean", description = "Return comments as markdown equivalents when applicable" } }, required = ["file_key"] }
+function = "get_comments"
+[tools.get-comments.annotations]
+title = "Get Comments"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-comments.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.post-comment]
+name = "post-comment"
+description = "Post a new comment (or reply) on a Figma file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, message = { type = "string", description = "Text contents of the comment" }, comment_id = { type = "string", description = "ID of a root comment to reply to" } }, required = ["file_key", "message"] }
+function = "post_comment"
+[tools.post-comment.annotations]
+title = "Post Comment"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.post-comment.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.delete-comment]
+name = "delete-comment"
+description = "Delete a comment (only the author can delete it)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, comment_id = { type = "string", description = "ID of the comment to delete" } }, required = ["file_key", "comment_id"] }
+function = "delete_comment"
+[tools.delete-comment.annotations]
+title = "Delete Comment"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+[tools.delete-comment.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-me]
+name = "get-me"
+description = "Get information about the currently authenticated user"
+input_schema = { type = "object", properties = {}, required = [] }
+function = "get_me"
+[tools.get-me.annotations]
+title = "Get Current User"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-me.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-team-components]
+name = "get-team-components"
+description = "Get a paginated list of published components in a team library"
+input_schema = { type = "object", properties = { team_id = { type = "string", description = "ID of the team" }, page_size = { type = "number", description = "Items per page (default 30, max 1000)" }, after = { type = "number", description = "Cursor: return components after this ID (exclusive with before)" }, before = { type = "number", description = "Cursor: return components before this ID (exclusive with after)" } }, required = ["team_id"] }
+function = "get_team_components"
+[tools.get-team-components.annotations]
+title = "Get Team Components"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-team-components.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-components]
+name = "get-file-components"
+description = "Get published components in a file library (main file key, not a branch)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Main file key" } }, required = ["file_key"] }
+function = "get_file_components"
+[tools.get-file-components.annotations]
+title = "Get File Components"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-components.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-component]
+name = "get-component"
+description = "Get metadata of a component by key"
+input_schema = { type = "object", properties = { key = { type = "string", description = "Unique identifier of the component" } }, required = ["key"] }
+function = "get_component"
+[tools.get-component.annotations]
+title = "Get Component"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-component.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-team-styles]
+name = "get-team-styles"
+description = "Get a paginated list of published styles in a team library"
+input_schema = { type = "object", properties = { team_id = { type = "string", description = "ID of the team" }, page_size = { type = "number", description = "Items per page (default 30)" }, after = { type = "number", description = "Cursor: return styles after this ID (exclusive with before)" }, before = { type = "number", description = "Cursor: return styles before this ID (exclusive with after)" } }, required = ["team_id"] }
+function = "get_team_styles"
+[tools.get-team-styles.annotations]
+title = "Get Team Styles"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-team-styles.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-styles]
+name = "get-file-styles"
+description = "Get published styles in a file library (main file key, not a branch)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Main file key" } }, required = ["file_key"] }
+function = "get_file_styles"
+[tools.get-file-styles.annotations]
+title = "Get File Styles"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-styles.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-style]
+name = "get-style"
+description = "Get metadata of a style by key"
+input_schema = { type = "object", properties = { key = { type = "string", description = "Unique identifier of the style" } }, required = ["key"] }
+function = "get_style"
+[tools.get-style.annotations]
+title = "Get Style"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-style.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-team-folders]
+name = "get-team-folders"
+description = "Get top-level folders in a team (find the team ID in the team page URL)"
+input_schema = { type = "object", properties = { team_id = { type = "string", description = "ID of the team" } }, required = ["team_id"] }
+function = "get_team_folders"
+[tools.get-team-folders.annotations]
+title = "Get Team Folders"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-team-folders.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-folder-files]
+name = "get-folder-files"
+description = "Get files directly within a folder"
+input_schema = { type = "object", properties = { folder_id = { type = "string", description = "ID of the folder" }, branch_data = { type = "boolean", description = "Return branch metadata for main files with a branch" } }, required = ["folder_id"] }
+function = "get_folder_files"
+[tools.get-folder-files.annotations]
+title = "Get Folder Files"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-folder-files.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-local-variables]
+name = "get-local-variables"
+description = "Get local (and used remote) variables in a file (Enterprise orgs)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" } }, required = ["file_key"] }
+function = "get_local_variables"
+[tools.get-local-variables.annotations]
+title = "Get Local Variables"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-local-variables.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-dev-resources]
+name = "get-dev-resources"
+description = "Get dev resources in a file, optionally filtered by node IDs"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Main file key" }, node_ids = { type = "string", description = "Comma-separated node IDs to filter dev resources" } }, required = ["file_key"] }
+function = "get_dev_resources"
+[tools.get-dev-resources.annotations]
+title = "Get Dev Resources"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-dev-resources.permissions]
+hosts = ["https://api.figma.com"]

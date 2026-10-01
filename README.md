@@ -491,6 +491,33 @@ jilebi plugins env set superposition SUPERPOSITION_WORKSPACE dev
 
 ---
 
+### Figma Plugin
+
+[Figma REST API](https://developers.figma.com/docs/rest-api/) integration, curated from the [upstream OpenAPI spec](https://github.com/figma/rest-api-spec/blob/main/openapi/openapi.yaml).
+
+**Tools**: Files, images, comments, components, styles, folders, variables, dev resources
+**Resources**: None
+**Prompts**: `design-review`, `dev-handoff`
+**Permissions**: `hosts: ["https://api.figma.com"]`
+**Secrets**: `FIGMA_TOKEN` (personal access token, sent as `X-Figma-Token`)
+
+```bash
+jilebi plugins add figma
+jilebi plugins secrets set figma FIGMA_TOKEN <your-personal-access-token>
+```
+
+**Key Tools** (20 total):
+- `get-file` / `get-file-nodes` - File JSON and node inspection
+- `get-images` / `get-image-fills` - Render node images, list image fills
+- `get-comments` / `post-comment` / `delete-comment` - File comments
+- `get-me` - Current authenticated user
+- `get-team-components` / `get-file-components` / `get-component` - Components
+- `get-team-styles` / `get-file-styles` / `get-style` - Styles
+- `get-team-folders` / `get-folder-files` - Team folders and files
+- `get-local-variables` / `get-dev-resources` - Variables and dev resources
+
+---
+
 ## Security Model
 
 Jilebi's sandbox architecture ensures that:

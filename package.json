@@ -26,7 +26,8 @@
 		"aws-pricing",
 		"aws-support",
 		"aws-cloudwatch",
-		"superposition"
+		"superposition",
+		"figma"
 	],
 	"scripts": {
 		"inspect": "npx @modelcontextprotocol/inspector"
