@@ -2,7 +2,7 @@
 
 [Figma REST API](https://developers.figma.com/docs/rest-api/) integration for Jilebi, generated from the [upstream OpenAPI spec](https://github.com/figma/rest-api-spec/blob/main/openapi/openapi.yaml).
 
-This Jilebi plugin exposes a curated subset of the Figma API as MCP tools: files, rendered images, comments, components, styles, folders, variables and dev resources.
+This Jilebi plugin exposes the Figma REST API as MCP tools, covering every non-deprecated endpoint of the upstream spec.
 
 ## Setup
 
@@ -21,7 +21,7 @@ Create a personal access token under Figma → Account settings → Personal acc
 
 Each tool requests `hosts = ["https://api.figma.com"]`.
 
-## Tools (20)
+## Tools (50)
 
 **Files**
 - `get-file` – file JSON document (supports `ids`, `depth`, `geometry`, `version`, `branch_data`)
@@ -35,21 +35,44 @@ Each tool requests `hosts = ["https://api.figma.com"]`.
 - `get-comments` – list comments on a file
 - `post-comment` – post a comment or reply
 - `delete-comment` – delete a comment
+- `get-comment-reactions` / `post-comment-reaction` / `delete-comment-reaction` – comment reactions
 
 **Users**
 - `get-me` – current authenticated user
 
-**Components & styles**
+**Components, component sets & styles**
 - `get-team-components` / `get-file-components` / `get-component`
+- `get-team-component-sets` / `get-file-component-sets` / `get-component-set`
 - `get-team-styles` / `get-file-styles` / `get-style`
 
 **Folders**
 - `get-team-folders` – top-level folders in a team
+- `get-folder-subfolders` – subfolders in a folder
 - `get-folder-files` – files in a folder
+- `get-folder-meta` – folder metadata
 
 **Variables & dev resources**
-- `get-local-variables` – local variables (Enterprise orgs)
-- `get-dev-resources` – dev resources in a file
+- `get-local-variables` / `get-published-variables` – variables (Enterprise orgs)
+- `post-variables` – create/modify/delete variables, collections, modes and values
+- `get-dev-resources` / `post-dev-resources` / `update-dev-resources` / `delete-dev-resource`
+
+**Webhooks (team admin)**
+- `get-webhooks` / `post-webhook` / `get-webhook` / `update-webhook` / `delete-webhook`
+- `get-webhook-requests` – delivery logs
+
+**Logs, usage & payments**
+- `get-activity-logs` – organization activity logs
+- `get-developer-logs` – REST API and MCP server request logs
+- `get-ai-usage-daily` – per-user daily AI credit usage
+- `get-payments` – Community purchase information
+
+**Library analytics**
+- `get-library-analytics-component-actions` / `get-library-analytics-component-usages`
+- `get-library-analytics-style-actions` / `get-library-analytics-style-usages`
+- `get-library-analytics-variable-actions` / `get-library-analytics-variable-usages`
+
+**Embeds**
+- `get-oembed` – oEmbed data for Figma files and published Makes
 
 ## Prompts
 

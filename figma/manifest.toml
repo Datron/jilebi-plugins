@@ -312,3 +312,423 @@ idempotent_hint = true
 open_world_hint = false
 [tools.get-dev-resources.permissions]
 hosts = ["https://api.figma.com"]
+
+[tools.get-folder-subfolders]
+name = "get-folder-subfolders"
+description = "Get direct subfolders within a folder"
+input_schema = { type = "object", properties = { folder_id = { type = "string", description = "ID of the parent folder" } }, required = ["folder_id"] }
+function = "get_folder_subfolders"
+[tools.get-folder-subfolders.annotations]
+title = "Get Subfolders"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-folder-subfolders.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-folder-meta]
+name = "get-folder-meta"
+description = "Get folder metadata (name, thumbnail, file count, timestamps) without enumerating files"
+input_schema = { type = "object", properties = { folder_id = { type = "string", description = "ID of the folder" } }, required = ["folder_id"] }
+function = "get_folder_meta"
+[tools.get-folder-meta.annotations]
+title = "Get Folder Metadata"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-folder-meta.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-comment-reactions]
+name = "get-comment-reactions"
+description = "Get a paginated list of reactions left on a file comment"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, comment_id = { type = "string", description = "ID of the comment" }, cursor = { type = "string", description = "Pagination cursor from a previous response" } }, required = ["file_key", "comment_id"] }
+function = "get_comment_reactions"
+[tools.get-comment-reactions.annotations]
+title = "Get Comment Reactions"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-comment-reactions.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.post-comment-reaction]
+name = "post-comment-reaction"
+description = "Post a reaction (emoji shortcode, e.g. :heart:) on a file comment"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, comment_id = { type = "string", description = "ID of the comment" }, emoji = { type = "string", description = "Emoji shortcode, e.g. :heart: or :+1::skin-tone-2:" } }, required = ["file_key", "comment_id", "emoji"] }
+function = "post_comment_reaction"
+[tools.post-comment-reaction.annotations]
+title = "Post Comment Reaction"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.post-comment-reaction.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.delete-comment-reaction]
+name = "delete-comment-reaction"
+description = "Delete a reaction from a file comment"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, comment_id = { type = "string", description = "ID of the comment" }, emoji = { type = "string", description = "Emoji shortcode of the reaction to delete" } }, required = ["file_key", "comment_id", "emoji"] }
+function = "delete_comment_reaction"
+[tools.delete-comment-reaction.annotations]
+title = "Delete Comment Reaction"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+[tools.delete-comment-reaction.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-team-component-sets]
+name = "get-team-component-sets"
+description = "Get a paginated list of published component sets in a team library"
+input_schema = { type = "object", properties = { team_id = { type = "string", description = "ID of the team" }, page_size = { type = "number", description = "Items per page (default 30)" }, after = { type = "number", description = "Cursor: return component sets after this ID (exclusive with before)" }, before = { type = "number", description = "Cursor: return component sets before this ID (exclusive with after)" } }, required = ["team_id"] }
+function = "get_team_component_sets"
+[tools.get-team-component-sets.annotations]
+title = "Get Team Component Sets"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-team-component-sets.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-file-component-sets]
+name = "get-file-component-sets"
+description = "Get published component sets in a file library (main file key, not a branch)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Main file key" } }, required = ["file_key"] }
+function = "get_file_component_sets"
+[tools.get-file-component-sets.annotations]
+title = "Get File Component Sets"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-file-component-sets.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-component-set]
+name = "get-component-set"
+description = "Get metadata of a component set by key"
+input_schema = { type = "object", properties = { key = { type = "string", description = "Unique identifier of the component set" } }, required = ["key"] }
+function = "get_component_set"
+[tools.get-component-set.annotations]
+title = "Get Component Set"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-component-set.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-webhooks]
+name = "get-webhooks"
+description = "Get webhooks by context or plan (team admin)"
+input_schema = { type = "object", properties = { context = { type = "string", description = "Context type (team, project or file)" }, context_id = { type = "string", description = "ID of the context" }, plan_api_id = { type = "string", description = "Plan API ID" }, cursor = { type = "string", description = "Pagination cursor" } }, required = [] }
+function = "get_webhooks"
+[tools.get-webhooks.annotations]
+title = "Get Webhooks"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-webhooks.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.post-webhook]
+name = "post-webhook"
+description = "Create a webhook for a team, project or file context (team admin)"
+input_schema = { type = "object", properties = { event_type = { type = "string", enum = ["PING", "FILE_UPDATE", "FILE_VERSION_UPDATE", "FILE_DELETE", "LIBRARY_PUBLISH", "FILE_COMMENT", "DEV_MODE_STATUS_UPDATE"], description = "Event to subscribe to" }, endpoint = { type = "string", description = "HTTPS endpoint receiving POST requests (max 2048 chars)" }, passcode = { type = "string", description = "Verification string Figma passes back to your endpoint (max 100 chars)" }, context = { type = "string", enum = ["team", "project", "file"], description = "Context to receive updates about" }, context_id = { type = "string", description = "ID of the context" }, status = { type = "string", enum = ["ACTIVE", "PAUSED"], description = "Webhook state" }, description = { type = "string", description = "User-provided name for the webhook (max 150 chars)" } }, required = ["event_type", "endpoint", "passcode", "context", "context_id"] }
+function = "post_webhook"
+[tools.post-webhook.annotations]
+title = "Create Webhook"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.post-webhook.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-webhook]
+name = "get-webhook"
+description = "Get a webhook by ID"
+input_schema = { type = "object", properties = { webhook_id = { type = "string", description = "ID of the webhook" } }, required = ["webhook_id"] }
+function = "get_webhook"
+[tools.get-webhook.annotations]
+title = "Get Webhook"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-webhook.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.update-webhook]
+name = "update-webhook"
+description = "Update a webhook (only provided fields are changed)"
+input_schema = { type = "object", properties = { webhook_id = { type = "string", description = "ID of the webhook" }, event_type = { type = "string", enum = ["PING", "FILE_UPDATE", "FILE_VERSION_UPDATE", "FILE_DELETE", "LIBRARY_PUBLISH", "FILE_COMMENT", "DEV_MODE_STATUS_UPDATE"], description = "Event to subscribe to" }, endpoint = { type = "string", description = "HTTPS endpoint receiving POST requests" }, passcode = { type = "string", description = "Verification string Figma passes back to your endpoint" }, status = { type = "string", enum = ["ACTIVE", "PAUSED"], description = "Webhook state" }, description = { type = "string", description = "User-provided name for the webhook" } }, required = ["webhook_id"] }
+function = "update_webhook"
+[tools.update-webhook.annotations]
+title = "Update Webhook"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.update-webhook.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.delete-webhook]
+name = "delete-webhook"
+description = "Delete a webhook"
+input_schema = { type = "object", properties = { webhook_id = { type = "string", description = "ID of the webhook" } }, required = ["webhook_id"] }
+function = "delete_webhook"
+[tools.delete-webhook.annotations]
+title = "Delete Webhook"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+[tools.delete-webhook.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-webhook-requests]
+name = "get-webhook-requests"
+description = "Get delivery request logs for a webhook"
+input_schema = { type = "object", properties = { webhook_id = { type = "string", description = "ID of the webhook" } }, required = ["webhook_id"] }
+function = "get_webhook_requests"
+[tools.get-webhook-requests.annotations]
+title = "Get Webhook Requests"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-webhook-requests.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-activity-logs]
+name = "get-activity-logs"
+description = "Get organization activity logs (org admin)"
+input_schema = { type = "object", properties = { events = { type = "string", description = "Comma-separated event types to filter by" }, start_time = { type = "number", description = "Start of the time range (unix timestamp)" }, end_time = { type = "number", description = "End of the time range (unix timestamp)" }, limit = { type = "number", description = "Maximum entries to return" }, order = { type = "string", enum = ["asc", "desc"], description = "Result ordering" } }, required = [] }
+function = "get_activity_logs"
+[tools.get-activity-logs.annotations]
+title = "Get Activity Logs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-activity-logs.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-developer-logs]
+name = "get-developer-logs"
+description = "Get developer logs for REST API and MCP server requests in an organization"
+input_schema = { type = "object", properties = { token_type = { type = "string", enum = ["plan_access_token", "developer_token", "oauth_token"], description = "Filter by token type" }, token = { type = "string", description = "Filter by token value(s), comma-separated" }, token_name = { type = "string", description = "Filter by token name prefix(es), comma-separated" }, user_email = { type = "string", description = "Filter by user email prefix(es), comma-separated" }, ip_address = { type = "string", description = "Filter by IP address prefix(es), comma-separated" }, event_source = { type = "string", enum = ["rest_api", "mcp_server"], description = "Filter by event source" }, date_range = { type = "string", enum = ["last_24h", "last_7d", "last_30d"], description = "Date range filter" }, limit = { type = "number", description = "Maximum entries to return (1-100)" }, cursor = { type = "string", description = "Pagination cursor" } }, required = [] }
+function = "get_developer_logs"
+[tools.get-developer-logs.annotations]
+title = "Get Developer Logs"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-developer-logs.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-ai-usage-daily]
+name = "get-ai-usage-daily"
+description = "Get per-user, per-day AI credit usage for a plan"
+input_schema = { type = "object", properties = { start_date = { type = "string", description = "Range start date (YYYY-MM-DD)" }, end_date = { type = "string", description = "Range end date (YYYY-MM-DD)" }, user_email = { type = "string", description = "Filter by user email" }, limit = { type = "number", description = "Maximum entries to return (1-1000)" }, cursor = { type = "string", description = "Pagination cursor" } }, required = ["start_date", "end_date"] }
+function = "get_ai_usage_daily"
+[tools.get-ai-usage-daily.annotations]
+title = "Get Daily AI Usage"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-ai-usage-daily.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-payments]
+name = "get-payments"
+description = "Get purchase information for Community resources"
+input_schema = { type = "object", properties = { plugin_payment_token = { type = "string", description = "Plugin payment token" }, user_id = { type = "string", description = "Filter by user ID" }, community_file_id = { type = "string", description = "Filter by Community file ID" }, plugin_id = { type = "string", description = "Filter by plugin ID" }, widget_id = { type = "string", description = "Filter by widget ID" } }, required = [] }
+function = "get_payments"
+[tools.get-payments.annotations]
+title = "Get Payments"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-payments.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-published-variables]
+name = "get-published-variables"
+description = "Get published variables in a file (Enterprise orgs)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" } }, required = ["file_key"] }
+function = "get_published_variables"
+[tools.get-published-variables.annotations]
+title = "Get Published Variables"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-published-variables.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.post-variables]
+name = "post-variables"
+description = "Create, modify or delete variables, collections, modes and mode values in a file (only provided fields are sent)"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "File key (or branch key)" }, variable_collections = { type = "array", description = "Collection changes", items = { type = "object" } }, variable_modes = { type = "array", description = "Mode changes", items = { type = "object" } }, variables = { type = "array", description = "Variable changes", items = { type = "object" } }, variable_mode_values = { type = "array", description = "Mode value assignments", items = { type = "object" } } }, required = ["file_key"] }
+function = "post_variables"
+[tools.post-variables.annotations]
+title = "Create/Modify/Delete Variables"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.post-variables.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.post-dev-resources]
+name = "post-dev-resources"
+description = "Create dev resources attached to file nodes"
+input_schema = { type = "object", properties = { dev_resources = { type = "array", description = "Dev resources to create", items = { type = "object", properties = { name = { type = "string" }, url = { type = "string" }, file_key = { type = "string" }, node_id = { type = "string" } }, required = ["name", "url", "file_key", "node_id"] } } }, required = ["dev_resources"] }
+function = "post_dev_resources"
+[tools.post-dev-resources.annotations]
+title = "Create Dev Resources"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+[tools.post-dev-resources.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.update-dev-resources]
+name = "update-dev-resources"
+description = "Update dev resources by ID"
+input_schema = { type = "object", properties = { dev_resources = { type = "array", description = "Dev resources to update", items = { type = "object", properties = { id = { type = "string" }, name = { type = "string" }, url = { type = "string" } }, required = ["id"] } } }, required = ["dev_resources"] }
+function = "update_dev_resources"
+[tools.update-dev-resources.annotations]
+title = "Update Dev Resources"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.update-dev-resources.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.delete-dev-resource]
+name = "delete-dev-resource"
+description = "Delete a dev resource from a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Main file key" }, dev_resource_id = { type = "string", description = "ID of the dev resource" } }, required = ["file_key", "dev_resource_id"] }
+function = "delete_dev_resource"
+[tools.delete-dev-resource.annotations]
+title = "Delete Dev Resource"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+[tools.delete-dev-resource.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-component-actions]
+name = "get-library-analytics-component-actions"
+description = "Get library analytics component action data (inserts, etc.) for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["component", "team"], description = "Grouping dimension" }, start_date = { type = "string", description = "Range start date (YYYY-MM-DD)" }, end_date = { type = "string", description = "Range end date (YYYY-MM-DD)" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_component_actions"
+[tools.get-library-analytics-component-actions.annotations]
+title = "Component Action Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-component-actions.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-component-usages]
+name = "get-library-analytics-component-usages"
+description = "Get library analytics component usage data for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["component", "file"], description = "Grouping dimension" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_component_usages"
+[tools.get-library-analytics-component-usages.annotations]
+title = "Component Usage Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-component-usages.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-style-actions]
+name = "get-library-analytics-style-actions"
+description = "Get library analytics style action data for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["style", "team"], description = "Grouping dimension" }, start_date = { type = "string", description = "Range start date (YYYY-MM-DD)" }, end_date = { type = "string", description = "Range end date (YYYY-MM-DD)" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_style_actions"
+[tools.get-library-analytics-style-actions.annotations]
+title = "Style Action Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-style-actions.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-style-usages]
+name = "get-library-analytics-style-usages"
+description = "Get library analytics style usage data for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["style", "file"], description = "Grouping dimension" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_style_usages"
+[tools.get-library-analytics-style-usages.annotations]
+title = "Style Usage Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-style-usages.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-variable-actions]
+name = "get-library-analytics-variable-actions"
+description = "Get library analytics variable action data for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["variable", "team"], description = "Grouping dimension" }, start_date = { type = "string", description = "Range start date (YYYY-MM-DD)" }, end_date = { type = "string", description = "Range end date (YYYY-MM-DD)" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_variable_actions"
+[tools.get-library-analytics-variable-actions.annotations]
+title = "Variable Action Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-variable-actions.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-library-analytics-variable-usages]
+name = "get-library-analytics-variable-usages"
+description = "Get library analytics variable usage data for a file"
+input_schema = { type = "object", properties = { file_key = { type = "string", description = "Library file key" }, cursor = { type = "string", description = "Pagination cursor" }, group_by = { type = "string", enum = ["variable", "file"], description = "Grouping dimension" } }, required = ["file_key", "group_by"] }
+function = "get_library_analytics_variable_usages"
+[tools.get-library-analytics-variable-usages.annotations]
+title = "Variable Usage Analytics"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-library-analytics-variable-usages.permissions]
+hosts = ["https://api.figma.com"]
+
+[tools.get-oembed]
+name = "get-oembed"
+description = "Get oEmbed data for a Figma file or published Make URL"
+input_schema = { type = "object", properties = { url = { type = "string", description = "Figma file or Make URL" }, maxwidth = { type = "number", description = "Maximum embed width (default 800)" }, maxheight = { type = "number", description = "Maximum embed height (default 450)" } }, required = ["url"] }
+function = "get_oembed"
+[tools.get-oembed.annotations]
+title = "Get oEmbed"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+[tools.get-oembed.permissions]
+hosts = ["https://api.figma.com"]

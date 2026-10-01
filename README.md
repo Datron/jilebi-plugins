@@ -506,15 +506,22 @@ jilebi plugins add figma
 jilebi plugins secrets set figma FIGMA_TOKEN <your-personal-access-token>
 ```
 
-**Key Tools** (20 total):
+**Key Tools** (50 total, every non-deprecated endpoint of the upstream spec):
 - `get-file` / `get-file-nodes` - File JSON and node inspection
 - `get-images` / `get-image-fills` - Render node images, list image fills
 - `get-comments` / `post-comment` / `delete-comment` - File comments
+- `get-comment-reactions` / `post-comment-reaction` / `delete-comment-reaction` - Comment reactions
 - `get-me` - Current authenticated user
 - `get-team-components` / `get-file-components` / `get-component` - Components
+- `get-team-component-sets` / `get-file-component-sets` / `get-component-set` - Component sets
 - `get-team-styles` / `get-file-styles` / `get-style` - Styles
-- `get-team-folders` / `get-folder-files` - Team folders and files
-- `get-local-variables` / `get-dev-resources` - Variables and dev resources
+- `get-team-folders` / `get-folder-subfolders` / `get-folder-files` / `get-folder-meta` - Folders
+- `get-local-variables` / `get-published-variables` / `post-variables` - Variables
+- `get-dev-resources` / `post-dev-resources` / `update-dev-resources` / `delete-dev-resource` - Dev resources
+- `get-webhooks` / `post-webhook` / `get-webhook` / `update-webhook` / `delete-webhook` - Webhooks
+- `get-activity-logs` / `get-developer-logs` / `get-ai-usage-daily` / `get-payments` - Logs, usage, payments
+- `get-library-analytics-*-actions` / `get-library-analytics-*-usages` - Library analytics
+- `get-oembed` - oEmbed data
 
 ---
 
