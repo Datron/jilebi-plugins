@@ -25,7 +25,8 @@
 		"swe-manager",
 		"aws-pricing",
 		"aws-support",
-		"aws-cloudwatch"
+		"aws-cloudwatch",
+		"superposition"
 	],
 	"scripts": {
 		"inspect": "npx @modelcontextprotocol/inspector"
