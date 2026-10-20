@@ -11,7 +11,7 @@
 	"author": "jilebi",
 	"license": "AGPL-3.0",
 	"dependencies": {
-		"@jilebi/sdk": "file:vendor/jilebi-sdk"
+		"@jilebi/sdk": "^0.6.2"
 	},
 	"devDependencies": {
 		"@jilebi/types": "^1.0.3",

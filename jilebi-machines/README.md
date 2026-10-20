@@ -13,13 +13,9 @@ routed ports, and the SSH keys stored on the account.
 
 ## SDK
 
-`@jilebi/sdk` is not published to npm yet, so a bundled copy lives in
-`vendor/jilebi-sdk/` and the plugin depends on it with
-`"@jilebi/sdk": "file:vendor/jilebi-sdk"`. Rollup bundles it into `index.js`
-so the Jilebi plugin runtime only needs the single plugin file.
-
-When the SDK is published, replace that dependency with the published version
-and delete `vendor/jilebi-sdk/`.
+API calls use the generated Jilebi TypeScript SDK (`@jilebi/sdk`), installed
+from npm. Rollup bundles it into `index.js` so the Jilebi plugin runtime only
+needs the single plugin file.
 
 ## Install
 
