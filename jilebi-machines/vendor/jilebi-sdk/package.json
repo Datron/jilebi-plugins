@@ -1,0 +1,16 @@
+{
+	"name": "@jilebi/sdk",
+	"version": "0.6.2",
+	"description": "Vendored ESM build of the Jilebi TypeScript SDK (microVMs, routes, SSH keys)",
+	"type": "module",
+	"main": "index.js",
+	"module": "index.js",
+	"types": "index.d.ts",
+	"sideEffects": false,
+	"license": "AGPL-3.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Datron/jilebi.git",
+		"directory": "sdks/typescript"
+	}
+}

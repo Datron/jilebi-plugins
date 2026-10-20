@@ -1,8 +1,35 @@
 // Jilebi Machines plugin.
 //
-// Exposes Jilebi microVM lifecycle, routes and SSH keys as MCP tools.
-// Runs inside the Jilebi plugin runtime (deno_core), so this file must not
-// import Node.js or npm modules. Use the global `fetch` only.
+// Uses the generated Jilebi TypeScript SDK (@jilebi/sdk) for microVMs, routes
+// and SSH keys. Runs inside the Jilebi plugin runtime (deno_core), so the SDK
+// is bundled into index.js by Rollup and only global web APIs are used.
+
+import {
+	Configuration,
+	FetchError,
+	MicroVMsApi,
+	ResponseError,
+	RoutesApi,
+	SSHKeysApi,
+} from "@jilebi/sdk";
+import type {
+	ApiRoute,
+	ApiRouteCreateRequest,
+	ApiRouteCreateResponse,
+	ApiRouteListResponse,
+	ApiRouteUpdateRequest,
+	ApiSshKey,
+	ApiSshKeyCreateRequest,
+	ApiSshKeyCreateResponse,
+	ApiSuccess,
+	ApiVm,
+	ApiVmCloneRequest,
+	ApiVmCloneResponse,
+	ApiVmCreateRequest,
+	ApiVmCreateResponse,
+	ApiVmGetResponse,
+	ApiVmUpdateRequest,
+} from "@jilebi/sdk";
 
 type MachinesEnv = Environment & { JILEBI_API_KEY?: string };
 type ToolArgs = Record<string, any>;
@@ -17,96 +44,10 @@ interface McpResult {
 	isError?: boolean;
 }
 
-interface ApiVm {
-	id: string;
-	user_id: string;
-	machine_name: string;
-	network_name: string | null;
-	node_name: string;
-	hypervisor_socket: string | null;
-	ip_address: string | null;
-	cpu_count: number;
-	memory_size: number;
-	disk_size_gb: number;
-	state: "active" | "paused" | "offline";
-	created_at: string;
-	updated_at: string;
-}
-
-interface ApiVmGetResponse extends ApiVm {
-	vm_info: {
-		config: Record<string, unknown>;
-		state: "Created" | "Running" | "Shutdown" | "Paused";
-		memory_actual_size?: number | null;
-		device_tree?: Record<string, unknown> | null;
-	};
-}
-
-interface ApiVmCreateResponse {
-	id: string;
-	node_name: string;
-	network_name: string;
-	hypervisor_socket: string;
-}
-
-interface ApiVmCloneResponse extends ApiVmCreateResponse {
-	new_name: string;
-}
-
-interface ApiSuccess {
-	success?: boolean;
-	message?: string;
-}
-
-interface ApiRoute {
-	id: string;
-	name: string;
-	microvm_id: string;
-	privacy: "private" | "public" | "shared";
-	port: number;
-	user_ids: string[];
-	machine_name: string;
-	machine_user_id: string;
-	node_name: string;
-	ip_address: string | null;
-	owner_username: string | null;
-	owner_email: string;
-	created_at: string;
-	updated_at: string;
-	url: string;
-	shared_users: Array<{ email?: string; name?: string }>;
-}
-
-interface ApiRouteListResponse {
-	owned: ApiRoute[];
-	shared: ApiRoute[];
-}
-
-interface ApiRouteCreateResponse {
-	id: string;
-	name: string;
-	microvm_id: string;
-	privacy: "private" | "public" | "shared";
-	port: number;
-	url: string;
-	shared_users: Array<{ email?: string; name?: string }>;
-}
-
-interface ApiSshKey {
-	id: string;
-	name: string | null;
-	publicKey: string;
-	fingerprint: string | null;
-	type: string | null;
-	createdAt: string;
-}
-
-interface ApiSshKeyCreateResponse {
-	id: string;
-	type: "uploaded" | "generated";
-	publicKey: string;
-	fingerprint: string;
-	privateKey?: string;
+interface Clients {
+	microVms: MicroVMsApi;
+	routes: RoutesApi;
+	sshKeys: SSHKeysApi;
 }
 
 const API_BASE = "https://jilebi.ai";
@@ -119,20 +60,6 @@ class UserError extends Error {
 	constructor(message: string) {
 		super(message);
 		this.name = "UserError";
-	}
-}
-
-class ApiError extends Error {
-	status: number;
-	code?: string;
-	body?: unknown;
-
-	constructor(status: number, message: string, code?: string, body?: unknown) {
-		super(message);
-		this.name = "ApiError";
-		this.status = status;
-		this.code = code;
-		this.body = body;
 	}
 }
 
@@ -161,23 +88,55 @@ function ok(text: string): McpResult {
 	return { content: [{ type: "text", text }] };
 }
 
-function failure(error: unknown): McpResult {
-	let text: string;
-	if (error instanceof ApiError) {
-		const hint = HTTP_HINTS[error.status];
-		text = `${error.message}${error.code ? ` (${error.code})` : ""}${hint ? `\n\n${hint}` : ""}`;
-	} else {
-		text = errorMessage(error);
+async function failure(error: unknown): Promise<McpResult> {
+	if (error instanceof ResponseError) {
+		let message =
+			`Jilebi API returned HTTP ${error.response.status} ${error.response.statusText}`.trim();
+		let code: string | undefined;
+		try {
+			const raw = await error.response.text();
+			if (raw) {
+				const body: any = JSON.parse(raw);
+				if (body && typeof body === "object") {
+					if (typeof body.error === "string") message = body.error;
+					else if (typeof body.detail === "string") message = body.detail;
+					if (typeof body.code === "string") code = body.code;
+				}
+			}
+		} catch {
+			// Keep the HTTP fallback when the error body is empty or not JSON.
+		}
+		const hint = HTTP_HINTS[error.response.status];
+		return {
+			content: [
+				{
+					type: "text",
+					text: `Error: ${message}${code ? ` (${code})` : ""}${hint ? `\n\n${hint}` : ""}`,
+				},
+			],
+			isError: true,
+		};
 	}
-	return { content: [{ type: "text", text: `Error: ${text}` }], isError: true };
+
+	if (error instanceof FetchError) {
+		return {
+			content: [
+				{
+					type: "text",
+					text: `Error: Could not reach ${API_BASE}: ${errorMessage(error.cause)}`,
+				},
+			],
+			isError: true,
+		};
+	}
+
+	return {
+		content: [{ type: "text", text: `Error: ${errorMessage(error)}` }],
+		isError: true,
+	};
 }
 
-async function apiRequest<T = any>(
-	env: MachinesEnv,
-	method: string,
-	path: string,
-	body?: unknown,
-): Promise<T> {
+function createClient(env: MachinesEnv): Clients {
 	const apiKey = env.JILEBI_API_KEY;
 	if (typeof apiKey !== "string" || apiKey.trim() === "") {
 		throw new UserError(
@@ -185,48 +144,16 @@ async function apiRequest<T = any>(
 		);
 	}
 
-	const headers: Record<string, string> = {
-		Authorization: `Bearer ${apiKey.trim()}`,
-		Accept: "application/json",
+	const configuration = new Configuration({
+		basePath: API_BASE,
+		apiKey: apiKey.trim(),
+	});
+
+	return {
+		microVms: new MicroVMsApi(configuration),
+		routes: new RoutesApi(configuration),
+		sshKeys: new SSHKeysApi(configuration),
 	};
-	if (body !== undefined) {
-		headers["Content-Type"] = "application/json";
-	}
-
-	let response: Response;
-	try {
-		response = await fetch(`${API_BASE}${path}`, {
-			method,
-			headers,
-			body: body === undefined ? undefined : JSON.stringify(body),
-		});
-	} catch (error) {
-		throw new UserError(`Could not reach ${API_BASE}: ${errorMessage(error)}`);
-	}
-
-	const raw = await response.text();
-	let data: any = undefined;
-	if (raw.length > 0) {
-		try {
-			data = JSON.parse(raw);
-		} catch {
-			data = raw;
-		}
-	}
-
-	if (!response.ok) {
-		const message =
-			data && typeof data === "object" && typeof data.error === "string"
-				? data.error
-				: `Jilebi API returned HTTP ${response.status} ${response.statusText}`;
-		const code =
-			data && typeof data === "object" && typeof data.code === "string"
-				? data.code
-				: undefined;
-		throw new ApiError(response.status, message, code, data);
-	}
-
-	return data as T;
 }
 
 function requiredString(args: ToolArgs, field: string): string {
@@ -333,19 +260,22 @@ function routeName(args: ToolArgs): string {
 }
 
 function machineSummary(machine: ApiVm): string {
-	const ip = machine.ip_address ? ` ip=${machine.ip_address}` : "";
-	return `- ${machine.machine_name} [${machine.state}] ${machine.cpu_count} vCPU / ${machine.memory_size} MiB / ${machine.disk_size_gb} GiB${ip} (id: ${machine.id})`;
+	const ip = machine.ipAddress ? ` ip=${machine.ipAddress}` : "";
+	return `- ${machine.machineName} [${machine.state}] ${machine.cpuCount} vCPU / ${machine.memorySize} MiB / ${machine.diskSizeGb} GiB${ip} (id: ${machine.id})`;
 }
 
-async function resolveMachineId(env: MachinesEnv, name: string): Promise<string> {
-	const machines = await apiRequest<ApiVm[]>(env, "GET", "/api/v1/vmm");
+async function resolveMachineId(
+	microVms: MicroVMsApi,
+	name: string,
+): Promise<string> {
+	const machines = await microVms.getApiV1Vmm();
 	const match =
-		machines.find((machine) => machine.machine_name === name) ??
+		machines.find((machine) => machine.machineName === name) ??
 		machines.find(
-			(machine) => machine.machine_name.toLowerCase() === name.toLowerCase(),
+			(machine) => machine.machineName.toLowerCase() === name.toLowerCase(),
 		);
 	if (!match) {
-		const available = machines.map((machine) => machine.machine_name);
+		const available = machines.map((machine) => machine.machineName);
 		throw new UserError(
 			`No machine named "${name}". Available machines: ${available.length > 0 ? available.join(", ") : "(none)"}.`,
 		);
@@ -353,12 +283,15 @@ async function resolveMachineId(env: MachinesEnv, name: string): Promise<string>
 	return match.id;
 }
 
-async function resolvePublicKey(env: MachinesEnv, args: ToolArgs): Promise<string> {
+async function resolvePublicKey(
+	sshKeys: SSHKeysApi,
+	args: ToolArgs,
+): Promise<string> {
 	const publicKey = optionalString(args, "public_key");
 	if (publicKey) return publicKey;
 
 	const keyId = optionalString(args, "ssh_key_id");
-	const keys = await apiRequest<ApiSshKey[]>(env, "GET", "/api/v1/keys");
+	const keys = await sshKeys.getApiV1Keys();
 	if (keyId) {
 		const key = keys.find((candidate) => candidate.id === keyId);
 		if (!key) {
@@ -395,11 +328,8 @@ export const list_machines = async (
 			"paused",
 			"offline",
 		] as const);
-		const machines = await apiRequest<ApiVm[]>(
-			env as MachinesEnv,
-			"GET",
-			"/api/v1/vmm",
-		);
+		const api = createClient(env as MachinesEnv);
+		const machines = await api.microVms.getApiV1Vmm();
 		const filtered = state
 			? machines.filter((machine) => machine.state === state)
 			: machines;
@@ -419,11 +349,9 @@ export const get_machine = async (
 ): Promise<McpResult> => {
 	try {
 		const name = machineName(asArgs(request));
-		const machine = await apiRequest<ApiVmGetResponse>(
-			env as MachinesEnv,
-			"GET",
-			`/api/v1/vmm/${encodeURIComponent(name)}`,
-		);
+		const api = createClient(env as MachinesEnv);
+		const machine: ApiVmGetResponse =
+			await api.microVms.getApiV1VmmByMachineName({ machineName: name });
 		return ok(JSON.stringify(machine, null, 2));
 	} catch (error) {
 		return failure(error);
@@ -437,25 +365,26 @@ export const create_machine = async (
 	try {
 		const args = asArgs(request);
 		const name = machineName(args);
-		const publicKey = await resolvePublicKey(env as MachinesEnv, args);
-		const body: Record<string, unknown> = {
-			cloudinit_user_data: stringArray(args, "cloudinit_user_data") ?? [],
-			public_key: publicKey,
-			cpu_count: integerOrDefault(args, "cpu_count", 2, 1, 16),
-			memory_size: integerOrDefault(args, "memory_size", 2048, 128, 16384),
-			disk_size_gb: integerOrDefault(args, "disk_size_gb", 50, 1, 65),
+		const api = createClient(env as MachinesEnv);
+		const publicKey = await resolvePublicKey(api.sshKeys, args);
+
+		const createRequest: ApiVmCreateRequest = {
+			cloudinitUserData: stringArray(args, "cloudinit_user_data") ?? [],
+			publicKey,
+			cpuCount: integerOrDefault(args, "cpu_count", 2, 1, 16),
+			memorySize: integerOrDefault(args, "memory_size", 2048, 128, 16384),
+			diskSizeGb: integerOrDefault(args, "disk_size_gb", 50, 1, 65),
 		};
 		const softwareIds = stringArray(args, "software_ids");
 		if (softwareIds && softwareIds.length > 0) {
-			body.software_ids = softwareIds;
+			createRequest.softwareIds = softwareIds;
 		}
 
-		const machine = await apiRequest<ApiVmCreateResponse>(
-			env as MachinesEnv,
-			"POST",
-			`/api/v1/vmm/${encodeURIComponent(name)}`,
-			body,
-		);
+		const machine: ApiVmCreateResponse =
+			await api.microVms.postApiV1VmmByMachineName({
+				machineName: name,
+				apiVmCreateRequest: createRequest,
+			});
 		return ok(
 			`Created microVM "${name}".\n\n${JSON.stringify(machine, null, 2)}\n\nProvisioning is asynchronous. Use get-machine to check when its state becomes active.`,
 		);
@@ -471,25 +400,24 @@ export const resize_machine = async (
 	try {
 		const args = asArgs(request);
 		const name = machineName(args);
-		const body: Record<string, number> = {};
+		const updateRequest: ApiVmUpdateRequest = {};
 		const cpu = optionalInteger(args, "cpu_count", 1, 16);
 		const memory = optionalInteger(args, "memory_size", 128, 16384);
 		const disk = optionalInteger(args, "disk_size_gb", 1, 65);
-		if (cpu !== undefined) body.cpu_count = cpu;
-		if (memory !== undefined) body.memory_size = memory;
-		if (disk !== undefined) body.disk_size_gb = disk;
-		if (Object.keys(body).length === 0) {
+		if (cpu !== undefined) updateRequest.cpuCount = cpu;
+		if (memory !== undefined) updateRequest.memorySize = memory;
+		if (disk !== undefined) updateRequest.diskSizeGb = disk;
+		if (Object.keys(updateRequest).length === 0) {
 			throw new UserError(
 				"Provide at least one of cpu_count, memory_size or disk_size_gb.",
 			);
 		}
 
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"PUT",
-			`/api/v1/vmm/${encodeURIComponent(name)}`,
-			body,
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess = await api.microVms.putApiV1VmmByMachineName({
+			machineName: name,
+			apiVmUpdateRequest: updateRequest,
+		});
 		return ok(result?.message ?? `Resized machine "${name}".`);
 	} catch (error) {
 		return failure(error);
@@ -503,11 +431,18 @@ async function machineAction(
 ): Promise<McpResult> {
 	try {
 		const name = machineName(asArgs(request));
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"PUT",
-			`/api/v1/vmm/${encodeURIComponent(name)}/${action}`,
-		);
+		const api = createClient(env as MachinesEnv);
+		const call = {
+			start: () =>
+				api.microVms.putApiV1VmmByMachineNameStart({ machineName: name }),
+			pause: () =>
+				api.microVms.putApiV1VmmByMachineNamePause({ machineName: name }),
+			restart: () =>
+				api.microVms.putApiV1VmmByMachineNameRestart({ machineName: name }),
+			shutdown: () =>
+				api.microVms.putApiV1VmmByMachineNameShutdown({ machineName: name }),
+		}[action];
+		const result: ApiSuccess = await call();
 		const verb =
 			action === "shutdown"
 				? "shut down"
@@ -547,16 +482,16 @@ export const clone_machine = async (
 				"new_name may only contain letters, digits, hyphens and underscores.",
 			);
 		}
-		const body: Record<string, unknown> = { new_name: newName };
+		const cloneRequest: ApiVmCloneRequest = { newName };
 		const publicKey = optionalString(args, "public_key");
-		if (publicKey) body.public_key = publicKey;
+		if (publicKey) cloneRequest.publicKey = publicKey;
 
-		const clone = await apiRequest<ApiVmCloneResponse>(
-			env as MachinesEnv,
-			"POST",
-			`/api/v1/vmm/${encodeURIComponent(source)}/clone`,
-			body,
-		);
+		const api = createClient(env as MachinesEnv);
+		const clone: ApiVmCloneResponse =
+			await api.microVms.postApiV1VmmByMachineNameClone({
+				machineName: source,
+				apiVmCloneRequest: cloneRequest,
+			});
 		return ok(
 			`Cloned "${source}" to "${newName}".\n\n${JSON.stringify(clone, null, 2)}\n\nProvisioning is asynchronous. Use get-machine to check when it becomes active.`,
 		);
@@ -571,11 +506,9 @@ export const delete_machine = async (
 ): Promise<McpResult> => {
 	try {
 		const name = machineName(asArgs(request));
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"DELETE",
-			`/api/v1/vmm/${encodeURIComponent(name)}`,
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess =
+			await api.microVms.deleteApiV1VmmByMachineName({ machineName: name });
 		return ok(result?.message ?? `Deleted machine "${name}".`);
 	} catch (error) {
 		return failure(error);
@@ -591,11 +524,8 @@ export const list_routes = async (
 	env: Environment,
 ): Promise<McpResult> => {
 	try {
-		const routes = await apiRequest<ApiRouteListResponse>(
-			env as MachinesEnv,
-			"GET",
-			"/api/v1/routes",
-		);
+		const api = createClient(env as MachinesEnv);
+		const routes: ApiRouteListResponse = await api.routes.getApiV1Routes();
 		const owned = routes.owned ?? [];
 		const shared = routes.shared ?? [];
 		const ownedText =
@@ -604,7 +534,7 @@ export const list_routes = async (
 				: `Owned routes:\n${owned
 						.map(
 							(route) =>
-								`- ${route.name}: ${route.url} -> ${route.machine_name}:${route.port} (${route.privacy})`,
+								`- ${route.name}: ${route.url} -> ${route.machineName}:${route.port} (${route.privacy})`,
 						)
 						.join("\n")}`;
 		const sharedText =
@@ -613,7 +543,7 @@ export const list_routes = async (
 				: `Shared with you:\n${shared
 						.map(
 							(route) =>
-								`- ${route.name}: ${route.url} -> ${route.machine_name}:${route.port} (${route.privacy}, owner ${route.owner_email})`,
+								`- ${route.name}: ${route.url} -> ${route.machineName}:${route.port} (${route.privacy}, owner ${route.ownerEmail})`,
 						)
 						.join("\n")}`;
 		return ok(`${ownedText}\n\n${sharedText}\n\n${JSON.stringify(routes, null, 2)}`);
@@ -631,17 +561,19 @@ export const create_route = async (
 		const name = routeName(args);
 		const port = optionalInteger(args, "port", 1, 65535);
 		if (port === undefined) throw new UserError("port is required.");
-		const privacy = optionalEnum(
-			args,
-			"privacy",
-			["private", "public", "shared"] as const,
-			"private",
-		) as "private" | "public" | "shared";
+		const privacy =
+			optionalEnum(
+				args,
+				"privacy",
+				["private", "public", "shared"] as const,
+				"private",
+			) ?? "private";
 		const emails = emailArray(args, "emails");
 		if (privacy === "shared" && (!emails || emails.length === 0)) {
 			throw new UserError("emails is required when privacy is 'shared'.");
 		}
 
+		const api = createClient(env as MachinesEnv);
 		let microvmId = optionalString(args, "microvm_id");
 		const targetMachine = optionalString(args, "machine_name");
 		if (!microvmId) {
@@ -650,25 +582,23 @@ export const create_route = async (
 					"Provide machine_name (or microvm_id) so the route knows which machine to forward to.",
 				);
 			}
-			microvmId = await resolveMachineId(env as MachinesEnv, targetMachine);
+			microvmId = await resolveMachineId(api.microVms, targetMachine);
 		}
 
-		const body: Record<string, unknown> = {
+		const routeRequest: ApiRouteCreateRequest = {
 			name,
-			microvm_id: microvmId,
+			microvmId,
 			port,
 			privacy,
 		};
-		if (emails && emails.length > 0) body.emails = emails;
+		if (emails && emails.length > 0) routeRequest.emails = emails;
 
-		const route = await apiRequest<ApiRouteCreateResponse>(
-			env as MachinesEnv,
-			"POST",
-			"/api/v1/routes",
-			body,
-		);
+		const route: ApiRouteCreateResponse =
+			await api.routes.postApiV1Routes({
+				apiRouteCreateRequest: routeRequest,
+			});
 		return ok(
-			`Created route "${route.name}": ${route.url} -> ${targetMachine ?? route.microvm_id}:${route.port} (${route.privacy}).\n\n${JSON.stringify(route, null, 2)}`,
+			`Created route "${route.name}": ${route.url} -> ${targetMachine ?? route.microvmId}:${route.port} (${route.privacy}).\n\n${JSON.stringify(route, null, 2)}`,
 		);
 	} catch (error) {
 		return failure(error);
@@ -682,7 +612,7 @@ export const update_route = async (
 	try {
 		const args = asArgs(request);
 		const name = routeName(args);
-		const body: Record<string, unknown> = {};
+		const updateRequest: ApiRouteUpdateRequest = {};
 		const port = optionalInteger(args, "port", 1, 65535);
 		const privacy = optionalEnum(args, "privacy", [
 			"private",
@@ -690,29 +620,22 @@ export const update_route = async (
 			"shared",
 		] as const);
 		const emails = emailArray(args, "emails");
-		if (port !== undefined) body.port = port;
-		if (privacy !== undefined) body.privacy = privacy;
-		if (emails !== undefined) body.emails = emails;
-		if (Object.keys(body).length === 0) {
-			throw new UserError(
-				"Provide at least one of port, privacy or emails.",
-			);
+		if (port !== undefined) updateRequest.port = port;
+		if (privacy !== undefined) updateRequest.privacy = privacy;
+		if (emails !== undefined) updateRequest.emails = emails;
+		if (Object.keys(updateRequest).length === 0) {
+			throw new UserError("Provide at least one of port, privacy or emails.");
 		}
 
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"PUT",
-			`/api/v1/routes/${encodeURIComponent(name)}`,
-			body,
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess = await api.routes.putApiV1RoutesByName({
+			name,
+			apiRouteUpdateRequest: updateRequest,
+		});
 
 		let updated: ApiRoute | undefined;
 		try {
-			const routes = await apiRequest<ApiRouteListResponse>(
-				env as MachinesEnv,
-				"GET",
-				"/api/v1/routes",
-			);
+			const routes = await api.routes.getApiV1Routes();
 			updated = [...(routes.owned ?? []), ...(routes.shared ?? [])].find(
 				(route) => route.name === name,
 			);
@@ -736,11 +659,10 @@ export const delete_route = async (
 ): Promise<McpResult> => {
 	try {
 		const name = routeName(asArgs(request));
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"DELETE",
-			`/api/v1/routes/${encodeURIComponent(name)}`,
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess = await api.routes.deleteApiV1RoutesByName({
+			name,
+		});
 		return ok(result?.message ?? `Deleted route "${name}".`);
 	} catch (error) {
 		return failure(error);
@@ -756,11 +678,8 @@ export const list_ssh_keys = async (
 	env: Environment,
 ): Promise<McpResult> => {
 	try {
-		const keys = await apiRequest<ApiSshKey[]>(
-			env as MachinesEnv,
-			"GET",
-			"/api/v1/keys",
-		);
+		const api = createClient(env as MachinesEnv);
+		const keys = await api.sshKeys.getApiV1Keys();
 		const summary =
 			keys.length === 0
 				? "No SSH keys saved."
@@ -802,17 +721,15 @@ export const add_ssh_key = async (
 			throw new UserError("public_key is required when type is 'upload'.");
 		}
 
-		const body: Record<string, unknown> = { type };
+		const createRequest: ApiSshKeyCreateRequest = { type };
 		const name = optionalString(args, "name");
-		if (name) body.name = name;
-		if (type === "upload") body.publicKey = publicKey;
+		if (name) createRequest.name = name;
+		if (type === "upload") createRequest.publicKey = publicKey;
 
-		const key = await apiRequest<ApiSshKeyCreateResponse>(
-			env as MachinesEnv,
-			"POST",
-			"/api/v1/keys",
-			body,
-		);
+		const api = createClient(env as MachinesEnv);
+		const key: ApiSshKeyCreateResponse = await api.sshKeys.postApiV1Keys({
+			apiSshKeyCreateRequest: createRequest,
+		});
 
 		if (key.privateKey) {
 			return ok(
@@ -840,12 +757,11 @@ export const rename_ssh_key = async (
 				"name is required. Use an empty string to clear the label.",
 			);
 		}
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"PUT",
-			`/api/v1/keys/${encodeURIComponent(id)}`,
-			{ name: args.name },
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess = await api.sshKeys.putApiV1KeysById({
+			id,
+			apiSshKeyUpdateRequest: { name: args.name },
+		});
 		return ok(result?.message ?? `Renamed SSH key "${id}".`);
 	} catch (error) {
 		return failure(error);
@@ -858,11 +774,8 @@ export const delete_ssh_key = async (
 ): Promise<McpResult> => {
 	try {
 		const id = requiredString(asArgs(request), "id");
-		const result = await apiRequest<ApiSuccess>(
-			env as MachinesEnv,
-			"DELETE",
-			`/api/v1/keys/${encodeURIComponent(id)}`,
-		);
+		const api = createClient(env as MachinesEnv);
+		const result: ApiSuccess = await api.sshKeys.deleteApiV1KeysById({ id });
 		return ok(result?.message ?? `Deleted SSH key "${id}".`);
 	} catch (error) {
 		return failure(error);

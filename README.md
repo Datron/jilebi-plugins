@@ -90,6 +90,7 @@ Manage Jilebi cloud microVMs, routes and SSH keys from any MCP client.
 - **Prompts**: None
 - **Permissions**: `hosts: ["https://jilebi.ai"]`
 - **Secrets**: `JILEBI_API_KEY`
+- **SDK**: generated `@jilebi/sdk` client (vendored, bundled into `index.js`)
 
 **Key Tools**:
 - `list-machines` / `get-machine` - Inspect machines and live hypervisor state

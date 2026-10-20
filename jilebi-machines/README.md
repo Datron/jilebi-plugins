@@ -4,9 +4,22 @@ A Jilebi plugin that exposes **microVMs**, **routes** and **SSH keys** as MCP
 tools. It talks only to `https://jilebi.ai` and is scoped to the API key you
 provide.
 
+All API calls go through the generated Jilebi TypeScript SDK
+(`@jilebi/sdk`): `MicroVMsApi`, `RoutesApi` and `SSHKeysApi`.
+
 This plugin does not list templates or the software catalog. You can still
 pass known `software_ids` when creating a machine. It manages machines, their
 routed ports, and the SSH keys stored on the account.
+
+## SDK
+
+`@jilebi/sdk` is not published to npm yet, so a bundled copy lives in
+`vendor/jilebi-sdk/` and the plugin depends on it with
+`"@jilebi/sdk": "file:vendor/jilebi-sdk"`. Rollup bundles it into `index.js`
+so the Jilebi plugin runtime only needs the single plugin file.
+
+When the SDK is published, replace that dependency with the published version
+and delete `vendor/jilebi-sdk/`.
 
 ## Install
 
@@ -111,7 +124,7 @@ cannot run commands inside a machine. Use SSH or the Jilebi dashboard for that.
 
 ```bash
 npm install
-npm run build   # tsc -> index.js
+npm run build   # Rollup -> index.js (bundles @jilebi/sdk)
 ```
 
 Test locally with the MCP Inspector:
@@ -131,4 +144,5 @@ Set `isError: true` on failures.
 
 ## License
 
-ISC
+AGPL-3.0. The plugin bundles the generated Jilebi TypeScript SDK, which is
+also AGPL-3.0.
