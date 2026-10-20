@@ -81,6 +81,25 @@ messages = [
 
 ## Available Plugins
 
+### Jilebi Machines Plugin
+
+Manage Jilebi cloud microVMs, routes and SSH keys from any MCP client.
+
+- **Tools**: microVM lifecycle (list/get/create/resize/start/pause/restart/shutdown/clone/delete), routes (list/create/update/delete), SSH keys (list/add/rename/delete)
+- **Resources**: None
+- **Prompts**: None
+- **Permissions**: `hosts: ["https://jilebi.ai"]`
+- **Secrets**: `JILEBI_API_KEY`
+
+**Key Tools**:
+- `list-machines` / `get-machine` - Inspect machines and live hypervisor state
+- `create-machine` - Provision a machine from a saved SSH key
+- `pause-machine` / `start-machine` - Control runtime cost
+- `create-route` - Expose a machine port as a private, public or shared URL
+- `add-ssh-key` - Upload a public key or generate a new key pair
+
+---
+
 ### GitHub Plugin
 
 The github plugin was derived from the original [MCP server](https://github.com/github/github-mcp-server)
