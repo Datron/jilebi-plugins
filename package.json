@@ -27,7 +27,8 @@
 		"aws-support",
 		"aws-cloudwatch",
 		"superposition",
-		"figma"
+		"figma",
+		"jilebi-machines"
 	],
 	"scripts": {
 		"inspect": "npx @modelcontextprotocol/inspector"

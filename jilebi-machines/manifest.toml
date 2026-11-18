@@ -1,0 +1,546 @@
+name = "jilebi-machines"
+version = "0.1.0"
+homepage = "https://jilebi.ai"
+creator = "jilebi"
+contact = "support@jilebi.ai"
+
+[secrets]
+JILEBI_API_KEY = { schema = { type = "string", description = "Jilebi API key. Create one in the Jilebi dashboard. Sent to https://jilebi.ai only." } }
+
+[resources]
+
+[prompts]
+
+# ---------------------------------------------------------------------------
+# MicroVMs
+# ---------------------------------------------------------------------------
+
+[tools.list-machines]
+name = "list-machines"
+description = "List the microVMs owned by the authenticated Jilebi user. Returns name, state, vCPU, memory, disk, IP address and id for each machine. Use this before acting on a machine so you have its exact name."
+function = "list_machines"
+
+[tools.list-machines.input_schema]
+type = "object"
+
+[tools.list-machines.input_schema.properties.state]
+type = "string"
+description = "Optional state filter."
+enum = ["active", "paused", "offline"]
+
+[tools.list-machines.annotations]
+title = "List Machines"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-machines.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.get-machine]
+name = "get-machine"
+description = "Get one microVM by machine name, including its persisted record and live hypervisor state."
+function = "get_machine"
+
+[tools.get-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.get-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.get-machine.annotations]
+title = "Get Machine"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.get-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.create-machine]
+name = "create-machine"
+description = "Create (provision) a new Linux microVM. The machine is created asynchronously; use get-machine to check when it becomes active. An SSH public key is required: pass ssh_key_id from list-ssh-keys, pass public_key directly, or have exactly one saved key on the account. If neither ssh_key_id nor public_key is given and the account has no saved keys, add one first with add-ssh-key."
+function = "create_machine"
+
+[tools.create-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.create-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Unique machine name (1-63 chars, letters, digits, hyphens or underscores)."
+
+[tools.create-machine.input_schema.properties.ssh_key_id]
+type = "string"
+description = "Id of a saved SSH key to use (from list-ssh-keys). Ignored when public_key is given."
+
+[tools.create-machine.input_schema.properties.public_key]
+type = "string"
+description = "SSH public key to inject into the machine, e.g. 'ssh-ed25519 AAAA...'. Takes precedence over ssh_key_id."
+
+[tools.create-machine.input_schema.properties.cpu_count]
+type = "integer"
+description = "Number of vCPUs (1-16). Defaults to 2."
+minimum = 1
+maximum = 16
+default = 2
+
+[tools.create-machine.input_schema.properties.memory_size]
+type = "integer"
+description = "Memory in MiB (128-16384). Defaults to 2048."
+minimum = 128
+maximum = 16384
+default = 2048
+
+[tools.create-machine.input_schema.properties.disk_size_gb]
+type = "integer"
+description = "Disk size in GiB (1-65). Defaults to 50."
+minimum = 1
+maximum = 65
+default = 50
+
+[tools.create-machine.input_schema.properties.cloudinit_user_data]
+type = "array"
+description = "Optional cloud-init runcmd entries, one shell command per item. Commands run on first boot."
+items = { type = "string" }
+
+[tools.create-machine.input_schema.properties.software_ids]
+type = "array"
+description = "Optional software catalog ids to install on the machine."
+items = { type = "string" }
+
+[tools.create-machine.annotations]
+title = "Create Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.resize-machine]
+name = "resize-machine"
+description = "Resize an existing microVM. Provide at least one of cpu_count, memory_size or disk_size_gb. Disk can only grow."
+function = "resize_machine"
+
+[tools.resize-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.resize-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.resize-machine.input_schema.properties.cpu_count]
+type = "integer"
+description = "New number of vCPUs (1-16)."
+minimum = 1
+maximum = 16
+
+[tools.resize-machine.input_schema.properties.memory_size]
+type = "integer"
+description = "New memory size in MiB (128-16384)."
+minimum = 128
+maximum = 16384
+
+[tools.resize-machine.input_schema.properties.disk_size_gb]
+type = "integer"
+description = "New disk size in GiB (1-65)."
+minimum = 1
+maximum = 65
+
+[tools.resize-machine.annotations]
+title = "Resize Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.resize-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.start-machine]
+name = "start-machine"
+description = "Start a paused or offline microVM, or confirm it is already active."
+function = "start_machine"
+
+[tools.start-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.start-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.start-machine.annotations]
+title = "Start Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.start-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.pause-machine]
+name = "pause-machine"
+description = "Pause an active microVM. Paused machines keep their disk but do not consume CPU or memory runtime."
+function = "pause_machine"
+
+[tools.pause-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.pause-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.pause-machine.annotations]
+title = "Pause Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.pause-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.restart-machine]
+name = "restart-machine"
+description = "Restart an active microVM."
+function = "restart_machine"
+
+[tools.restart-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.restart-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.restart-machine.annotations]
+title = "Restart Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.restart-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.shutdown-machine]
+name = "shutdown-machine"
+description = "Gracefully shut down an active microVM. Use start-machine to bring it back."
+function = "shutdown_machine"
+
+[tools.shutdown-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.shutdown-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM."
+
+[tools.shutdown-machine.annotations]
+title = "Shutdown Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.shutdown-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.clone-machine]
+name = "clone-machine"
+description = "Clone an existing microVM into a new machine with a new name. The clone inherits the source machine's disk and setup. If public_key is omitted the API uses the caller's saved SSH key."
+function = "clone_machine"
+
+[tools.clone-machine.input_schema]
+type = "object"
+required = ["machine_name", "new_name"]
+
+[tools.clone-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the source microVM to clone."
+
+[tools.clone-machine.input_schema.properties.new_name]
+type = "string"
+description = "Name for the new machine (letters, digits, hyphens or underscores)."
+
+[tools.clone-machine.input_schema.properties.public_key]
+type = "string"
+description = "Optional SSH public key for the clone. Defaults to the caller's saved key."
+
+[tools.clone-machine.annotations]
+title = "Clone Machine"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.clone-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.delete-machine]
+name = "delete-machine"
+description = "Permanently delete a microVM and its disk. This cannot be undone. Confirm the exact machine name with list-machines before calling."
+function = "delete_machine"
+
+[tools.delete-machine.input_schema]
+type = "object"
+required = ["machine_name"]
+
+[tools.delete-machine.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the microVM to delete."
+
+[tools.delete-machine.annotations]
+title = "Delete Machine"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-machine.permissions]
+hosts = ["https://jilebi.ai"]
+
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+[tools.list-routes]
+name = "list-routes"
+description = "List routes owned by the user and routes shared with them. Each route maps a public/private URL to a microVM port."
+function = "list_routes"
+
+[tools.list-routes.input_schema]
+type = "object"
+
+[tools.list-routes.annotations]
+title = "List Routes"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-routes.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.create-route]
+name = "create-route"
+description = "Expose a port on a microVM through a Jilebi route. Provide machine_name (resolved to its id automatically) or microvm_id. Privacy defaults to private. Shared routes require emails."
+function = "create_route"
+
+[tools.create-route.input_schema]
+type = "object"
+required = ["name", "port"]
+
+[tools.create-route.input_schema.properties.name]
+type = "string"
+description = "Route name (lowercase letters, digits and hyphens; 1-63 chars). It becomes part of the route URL."
+
+[tools.create-route.input_schema.properties.port]
+type = "integer"
+description = "Port on the microVM to forward to (1-65535)."
+minimum = 1
+maximum = 65535
+
+[tools.create-route.input_schema.properties.privacy]
+type = "string"
+description = "Who can reach the route. Defaults to private."
+enum = ["private", "public", "shared"]
+default = "private"
+
+[tools.create-route.input_schema.properties.machine_name]
+type = "string"
+description = "Name of the target microVM. Either machine_name or microvm_id is required."
+
+[tools.create-route.input_schema.properties.microvm_id]
+type = "string"
+description = "Id of the target microVM. Takes precedence over machine_name."
+
+[tools.create-route.input_schema.properties.emails]
+type = "array"
+description = "Email addresses to share the route with. Required when privacy is 'shared'."
+items = { type = "string", format = "email" }
+
+[tools.create-route.annotations]
+title = "Create Route"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.create-route.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.update-route]
+name = "update-route"
+description = "Update an existing route's port, privacy or shared email list. Provide at least one field."
+function = "update_route"
+
+[tools.update-route.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.update-route.input_schema.properties.name]
+type = "string"
+description = "Name of the route to update."
+
+[tools.update-route.input_schema.properties.port]
+type = "integer"
+description = "New target port on the microVM (1-65535)."
+minimum = 1
+maximum = 65535
+
+[tools.update-route.input_schema.properties.privacy]
+type = "string"
+description = "New privacy setting."
+enum = ["private", "public", "shared"]
+
+[tools.update-route.input_schema.properties.emails]
+type = "array"
+description = "New list of email addresses for a shared route."
+items = { type = "string", format = "email" }
+
+[tools.update-route.annotations]
+title = "Update Route"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.update-route.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.delete-route]
+name = "delete-route"
+description = "Delete a route. The microVM and its port stay intact; only the routed URL is removed."
+function = "delete_route"
+
+[tools.delete-route.input_schema]
+type = "object"
+required = ["name"]
+
+[tools.delete-route.input_schema.properties.name]
+type = "string"
+description = "Name of the route to delete."
+
+[tools.delete-route.annotations]
+title = "Delete Route"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-route.permissions]
+hosts = ["https://jilebi.ai"]
+
+# ---------------------------------------------------------------------------
+# SSH keys
+# ---------------------------------------------------------------------------
+
+[tools.list-ssh-keys]
+name = "list-ssh-keys"
+description = "List SSH keys saved on the Jilebi account. Public keys and fingerprints are returned; private keys are never listed."
+function = "list_ssh_keys"
+
+[tools.list-ssh-keys.input_schema]
+type = "object"
+
+[tools.list-ssh-keys.annotations]
+title = "List SSH Keys"
+read_only_hint = true
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.list-ssh-keys.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.add-ssh-key]
+name = "add-ssh-key"
+description = "Add an SSH key to the Jilebi account. Upload an existing public key with public_key, or set type to 'generate' to create a new ed25519 key pair. For generated keys the private key is returned exactly once, so store it securely immediately."
+function = "add_ssh_key"
+
+[tools.add-ssh-key.input_schema]
+type = "object"
+
+[tools.add-ssh-key.input_schema.properties.type]
+type = "string"
+description = "Use 'upload' to upload public_key or 'generate' to create a new key pair. Inferred as 'upload' when public_key is provided."
+enum = ["upload", "generate"]
+
+[tools.add-ssh-key.input_schema.properties.name]
+type = "string"
+description = "Optional label for the key."
+
+[tools.add-ssh-key.input_schema.properties.public_key]
+type = "string"
+description = "SSH public key to upload, e.g. 'ssh-ed25519 AAAA...'. Required when type is 'upload'."
+
+[tools.add-ssh-key.annotations]
+title = "Add SSH Key"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = false
+open_world_hint = false
+
+[tools.add-ssh-key.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.rename-ssh-key]
+name = "rename-ssh-key"
+description = "Rename (relabel) a saved SSH key. Send an empty string to clear the label."
+function = "rename_ssh_key"
+
+[tools.rename-ssh-key.input_schema]
+type = "object"
+required = ["id", "name"]
+
+[tools.rename-ssh-key.input_schema.properties.id]
+type = "string"
+description = "Id of the SSH key (from list-ssh-keys)."
+
+[tools.rename-ssh-key.input_schema.properties.name]
+type = "string"
+description = "New label. Use an empty string to clear it."
+
+[tools.rename-ssh-key.annotations]
+title = "Rename SSH Key"
+read_only_hint = false
+destructive_hint = false
+idempotent_hint = true
+open_world_hint = false
+
+[tools.rename-ssh-key.permissions]
+hosts = ["https://jilebi.ai"]
+
+[tools.delete-ssh-key]
+name = "delete-ssh-key"
+description = "Permanently delete a saved SSH key. Existing machines keep the key that was injected at creation, but new machines and clones will no longer be able to use it."
+function = "delete_ssh_key"
+
+[tools.delete-ssh-key.input_schema]
+type = "object"
+required = ["id"]
+
+[tools.delete-ssh-key.input_schema.properties.id]
+type = "string"
+description = "Id of the SSH key to delete."
+
+[tools.delete-ssh-key.annotations]
+title = "Delete SSH Key"
+read_only_hint = false
+destructive_hint = true
+idempotent_hint = true
+open_world_hint = false
+
+[tools.delete-ssh-key.permissions]
+hosts = ["https://jilebi.ai"]
